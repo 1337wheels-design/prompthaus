@@ -1,5 +1,15 @@
 # Üpark Payday 2026 — Event-Übersicht
 
+## Eckdaten
+
+| | |
+|---|---|
+| **Datum** | 11.07.2026 |
+| **Zeit** | 14:00–19:00 Uhr (ab 19:00 Grill & Networking) |
+| **Ort** | Skatepark Bremen Überseestadt (Üpark) |
+| **Cash Prize** | 500€ (aufgeteilt unter Trick-Champions) |
+| **Format** | Contest + Game of Skate + Community Session |
+
 ## Konzept
 
 Skateboarding-Contest mit Yu-Gi-Oh!-Style Spielkarten als Teilnehmer- und Sponsor-Mechanik. Fahrer erhalten physische Kartenpakete (gedruckt, 300gsm), die Challenges, Preise und Tombola-Lose kodieren. Field Spell Cards repräsentieren reale Obstacles im Park.

@@ -1,5 +1,5 @@
-<title>Ü-Park Payday Vol. 2 — Field Spell Series</title>
-<meta name="description" content="Vollständige Field Spell Kartenserie für das Üpark Payday Vol. 2 Event, 11.07.2026, Überseestadt Bremen.">
+<title>Ü-Park Payday Vol. 2 — Complete Card Set</title>
+<meta name="description" content="Komplettes Kartenset: Field Spell Serie (Zonen I–V) + 8 Sponsor-Karten für Üpark Payday Vol. 2, 11.07.2026, Überseestadt Bremen.">
 
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,18 +13,14 @@
   --neon:      #00e64d;
   --neon-dim:  rgba(0,230,77,0.3);
   --violet:    #9060d0;
-  --parch-hi:  #e8d080;
-  --parch-mid: #c8a840;
-  --parch-lo:  #a07828;
   --ink:       #1c0f04;
 }
 
 body {
   background: var(--void);
-  background-image:
-    radial-gradient(ellipse at 50% 0, rgba(55,15,80,0.5) 0%, transparent 55%);
+  background-image: radial-gradient(ellipse at 50% 0, rgba(55,15,80,0.5) 0%, transparent 55%);
   min-height: 100vh;
-  padding: 48px 16px 72px;
+  padding: 48px 16px 80px;
   font-family: Georgia, serif;
   color: var(--gold-hi);
 }
@@ -32,7 +28,7 @@ body {
 /* ── Page header ── */
 .page-header {
   text-align: center;
-  margin-bottom: 52px;
+  margin-bottom: 56px;
 }
 .page-eyebrow {
   font-family: 'Courier New', monospace;
@@ -49,10 +45,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 4px;
   color: var(--gold-hi);
-  text-shadow:
-    2px 3px 0 #2a1200,
-    0 0 40px rgba(240,208,80,0.35),
-    0 0 80px rgba(240,208,80,0.12);
+  text-shadow: 2px 3px 0 #2a1200, 0 0 40px rgba(240,208,80,0.35), 0 0 80px rgba(240,208,80,0.12);
   line-height: 1;
   text-wrap: balance;
 }
@@ -77,6 +70,50 @@ body {
   box-shadow: 0 0 10px var(--neon-dim);
 }
 
+/* ── Section divider ── */
+.section-divider {
+  width: 100%;
+  text-align: center;
+  margin: 72px 0 48px;
+  padding: 0 16px;
+}
+.section-divider-rule {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 700px;
+  margin: 0 auto 16px;
+}
+.section-divider-rule::before,
+.section-divider-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-lo), var(--gold), var(--gold-lo), transparent);
+}
+.section-divider-rule span {
+  color: var(--gold);
+  font-size: 18px;
+  opacity: 0.7;
+}
+.section-divider-title {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: clamp(20px, 3.5vw, 36px);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--gold-hi);
+  text-shadow: 1px 2px 0 #2a1200, 0 0 24px rgba(240,208,80,0.25);
+}
+.section-divider-sub {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--neon);
+  opacity: 0.65;
+  margin-top: 8px;
+  text-transform: uppercase;
+}
+
 /* ── Gallery ── */
 .gallery {
   display: flex;
@@ -86,9 +123,7 @@ body {
   align-items: flex-start;
 }
 
-/* ══════════════════════════════════
-   CARD
-══════════════════════════════════ */
+/* ══ CARD ══ */
 .card {
   width: 308px;
   flex-shrink: 0;
@@ -103,8 +138,6 @@ body {
   overflow: hidden;
   position: relative;
 }
-
-/* Nebula inner bg */
 .card::before {
   content: '';
   position: absolute;
@@ -118,19 +151,8 @@ body {
 .card > * { position: relative; z-index: 1; }
 
 /* Gold L-corner ornaments */
-.c-corner {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  z-index: 20;
-  pointer-events: none;
-}
-.c-corner::before,
-.c-corner::after {
-  content: '';
-  position: absolute;
-  background: var(--gold);
-}
+.c-corner { position: absolute; width: 14px; height: 14px; z-index: 20; pointer-events: none; }
+.c-corner::before, .c-corner::after { content: ''; position: absolute; background: var(--gold); }
 .c-corner::before { width: 100%; height: 2px; top: 0; left: 0; }
 .c-corner::after  { width: 2px; height: 100%; top: 0; left: 0; }
 .c-corner.tl { top: 7px; left: 7px; }
@@ -138,25 +160,20 @@ body {
 .c-corner.bl { bottom: 7px; left: 7px; transform: scaleY(-1); }
 .c-corner.br { bottom: 7px; right: 7px; transform: scale(-1); }
 
-/* ── Card header ── */
-.card-header {
-  padding: 10px 46px 5px 11px;
-  min-height: 54px;
-  display: flex;
-  align-items: center;
-}
+/* Card header */
+.card-header { padding: 10px 46px 5px 11px; min-height: 54px; display: flex; align-items: center; }
 .card-name {
   font-family: Impact, 'Arial Black', sans-serif;
-  font-size: 28px;
+  font-size: 26px;
   color: var(--gold-hi);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1;
-  text-shadow:
-    1px 2px 0 #200c00,
-    0 0 18px rgba(240,208,80,0.55);
+  text-shadow: 1px 2px 0 #200c00, 0 0 18px rgba(240,208,80,0.55);
   word-break: break-word;
 }
+/* Smaller name for long titles */
+.card-name.sm { font-size: 20px; }
 
 /* SPELL badge */
 .spell-badge {
@@ -171,26 +188,13 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0;
   line-height: 1;
   z-index: 10;
 }
-.badge-top {
-  font-family: 'Courier New', monospace;
-  font-size: 6px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  color: #003318;
-  margin-bottom: 1px;
-}
-.badge-kanji {
-  font-size: 17px;
-  color: #002214;
-  font-weight: bold;
-  line-height: 1;
-}
+.badge-top { font-family: 'Courier New', monospace; font-size: 6px; font-weight: bold; letter-spacing: 1px; color: #003318; margin-bottom: 1px; }
+.badge-kanji { font-size: 17px; color: #002214; font-weight: bold; line-height: 1; }
 
-/* ── Type line ── */
+/* Type line */
 .type-line {
   display: flex;
   align-items: center;
@@ -198,12 +202,11 @@ body {
   gap: 6px;
   color: var(--neon);
   font-family: 'Courier New', monospace;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: bold;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
 }
-.type-line::before,
-.type-line::after {
+.type-line::before, .type-line::after {
   content: '';
   flex: 1;
   height: 1px;
@@ -211,76 +214,40 @@ body {
   opacity: 0.55;
 }
 .type-line::after { transform: scaleX(-1); }
-.type-text {
-  white-space: nowrap;
-  text-shadow: 0 0 10px var(--neon);
-}
+.type-text { white-space: nowrap; text-shadow: 0 0 10px var(--neon); }
 
-/* ── Art wrapper ── */
+/* Art wrapper */
 .art-wrap {
   margin: 0 10px;
   position: relative;
   border: 2px solid var(--neon);
-  box-shadow:
-    0 0 0 1px rgba(0,230,77,0.15),
-    0 0 12px var(--neon),
-    0 0 28px var(--neon-dim),
-    inset 0 0 12px rgba(0,230,77,0.06);
+  box-shadow: 0 0 0 1px rgba(0,230,77,0.15), 0 0 12px var(--neon), 0 0 28px var(--neon-dim), inset 0 0 12px rgba(0,230,77,0.06);
   overflow: hidden;
   line-height: 0;
 }
-.card-canvas {
-  display: block;
-  width: 100%;
-  height: 185px;
-}
-/* Neon star ornaments at art corners */
-.art-star {
-  position: absolute;
-  color: var(--neon);
-  font-size: 12px;
-  line-height: 1;
-  text-shadow: 0 0 8px var(--neon), 0 0 18px var(--neon-dim);
-  z-index: 5;
-  pointer-events: none;
-}
+.card-canvas { display: block; width: 100%; height: 185px; }
+.art-star { position: absolute; color: var(--neon); font-size: 12px; line-height: 1; text-shadow: 0 0 8px var(--neon), 0 0 18px var(--neon-dim); z-index: 5; pointer-events: none; }
 .art-star.tl { top: -7px; left: -7px; }
 .art-star.tr { top: -7px; right: -7px; }
 .art-star.bl { bottom: -7px; left: -7px; }
 .art-star.br { bottom: -7px; right: -7px; }
 
-/* ── Text box ── */
+/* Text box */
 .text-box {
   margin: 14px 10px 8px;
   background: linear-gradient(165deg, #e0cc70 0%, #d4b850 20%, #c4a038 60%, #b08828 100%);
   border: 1px solid #9a7018;
   border-radius: 2px;
   padding: 7px 8px 6px;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    inset 0 -1px 0 rgba(0,0,0,0.25);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.25);
   position: relative;
 }
-/* Red corner squares */
-.tb-corner {
-  position: absolute;
-  width: 7px; height: 7px;
-  background: #8a0c0c;
-  border: 1px solid #b82020;
-}
+.tb-corner { position: absolute; width: 7px; height: 7px; background: #8a0c0c; border: 1px solid #b82020; }
 .tb-corner.tl { top: -4px; left: -4px; }
 .tb-corner.tr { top: -4px; right: -4px; }
 .tb-corner.bl { bottom: -4px; left: -4px; }
 .tb-corner.br { bottom: -4px; right: -4px; }
-
-.effect-text {
-  font-size: 9.5px;
-  line-height: 1.55;
-  color: var(--ink);
-  font-family: Georgia, serif;
-  margin-bottom: 7px;
-  min-height: 76px;
-}
+.effect-text { font-size: 9.5px; line-height: 1.55; color: var(--ink); font-family: Georgia, serif; margin-bottom: 7px; min-height: 76px; }
 .atk-def {
   border-top: 1px solid rgba(100,68,8,0.45);
   padding-top: 5px;
@@ -294,507 +261,490 @@ body {
   flex-wrap: nowrap;
   overflow: hidden;
 }
-.atk-val, .def-val {
-  color: var(--violet);
-  font-weight: bold;
-  font-size: 8.5px;
-  letter-spacing: 0.5px;
-  text-shadow: 0 0 6px rgba(144,96,208,0.4);
-}
+.atk-val, .def-val { color: var(--violet); font-weight: bold; font-size: 8.5px; letter-spacing: 0.5px; text-shadow: 0 0 6px rgba(144,96,208,0.4); }
 
-/* ── Card footer ── */
+/* Card footer */
 .card-footer {
   background: #02010c;
   border-top: 1px solid var(--gold-lo);
-  padding: 5px 14px 5px 14px;
+  padding: 5px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
 }
-.footer-corner {
-  position: absolute;
-  font-size: 7px;
-  color: var(--gold);
-  opacity: 0.6;
-  bottom: 4px;
-}
+.footer-corner { position: absolute; font-size: 7px; color: var(--gold); opacity: 0.6; bottom: 4px; }
 .footer-corner.l { left: 4px; }
 .footer-corner.r { right: 4px; }
-.footer-id, .footer-zone {
-  font-family: 'Courier New', monospace;
-  font-size: 8px;
-  letter-spacing: 1.5px;
-  color: var(--neon);
-  opacity: 0.82;
-}
+.footer-id, .footer-zone { font-family: 'Courier New', monospace; font-size: 8px; letter-spacing: 1.5px; color: var(--neon); opacity: 0.82; }
 .footer-logo {
-  font-family: Impact, sans-serif;
-  font-size: 13px;
-  color: var(--gold);
-  border: 1.5px solid var(--gold);
-  width: 22px; height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-family: Impact, sans-serif; font-size: 13px; color: var(--gold);
+  border: 1.5px solid var(--gold); width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
   border-radius: 2px;
   text-shadow: 0 0 8px rgba(240,208,64,0.6);
   box-shadow: 0 0 6px rgba(196,154,40,0.3);
 }
 
-/* ── Page footer ── */
-.page-footer {
-  text-align: center;
-  margin-top: 64px;
-  font-family: 'Courier New', monospace;
-  font-size: 9px;
-  letter-spacing: 4px;
-  color: var(--gold-lo);
-  opacity: 0.55;
-  text-transform: uppercase;
-}
+/* Page footer */
+.page-footer { text-align: center; margin-top: 72px; font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 4px; color: var(--gold-lo); opacity: 0.5; text-transform: uppercase; }
 </style>
 
 <header class="page-header">
   <p class="page-eyebrow">UPARK-VOL2 &nbsp;// &nbsp;11.07.2026 &nbsp;// &nbsp;ÜBERSEESTADT BREMEN</p>
-  <h1 class="page-title">Field Spell Series</h1>
-  <p class="page-sub">Ü-PARK PAYDAY VOL. 2</p>
-  <span class="series-badge">5 Cards &nbsp;·&nbsp; Zones I – V</span>
+  <h1 class="page-title">Complete Card Set</h1>
+  <p class="page-sub">Ü-Park Payday Vol. 2</p>
+  <span class="series-badge">13 Cards &nbsp;·&nbsp; Field Spells I–V &nbsp;+&nbsp; 8 Sponsor Cards</span>
 </header>
 
-<main class="gallery" id="gallery"></main>
+<div class="section-divider">
+  <div class="section-divider-rule"><span>◆</span></div>
+  <div class="section-divider-title">Field Spell Series</div>
+  <div class="section-divider-sub">Zones I–V &nbsp;·&nbsp; Park Obstacles</div>
+</div>
 
-<footer class="page-footer">UPARK-VOL2 &nbsp;◆&nbsp; Complete Field Spell Set &nbsp;◆&nbsp; 2026</footer>
+<main class="gallery" id="field-gallery"></main>
+
+<div class="section-divider">
+  <div class="section-divider-rule"><span>◆</span></div>
+  <div class="section-divider-title">Sponsor Cards</div>
+  <div class="section-divider-sub">Quarter · Attitude · Titus · Skate Deluxe · Pay Day · Designer Mode · Shop Battle · Dark Horse</div>
+</div>
+
+<main class="gallery" id="sponsor-gallery"></main>
+
+<footer class="page-footer">UPARK-VOL2 &nbsp;◆&nbsp; 13-Card Complete Set &nbsp;◆&nbsp; 2026</footer>
 
 <script>
-const CARDS = [
-  {
-    zone: 'I',
-    name: 'THE LONG RAIL',
-    effect: 'When this card is activated, select 1 Skater monster on your field. That monster may attempt any grind or slide without Speed tribute until End Phase. Consecutive tricks in a chain each gain +100 ATK — commitment compounds. This obstacle rewards clean feet and locked-in conviction.',
-    atk: 'LOCKED IN',
-    def: 'STEADY GRIND',
-  },
-  {
-    zone: 'II',
-    name: 'STAIR SET + HUBBA',
-    effect: 'Select 1 rail or ledge adjacent to the stairs. Until the End Phase, you may grind, slide, or gap this obstacle freely. Handrail attempts require a Speed tribute. Hubba ledge is waxed — no tribute needed. If you miss the landing, take 300 damage.',
-    atk: 'KINETIC ENERGY',
-    def: 'LOCKED GRIND',
-  },
-  {
-    zone: 'III',
-    name: 'THE WEDGE HIP',
-    effect: 'When a Skater monster approaches this zone: You may transfer speed into air. Hip transfers are treated as combo extenders — your trick chain is not interrupted. Caveman and wallride attempts gain +200 ATK. This card remains active for the full session.',
-    atk: 'AIR TIME',
-    def: 'SMOOTH ROLL-IN',
-  },
-  {
-    zone: 'IV',
-    name: 'THE PYRAMID',
-    effect: 'This obstacle may be approached from any angle. When a Skater monster grinds the apex ledge, draw 1 bonus Trick card. Manual attempts on the flat top gain +150 ATK. If a kickflip or heelflip is landed off the peak, all your Skater monsters gain 200 ATK until the End Phase.',
-    atk: 'APEX CONTROL',
-    def: 'FLAT TOP HOLD',
-  },
-  {
-    zone: 'V',
-    name: 'THE BANK TO BANK',
-    effect: 'The centerpiece of the arena. When this card is active, all Skater monsters gain momentum as they approach. Speed rolls freely across this zone. Combos begun here may extend to any adjacent Zone without tribute. The sun rises and sets behind this spot — it witnesses everything.',
-    atk: 'FULL SEND',
-    def: 'CONCRETE LEGACY',
-  },
+/* ── Field Spell data ── */
+const FIELD_CARDS = [
+  { zone:'I',   name:'THE LONG RAIL',      effect:'When this card is activated, select 1 Skater monster on your field. That monster may attempt any grind or slide without Speed tribute until End Phase. Consecutive tricks in a chain each gain +100 ATK — commitment compounds. This obstacle rewards clean feet and locked-in conviction.',                                                                                           atk:'LOCKED IN',       def:'STEADY GRIND'    },
+  { zone:'II',  name:'STAIR SET + HUBBA',  effect:'Select 1 rail or ledge adjacent to the stairs. Until the End Phase, you may grind, slide, or gap this obstacle freely. Handrail attempts require a Speed tribute. Hubba ledge is waxed — no tribute needed. If you miss the landing, take 300 damage.',                                                                                                                         atk:'KINETIC ENERGY',  def:'LOCKED GRIND'    },
+  { zone:'III', name:'THE WEDGE HIP',      effect:'When a Skater monster approaches this zone: You may transfer speed into air. Hip transfers are treated as combo extenders — your trick chain is not interrupted. Caveman and wallride attempts gain +200 ATK. This card remains active for the full session.',                                                                                                                    atk:'AIR TIME',        def:'SMOOTH ROLL-IN'  },
+  { zone:'IV',  name:'THE PYRAMID',        effect:'This obstacle may be approached from any angle. When a Skater monster grinds the apex ledge, draw 1 bonus Trick card. Manual attempts on the flat top gain +150 ATK. If a kickflip or heelflip is landed off the peak, all your Skater monsters gain 200 ATK until the End Phase.',                                                                                           atk:'APEX CONTROL',    def:'FLAT TOP HOLD'   },
+  { zone:'V',   name:'THE BANK TO BANK',   effect:'The centerpiece of the arena. When this card is active, all Skater monsters gain momentum as they approach. Speed rolls freely across this zone. Combos begun here may extend to any adjacent Zone without tribute. The sun rises and sets behind this spot — it witnesses everything.',                                                                                          atk:'FULL SEND',       def:'CONCRETE LEGACY' },
 ];
 
-/* ── Canvas art drawing ── */
+/* ── Sponsor Card data ── */
+const SPONSOR_CARDS = [
+  { id:'DISTRI-01', name:'THE DISTRI VAULT',        type:'Continuous Spell — Distribution Zone', effect:'Once per turn: select 1 brand from the Quarter Catalog. Assign that brand\'s signature obstacle as a free Special Summon point — no Speed tribute required. If 3 or more different brands are activated within the same session, the Distri Jackpot is triggered: draw 1 Full Setup card from the prize pool.',                                                    atk:'CATALOG POWER',   def:'DEEP STOCK'       },
+  { id:'ATT-02',    name:'THE CULTURE FIELD',        type:'Continuous Spell — Art Zone',          effect:'While this card is active, the Art Jury adds a Style Modifier (+0 to +2) to every trick score — technique alone is not enough. Tricks performed adjacent to the live mural wall gain +300 ATK. Special condition: a Skater scoring 5/5 on the Drip Scale may treat all their grinds as waxed for the remainder of the session.',                                  atk:'STYLE POINTS',    def:'CULTURAL CAPITAL' },
+  { id:'TIT-03',    name:'YOUNG GUN PROTOCOL',       type:'Quick-Play Spell — Youth Bracket',     effect:'All Skater monsters aged under 18 gain 500 ATK until End Phase. Veteran Skaters (Level 6+) must pay 1 Speed tribute to enter this Zone. Once per session: the highest-scoring Young Gun may Special Summon a Shop Sponsorship Token — redeemable immediately after the Tombola. The future doesn\'t wait for the End Phase.',                                    atk:'NEXT LEVEL',      def:'SHOP BACKING'     },
+  { id:'SD-04',     name:'THE ONLINE ORACLE',        type:'Spell — Digital Drop Zone',            effect:'During Standby Phase: scan the QR code in this Zone to unlock 1 Digital Prize Token. Collect up to 3 tokens and redeem at End Phase (18:45) from the Deluxe Vault. Flash Drop Protocol: if all 3 tokens are claimed before 17:00, one exclusive colorway unlocks for QR-holders only — 30 minutes, no restock, no online release.',                             atk:'WISHLIST LOADED', def:'FREE SHIPPING'    },
+  { id:'PAY-05',    name:'CA$H4TRICKS BOUNTY',       type:'Spell — Bounty Protocol',              effect:'Before your trick attempt, declare your move. First try: claim the full Cash Bounty (€100). Second try: claim half (€50). Third try or bail: the pot returns to Pay Day — take 200 damage. Only one bounty active per obstacle per turn. This card cannot be negated by hesitation or a weak pop. Pay Day is always watching.',                                   atk:'CASH MONEY',      def:'SECOND TRY'       },
+  { id:'MODE-06',   name:'DRIP PROTOCOL',            type:'Continuous Spell — Fashion Zone',      effect:'At the start of each Round, the Fashion Jury assigns a Drip Score (1–5) to each Skater\'s fit. Add (Drip Score × 100) ATK to all tricks this Round. Full Fit Check (5/5): all grinds require no wax tribute until End Phase. Collab Clause: outfit combining a skate and fashion brand gains +200 ATK per qualifying item.',                                  atk:'FIT CHECK',       def:'COLLAB LOCKED'    },
+  { id:'BATTLE-07', name:'SHOP BATTLE ROYALE',       type:'Field Spell — Team Zone',              effect:'Attitude Bremen and Titus each field a team of 3 Skater monsters. Judges score combined trick output: style, technicality, and local knowledge. The Shop Champion\'s team gains 300 ATK for the rest of the session. Defeated riders receive a Respect Token and remain eligible for all individual categories.',                                                   atk:'SHOP PRIDE',      def:'LOCAL ROOTS'      },
+  { id:'WILD-08',   name:'DARK HORSE PROTOCOL',      type:'Quick-Play Spell — Wildcard',          effect:'Activate when an unsponsored Skater monster delivers the highest single-trick score of any session. That Skater may issue a Sponsor Me declaration — if 2 or more Shop representatives confirm, Special Summon a Shop Sponsorship Token permanently. This card may only be activated once. No tribute. No prerequisites. Pure hunger.',                           atk:'UNKNOWN LEVEL',   def:'PURE HUNGER'      },
+];
 
-function drawSky(ctx, W, H, sunX, sunY) {
-  // Deep sky gradient
+/* ── Canvas art: Field Spells ── */
+function drawSky(ctx, W, H, sx, sy) {
   const sky = ctx.createLinearGradient(0, 0, 0, H * 0.7);
-  sky.addColorStop(0,   '#0c1828');
-  sky.addColorStop(0.35,'#182438');
-  sky.addColorStop(0.7, '#2c2c14');
-  sky.addColorStop(1,   '#382810');
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, W, H);
-
-  // Sun burst
-  const sun = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, W * 0.6);
-  sun.addColorStop(0,    'rgba(255,210,70,0.95)');
-  sun.addColorStop(0.04, 'rgba(255,160,30,0.65)');
-  sun.addColorStop(0.15, 'rgba(255,100,10,0.28)');
-  sun.addColorStop(0.35, 'rgba(220,70,0,0.10)');
-  sun.addColorStop(1,    'rgba(0,0,0,0)');
-  ctx.fillStyle = sun;
-  ctx.fillRect(0, 0, W, H);
+  sky.addColorStop(0,   '#0c1828'); sky.addColorStop(0.35,'#182438');
+  sky.addColorStop(0.7, '#2c2c14'); sky.addColorStop(1,   '#382810');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+  const sun = ctx.createRadialGradient(sx, sy, 0, sx, sy, W * 0.6);
+  sun.addColorStop(0, 'rgba(255,210,70,0.95)'); sun.addColorStop(0.04,'rgba(255,160,30,0.65)');
+  sun.addColorStop(0.15,'rgba(255,100,10,0.28)'); sun.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = sun; ctx.fillRect(0, 0, W, H);
 }
-
-function drawGround(ctx, W, H, yStart) {
-  const g = ctx.createLinearGradient(0, yStart, 0, H);
-  g.addColorStop(0, '#3a3828');
-  g.addColorStop(0.4,'#2e2c1e');
-  g.addColorStop(1,  '#1a1810');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, yStart, W, H - yStart);
+function drawGround(ctx, W, H, y0) {
+  const g = ctx.createLinearGradient(0, y0, 0, H);
+  g.addColorStop(0,'#3a3828'); g.addColorStop(0.4,'#2e2c1e'); g.addColorStop(1,'#1a1810');
+  ctx.fillStyle = g; ctx.fillRect(0, y0, W, H - y0);
 }
-
-function addGrain(ctx, W, H) {
+function grain(ctx, W, H) {
   for (let i = 0; i < 900; i++) {
-    const x = (Math.random() * W) | 0;
-    const y = (Math.random() * H) | 0;
-    ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.06})`;
-    ctx.fillRect(x, y, 1, 1);
+    ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.06})`;
+    ctx.fillRect((Math.random()*W)|0, (Math.random()*H)|0, 1, 1);
   }
 }
 
-function drawZoneI(ctx, W, H) {
-  // Long rail — flat ground, low perspective rail
-  drawSky(ctx, W, H, W * 0.72, H * 0.18);
-  drawGround(ctx, W, H, H * 0.62);
+function drawFieldI(ctx, W, H) {
+  drawSky(ctx, W, H, W*.72, H*.18); drawGround(ctx, W, H, H*.62);
+  ctx.fillStyle='rgba(0,0,0,0.18)'; ctx.fillRect(0, H*.6, W, H*.08);
+  const ry1=H*.58,ry2=H*.52,rx1=W*.06,rx2=W*.94;
+  ctx.beginPath(); ctx.moveTo(rx1,ry1+4); ctx.lineTo(rx2,ry2+4); ctx.lineWidth=7; ctx.strokeStyle='#505050'; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(rx1,ry1); ctx.lineTo(rx2,ry2); ctx.lineWidth=3; ctx.strokeStyle='#a0a0a0'; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(rx1,ry1-1); ctx.lineTo(rx2,ry2-1); ctx.lineWidth=1; ctx.strokeStyle='rgba(255,240,180,0.6)'; ctx.stroke();
+  [0.25,0.5,0.75].forEach(t=>{
+    const lx=rx1+(rx2-rx1)*t, ty=ry1+(ry2-ry1)*t, by=H*.62;
+    ctx.beginPath(); ctx.moveTo(lx,ty+4); ctx.lineTo(lx-2,by); ctx.lineWidth=4; ctx.strokeStyle='#444'; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(lx,ty+4); ctx.lineTo(lx+2,by); ctx.lineWidth=4; ctx.strokeStyle='#444'; ctx.stroke();
+  }); grain(ctx,W,H);
+}
+function drawFieldII(ctx, W, H) {
+  drawSky(ctx, W, H, W*.74, H*.16);
+  const steps=5, sw=W*.56/steps, sh=H*.064, bx=W*.08, by=H*.82;
+  for(let i=0;i<steps;i++){
+    const x=bx+i*sw, y=by-i*sh;
+    ctx.fillStyle=`hsl(50,8%,${32+i*2}%)`; ctx.fillRect(x,y,W*.56-i*sw+sw,sh*.3);
+    ctx.fillStyle=`hsl(50,8%,${22+i*2}%)`; ctx.fillRect(x,y+sh*.3,sw+(steps-i-1)*sw*.5,sh*.7);
+  }
+  ctx.fillStyle='#2e2c1e'; ctx.fillRect(0,by+sh*.3,W,H-by-sh*.3);
+  const hrx1=bx+sw*.5,hry1=by+sh*.1,hrx2=bx+W*.52,hry2=by-steps*sh+sh*.1;
+  ctx.beginPath(); ctx.moveTo(hrx1,hry1+4); ctx.lineTo(hrx2,hry2+4); ctx.lineWidth=7; ctx.strokeStyle='#484848'; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(hrx1,hry1); ctx.lineTo(hrx2,hry2); ctx.lineWidth=3; ctx.strokeStyle='#909090'; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(hrx1,hry1-1); ctx.lineTo(hrx2,hry2-1); ctx.lineWidth=1; ctx.strokeStyle='rgba(255,230,160,0.55)'; ctx.stroke();
+  const hx=bx+W*.53,hy=hry2-2,hw=W*.3,hh=steps*sh+sh;
+  ctx.fillStyle='#585850'; ctx.fillRect(hx,hy,hw,hh);
+  ctx.fillStyle='#787868'; ctx.fillRect(hx,hy,hw,sh*.28);
+  ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.fillRect(hx,hy,4,hh);
+  ctx.fillStyle='rgba(255,240,180,0.18)'; ctx.fillRect(hx+4,hy+1,hw-8,3);
+  grain(ctx,W,H);
+}
+function drawFieldIII(ctx, W, H) {
+  drawSky(ctx,W,H,W*.82,H*.15);
+  const gy=H*.78; ctx.fillStyle='#2e2c1e'; ctx.fillRect(0,gy,W,H-gy);
+  ctx.fillStyle='#484840'; ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(W*.44,H*.44); ctx.lineTo(W*.44,gy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#525248'; ctx.beginPath(); ctx.moveTo(W*.38,H*.46); ctx.quadraticCurveTo(W*.5,H*.40,W*.62,H*.46); ctx.lineTo(W*.62,H*.56); ctx.quadraticCurveTo(W*.5,H*.50,W*.38,H*.56); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(W*.38,H*.46); ctx.quadraticCurveTo(W*.5,H*.40,W*.62,H*.46); ctx.lineWidth=1.5; ctx.strokeStyle='rgba(200,190,140,0.5)'; ctx.stroke();
+  ctx.fillStyle='#404038'; ctx.beginPath(); ctx.moveTo(W*.56,H*.46); ctx.lineTo(W,H*.68); ctx.lineTo(W,gy); ctx.lineTo(W*.56,gy); ctx.closePath(); ctx.fill();
+  grain(ctx,W,H);
+}
+function drawFieldIV(ctx, W, H) {
+  drawSky(ctx,W,H,W*.5,H*.14); drawGround(ctx,W,H,H*.76);
+  ctx.strokeStyle='rgba(180,160,80,0.12)'; ctx.lineWidth=1;
+  for(let i=0;i<5;i++){const t=(i+1)/6; ctx.beginPath(); ctx.moveTo(W*t,H*.76); ctx.lineTo(W*.5,H*.42); ctx.stroke();}
+  ctx.fillStyle='#303028'; ctx.beginPath(); ctx.moveTo(W*.1,H*.78); ctx.lineTo(W*.9,H*.78); ctx.lineTo(W*.82,H*.72); ctx.lineTo(W*.18,H*.72); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#404038'; ctx.beginPath(); ctx.moveTo(W*.82,H*.72); ctx.lineTo(W*.9,H*.78); ctx.lineTo(W*.65,H*.49); ctx.lineTo(W*.62,H*.44); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#303028'; ctx.beginPath(); ctx.moveTo(W*.18,H*.72); ctx.lineTo(W*.1,H*.78); ctx.lineTo(W*.38,H*.49); ctx.lineTo(W*.38,H*.44); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#606058'; ctx.beginPath(); ctx.moveTo(W*.38,H*.44); ctx.lineTo(W*.62,H*.44); ctx.lineTo(W*.65,H*.49); ctx.lineTo(W*.35,H*.49); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='rgba(255,240,180,0.15)'; ctx.fillRect(W*.38,H*.44,W*.24,3);
+  ctx.beginPath(); ctx.moveTo(W*.38,H*.44); ctx.lineTo(W*.62,H*.44); ctx.lineWidth=1.5; ctx.strokeStyle='rgba(200,190,140,0.55)'; ctx.stroke();
+  ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(W*.5,H*.77,W*.38,H*.025,0,0,Math.PI*2); ctx.fill();
+  grain(ctx,W,H);
+}
+function drawFieldV(ctx, W, H) {
+  drawSky(ctx,W,H,W*.68,H*.15);
+  const gy=H*.7; ctx.fillStyle='#282616'; ctx.fillRect(0,gy,W,H-gy);
+  const lb=ctx.createLinearGradient(0,H*.45,W*.46,gy); lb.addColorStop(0,'#555048'); lb.addColorStop(1,'#383620'); ctx.fillStyle=lb;
+  ctx.beginPath(); ctx.moveTo(0,H*.85); ctx.lineTo(0,H*.62); ctx.lineTo(W*.44,H*.45); ctx.lineTo(W*.44,gy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='rgba(255,220,100,0.18)'; ctx.beginPath(); ctx.moveTo(0,H*.62); ctx.lineTo(W*.44,H*.45); ctx.lineTo(W*.44,H*.45+8); ctx.lineTo(0,H*.62+8); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#1c1a0e'; ctx.fillRect(W*.38,H*.68,W*.24,H*.32);
+  const rb=ctx.createLinearGradient(W*.56,H*.45,W,gy); rb.addColorStop(0,'#4c4840'); rb.addColorStop(1,'#302e1c'); ctx.fillStyle=rb;
+  ctx.beginPath(); ctx.moveTo(W,H*.85); ctx.lineTo(W,H*.62); ctx.lineTo(W*.56,H*.45); ctx.lineTo(W*.56,gy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='rgba(255,180,60,0.10)'; ctx.beginPath(); ctx.moveTo(W,H*.62); ctx.lineTo(W*.56,H*.45); ctx.lineTo(W*.56,H*.45+8); ctx.lineTo(W,H*.62+8); ctx.closePath(); ctx.fill();
+  grain(ctx,W,H);
+}
 
-  // Concrete platform shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.18)';
-  ctx.fillRect(0, H * 0.6, W, H * 0.08);
+/* ── Canvas art: Sponsor Cards ── */
 
-  // Rail (long, slight perspective rise left to right)
-  const ry1 = H * 0.58, ry2 = H * 0.52;
-  const rx1 = W * 0.06, rx2 = W * 0.94;
-
-  // Rail pipe (lower edge)
-  ctx.beginPath();
-  ctx.moveTo(rx1, ry1 + 4); ctx.lineTo(rx2, ry2 + 4);
-  ctx.lineWidth = 7; ctx.strokeStyle = '#505050'; ctx.stroke();
-  // Rail top (highlight)
-  ctx.beginPath();
-  ctx.moveTo(rx1, ry1); ctx.lineTo(rx2, ry2);
-  ctx.lineWidth = 3; ctx.strokeStyle = '#a0a0a0'; ctx.stroke();
-  // Sheen
-  ctx.beginPath();
-  ctx.moveTo(rx1, ry1 - 1); ctx.lineTo(rx2, ry2 - 1);
-  ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,240,180,0.6)'; ctx.stroke();
-
-  // Support legs (3 legs)
-  [0.25, 0.5, 0.75].forEach(t => {
-    const lx = rx1 + (rx2 - rx1) * t;
-    const topY = ry1 + (ry2 - ry1) * t;
-    const botY = H * 0.62;
-    ctx.beginPath(); ctx.moveTo(lx, topY + 4); ctx.lineTo(lx - 2, botY);
-    ctx.lineWidth = 4; ctx.strokeStyle = '#444'; ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(lx, topY + 4); ctx.lineTo(lx + 2, botY);
-    ctx.lineWidth = 4; ctx.strokeStyle = '#444'; ctx.stroke();
+function drawDistriVault(ctx, W, H) {
+  // Dark background + multi-brand color columns
+  ctx.fillStyle='#080510'; ctx.fillRect(0,0,W,H);
+  const cols=['#c02020','#2060c0','#20b040','#c8a020','#b040b0','#20b0b0','#c05018','#7040c0'];
+  cols.forEach((c,i)=>{
+    const x=i*(W/cols.length);
+    const g=ctx.createLinearGradient(x,0,x,H);
+    g.addColorStop(0,c+'88'); g.addColorStop(0.6,c+'22'); g.addColorStop(1,c+'05');
+    ctx.fillStyle=g; ctx.fillRect(x,0,W/cols.length+1,H);
   });
-
-  addGrain(ctx, W, H);
+  // Vault door
+  const vx=W*.28,vy=H*.15,vw=W*.44,vh=H*.65;
+  ctx.fillStyle='rgba(8,4,20,0.88)'; ctx.fillRect(vx,vy,vw,vh);
+  ctx.strokeStyle='#c49a28'; ctx.lineWidth=2.5; ctx.strokeRect(vx,vy,vw,vh);
+  ctx.strokeStyle='rgba(196,154,40,0.4)'; ctx.lineWidth=1; ctx.strokeRect(vx+5,vy+5,vw-10,vh-10);
+  // Vault wheel
+  const cx=W*.5,cy=H*.5,r=W*.1;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.lineWidth=3; ctx.strokeStyle='#c49a28'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,r*.3,0,Math.PI*2); ctx.lineWidth=2; ctx.strokeStyle='#c49a28'; ctx.stroke();
+  [0,45,90,135,180,225,270,315].forEach(d=>{
+    const a=d*Math.PI/180;
+    ctx.beginPath(); ctx.moveTo(cx+Math.cos(a)*r*.32,cy+Math.sin(a)*r*.32);
+    ctx.lineTo(cx+Math.cos(a)*r*.95,cy+Math.sin(a)*r*.95);
+    ctx.lineWidth=2; ctx.strokeStyle='#c49a28'; ctx.stroke();
+  });
+  grain(ctx,W,H);
 }
 
-function drawZoneII(ctx, W, H) {
-  // Stair Set + Hubba
-  drawSky(ctx, W, H, W * 0.74, H * 0.16);
+function drawCultureField(ctx, W, H) {
+  // Urban wall + spray paint explosion
+  ctx.fillStyle='#0e0818'; ctx.fillRect(0,0,W,H);
+  // Subtle brick grid
+  ctx.strokeStyle='rgba(50,30,70,0.5)'; ctx.lineWidth=1;
+  for(let y=0;y<H;y+=18){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  for(let x=0;x<W;x+=36){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  // Paint splashes
+  const splashes=[
+    {x:.15,y:.35,r:.14,c:'rgba(220,50,50,'},
+    {x:.55,y:.25,r:.18,c:'rgba(50,100,220,'},
+    {x:.35,y:.6,r:.12,c:'rgba(220,180,30,'},
+    {x:.75,y:.55,r:.16,c:'rgba(40,200,80,'},
+    {x:.5,y:.45,r:.10,c:'rgba(220,60,180,'},
+  ];
+  splashes.forEach(s=>{
+    const g=ctx.createRadialGradient(W*s.x,H*s.y,0,W*s.x,H*s.y,W*s.r);
+    g.addColorStop(0,s.c+'0.75)'); g.addColorStop(0.5,s.c+'0.25)'); g.addColorStop(1,s.c+'0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(W*s.x,H*s.y,W*s.r,0,Math.PI*2); ctx.fill();
+  });
+  // Giant "A" letterform
+  ctx.font=`bold ${W*.55}px Impact`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(255,70,30,0.18)'; ctx.fillText('A',W*.5,H*.5);
+  ctx.strokeStyle='rgba(255,100,50,0.35)'; ctx.lineWidth=1; ctx.strokeText('A',W*.5,H*.5);
+  grain(ctx,W,H);
+}
 
-  // Steps: 5 steps ascending left→right
-  const steps = 5;
-  const stepW = W * 0.56 / steps;
-  const stepH = H * 0.064;
-  const baseX = W * 0.08;
-  const baseY = H * 0.82;
-
-  for (let i = 0; i < steps; i++) {
-    const x = baseX + i * stepW;
-    const y = baseY - i * stepH;
-    // Tread (top face)
-    ctx.fillStyle = `hsl(50,8%,${32 + i * 2}%)`;
-    ctx.fillRect(x, y, W * 0.56 - i * stepW + stepW, stepH * 0.3);
-    // Riser (front face)
-    ctx.fillStyle = `hsl(50,8%,${22 + i * 2}%)`;
-    ctx.fillRect(x, y + stepH * 0.3, stepW + (steps - i - 1) * stepW * 0.5, stepH * 0.7);
+function drawYoungGun(ctx, W, H) {
+  // Speed lines + air silhouette
+  drawSky(ctx,W,H,W*.5,H*.1);
+  drawGround(ctx,W,H,H*.75);
+  // Speed lines radiating from center
+  ctx.strokeStyle='rgba(255,200,60,0.15)'; ctx.lineWidth=1;
+  for(let i=0;i<24;i++){
+    const a=i*(Math.PI*2/24);
+    ctx.beginPath(); ctx.moveTo(W*.5,H*.4); ctx.lineTo(W*.5+Math.cos(a)*W,H*.4+Math.sin(a)*H); ctx.stroke();
   }
-  // Ground
-  ctx.fillStyle = '#2e2c1e';
-  ctx.fillRect(0, baseY + stepH * 0.3, W, H - baseY - stepH * 0.3);
-
-  // Handrail (diagonal)
-  const hrx1 = baseX + stepW * 0.5, hry1 = baseY + stepH * 0.1;
-  const hrx2 = baseX + W * 0.52,    hry2 = baseY - steps * stepH + stepH * 0.1;
-  ctx.beginPath(); ctx.moveTo(hrx1, hry1 + 4); ctx.lineTo(hrx2, hry2 + 4);
-  ctx.lineWidth = 7; ctx.strokeStyle = '#484848'; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(hrx1, hry1); ctx.lineTo(hrx2, hry2);
-  ctx.lineWidth = 3; ctx.strokeStyle = '#909090'; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(hrx1, hry1 - 1); ctx.lineTo(hrx2, hry2 - 1);
-  ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,230,160,0.55)'; ctx.stroke();
-
-  // Hubba ledge (right of stairs)
-  const hx = baseX + W * 0.53, hy = hry2 - 2, hw = W * 0.3, hh = steps * stepH + stepH;
-  ctx.fillStyle = '#585850';
-  ctx.fillRect(hx, hy, hw, hh);
-  // Hubba top
-  ctx.fillStyle = '#787868';
-  ctx.fillRect(hx, hy, hw, stepH * 0.28);
-  // Hubba side shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
-  ctx.fillRect(hx, hy, 4, hh);
-  // Wax sheen on top
-  ctx.fillStyle = 'rgba(255,240,180,0.18)';
-  ctx.fillRect(hx + 4, hy + 1, hw - 8, 3);
-
-  addGrain(ctx, W, H);
+  // Skater silhouette catching air (simplified: oval body + board)
+  const bx=W*.5, by=H*.38;
+  // Board
+  ctx.fillStyle='#c49a28';
+  ctx.beginPath(); ctx.roundRect(bx-W*.14,by+H*.09,W*.28,H*.04,3); ctx.fill();
+  // Body
+  ctx.fillStyle='#e0c060';
+  ctx.beginPath(); ctx.ellipse(bx,by,W*.07,H*.12,0.3,0,Math.PI*2); ctx.fill();
+  // Head
+  ctx.beginPath(); ctx.arc(bx+W*.04,by-H*.12,W*.04,0,Math.PI*2); ctx.fill();
+  // Arms
+  ctx.strokeStyle='#e0c060'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(bx+W*.02,by-H*.04); ctx.lineTo(bx+W*.12,by-H*.09); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(bx-W*.02,by-H*.02); ctx.lineTo(bx-W*.12,by+H*.04); ctx.stroke();
+  // Halo / Young Gun glow
+  const halo=ctx.createRadialGradient(bx,by,0,bx,by,W*.3);
+  halo.addColorStop(0,'rgba(255,200,60,0.2)'); halo.addColorStop(1,'rgba(255,200,60,0)');
+  ctx.fillStyle=halo; ctx.beginPath(); ctx.arc(bx,by,W*.3,0,Math.PI*2); ctx.fill();
+  grain(ctx,W,H);
 }
 
-function drawZoneIII(ctx, W, H) {
-  // Wedge Hip
-  drawSky(ctx, W, H, W * 0.82, H * 0.15);
-
-  const groundY = H * 0.78;
-  ctx.fillStyle = '#2e2c1e';
-  ctx.fillRect(0, groundY, W, H - groundY);
-
-  // Left wedge (ramp surface facing viewer)
-  ctx.fillStyle = '#484840';
-  ctx.beginPath();
-  ctx.moveTo(0, groundY);
-  ctx.lineTo(W * 0.44, H * 0.44);
-  ctx.lineTo(W * 0.44, groundY);
-  ctx.closePath(); ctx.fill();
-
-  // Left wedge face (darker front)
-  const wfGrad = ctx.createLinearGradient(0, H * 0.44, W * 0.44, groundY);
-  wfGrad.addColorStop(0, '#383830');
-  wfGrad.addColorStop(1, '#484840');
-  ctx.fillStyle = wfGrad;
-  ctx.beginPath();
-  ctx.moveTo(0, groundY);
-  ctx.lineTo(W * 0.44, H * 0.44);
-  ctx.lineTo(W * 0.44, H * 0.44 + 6);
-  ctx.lineTo(0, groundY + 6);
-  ctx.closePath(); ctx.fill();
-
-  // Hip transition (the curved connector between left and right)
-  ctx.fillStyle = '#525248';
-  ctx.beginPath();
-  ctx.moveTo(W * 0.38, H * 0.46);
-  ctx.quadraticCurveTo(W * 0.5, H * 0.40, W * 0.62, H * 0.46);
-  ctx.lineTo(W * 0.62, H * 0.56);
-  ctx.quadraticCurveTo(W * 0.5, H * 0.50, W * 0.38, H * 0.56);
-  ctx.closePath(); ctx.fill();
-  // Hip edge highlight
-  ctx.beginPath();
-  ctx.moveTo(W * 0.38, H * 0.46);
-  ctx.quadraticCurveTo(W * 0.5, H * 0.40, W * 0.62, H * 0.46);
-  ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(200,190,140,0.5)'; ctx.stroke();
-
-  // Right wedge (going away)
-  ctx.fillStyle = '#404038';
-  ctx.beginPath();
-  ctx.moveTo(W * 0.56, H * 0.46);
-  ctx.lineTo(W, H * 0.68);
-  ctx.lineTo(W, groundY);
-  ctx.lineTo(W * 0.56, groundY);
-  ctx.closePath(); ctx.fill();
-
-  addGrain(ctx, W, H);
-}
-
-function drawZoneIV(ctx, W, H) {
-  // Pyramid
-  drawSky(ctx, W, H, W * 0.5, H * 0.14);
-  drawGround(ctx, W, H, H * 0.76);
-
-  // Perspective lines (vanishing toward pyramid)
-  ctx.strokeStyle = 'rgba(180,160,80,0.12)';
-  ctx.lineWidth = 1;
-  for (let i = 0; i < 5; i++) {
-    const t = (i + 1) / 6;
-    ctx.beginPath();
-    ctx.moveTo(W * t, H * 0.76);
-    ctx.lineTo(W * 0.5, H * 0.42);
-    ctx.stroke();
+function drawOnlineOracle(ctx, W, H) {
+  // Digital / QR aesthetic
+  ctx.fillStyle='#04020e'; ctx.fillRect(0,0,W,H);
+  // Grid background
+  ctx.strokeStyle='rgba(0,200,80,0.08)'; ctx.lineWidth=1;
+  const gs=16;
+  for(let x=0;x<W;x+=gs){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for(let y=0;y<H;y+=gs){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  // QR code-like pattern (center)
+  const qx=W*.25,qy=H*.2,qs=W*.5,cell=qs/7;
+  // Outer frame squares
+  [[0,0],[4,0],[0,4]].forEach(([cx,cy])=>{
+    ctx.fillStyle='rgba(0,230,77,0.85)'; ctx.fillRect(qx+cx*cell,qy+cy*cell,cell*3,cell*3);
+    ctx.fillStyle='rgba(4,2,14,0.9)'; ctx.fillRect(qx+cx*cell+cell*.2,qy+cy*cell+cell*.2,cell*2.6,cell*2.6);
+    ctx.fillStyle='rgba(0,230,77,0.85)'; ctx.fillRect(qx+cx*cell+cell*.7,qy+cy*cell+cell*.7,cell*1.6,cell*1.6);
+  });
+  // Random data cells
+  for(let r=0;r<7;r++) for(let c=0;c<7;c++){
+    if(Math.random()>.55){
+      ctx.fillStyle=`rgba(0,230,77,${0.4+Math.random()*.4})`;
+      ctx.fillRect(qx+c*cell+1,qy+r*cell+1,cell-2,cell-2);
+    }
   }
-
-  // Base slab (bottom)
-  ctx.fillStyle = '#303028';
-  ctx.beginPath();
-  ctx.moveTo(W * 0.1, H * 0.78);
-  ctx.lineTo(W * 0.9, H * 0.78);
-  ctx.lineTo(W * 0.82, H * 0.72);
-  ctx.lineTo(W * 0.18, H * 0.72);
-  ctx.closePath(); ctx.fill();
-
-  // Right face
-  ctx.fillStyle = '#404038';
-  ctx.beginPath();
-  ctx.moveTo(W * 0.82, H * 0.72);
-  ctx.lineTo(W * 0.9, H * 0.78);
-  ctx.lineTo(W * 0.65, H * 0.49);
-  ctx.lineTo(W * 0.62, H * 0.44);
-  ctx.closePath(); ctx.fill();
-
-  // Left face
-  ctx.fillStyle = '#303028';
-  ctx.beginPath();
-  ctx.moveTo(W * 0.18, H * 0.72);
-  ctx.lineTo(W * 0.1, H * 0.78);
-  ctx.lineTo(W * 0.38, H * 0.49);
-  ctx.lineTo(W * 0.38, H * 0.44);
-  ctx.closePath(); ctx.fill();
-
-  // Top face (flat top ledge)
-  ctx.fillStyle = '#606058';
-  ctx.beginPath();
-  ctx.moveTo(W * 0.38, H * 0.44);
-  ctx.lineTo(W * 0.62, H * 0.44);
-  ctx.lineTo(W * 0.65, H * 0.49);
-  ctx.lineTo(W * 0.35, H * 0.49);
-  ctx.closePath(); ctx.fill();
-  // Ledge wax sheen
-  ctx.fillStyle = 'rgba(255,240,180,0.15)';
-  ctx.fillRect(W * 0.38, H * 0.44, W * 0.24, 3);
-
-  // Peak edge
-  ctx.beginPath();
-  ctx.moveTo(W * 0.38, H * 0.44); ctx.lineTo(W * 0.62, H * 0.44);
-  ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(200,190,140,0.55)'; ctx.stroke();
-
-  // Ground shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.25)';
-  ctx.beginPath();
-  ctx.ellipse(W * 0.5, H * 0.77, W * 0.38, H * 0.025, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  addGrain(ctx, W, H);
+  // Scan line animation suggestion (static)
+  const scan=ctx.createLinearGradient(0,H*.55,0,H*.65);
+  scan.addColorStop(0,'rgba(0,230,77,0)'); scan.addColorStop(0.5,'rgba(0,230,77,0.35)'); scan.addColorStop(1,'rgba(0,230,77,0)');
+  ctx.fillStyle=scan; ctx.fillRect(0,H*.55,W,H*.1);
+  grain(ctx,W,H);
 }
 
-function drawZoneV(ctx, W, H) {
-  // Bank to Bank (the centerpiece)
-  drawSky(ctx, W, H, W * 0.68, H * 0.15);
-
-  const groundY = H * 0.7;
-
-  // Ground between banks
-  ctx.fillStyle = '#282616';
-  ctx.fillRect(0, groundY, W, H - groundY);
-
-  // Left bank (angled ramp, perspective from below)
-  const lbGrad = ctx.createLinearGradient(0, H * 0.45, W * 0.46, groundY);
-  lbGrad.addColorStop(0, '#555048');
-  lbGrad.addColorStop(1, '#383620');
-  ctx.fillStyle = lbGrad;
-  ctx.beginPath();
-  ctx.moveTo(0, H * 0.85);
-  ctx.lineTo(0, H * 0.62);
-  ctx.lineTo(W * 0.44, H * 0.45);
-  ctx.lineTo(W * 0.44, groundY);
-  ctx.closePath(); ctx.fill();
-
-  // Left bank surface highlight (sun catching top edge)
-  ctx.fillStyle = 'rgba(255,220,100,0.18)';
-  ctx.beginPath();
-  ctx.moveTo(0, H * 0.62); ctx.lineTo(W * 0.44, H * 0.45);
-  ctx.lineTo(W * 0.44, H * 0.45 + 8); ctx.lineTo(0, H * 0.62 + 8);
-  ctx.closePath(); ctx.fill();
-
-  // Left bank front shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
-  ctx.beginPath();
-  ctx.moveTo(0, H * 0.85); ctx.lineTo(W * 0.44, groundY);
-  ctx.lineTo(W * 0.44, groundY + 4); ctx.lineTo(0, H * 0.85 + 4);
-  ctx.closePath(); ctx.fill();
-
-  // Center riding channel (low point)
-  ctx.fillStyle = '#1c1a0e';
-  ctx.fillRect(W * 0.38, H * 0.68, W * 0.24, H * 0.32);
-
-  // Right bank (mirror)
-  const rbGrad = ctx.createLinearGradient(W * 0.56, H * 0.45, W, groundY);
-  rbGrad.addColorStop(0, '#4c4840');
-  rbGrad.addColorStop(1, '#302e1c');
-  ctx.fillStyle = rbGrad;
-  ctx.beginPath();
-  ctx.moveTo(W, H * 0.85);
-  ctx.lineTo(W, H * 0.62);
-  ctx.lineTo(W * 0.56, H * 0.45);
-  ctx.lineTo(W * 0.56, groundY);
-  ctx.closePath(); ctx.fill();
-
-  // Right bank sun highlight (less sun on right)
-  ctx.fillStyle = 'rgba(255,180,60,0.10)';
-  ctx.beginPath();
-  ctx.moveTo(W, H * 0.62); ctx.lineTo(W * 0.56, H * 0.45);
-  ctx.lineTo(W * 0.56, H * 0.45 + 8); ctx.lineTo(W, H * 0.62 + 8);
-  ctx.closePath(); ctx.fill();
-
-  // Long shadow across ground (very Zone V feel)
-  const shadGrad = ctx.createLinearGradient(0, groundY, W * 0.4, groundY + 40);
-  shadGrad.addColorStop(0, 'rgba(0,0,0,0.4)');
-  shadGrad.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = shadGrad;
-  ctx.fillRect(0, groundY, W * 0.45, 55);
-
-  addGrain(ctx, W, H);
+function drawCash4Tricks(ctx, W, H) {
+  // Money / cash vibes on concrete
+  ctx.fillStyle='#060e06'; ctx.fillRect(0,0,W,H);
+  // Green money glow
+  const mg=ctx.createRadialGradient(W*.5,H*.5,0,W*.5,H*.5,W*.6);
+  mg.addColorStop(0,'rgba(40,180,40,0.3)'); mg.addColorStop(0.5,'rgba(20,100,20,0.1)'); mg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=mg; ctx.fillRect(0,0,W,H);
+  // Stacked bill silhouettes
+  const bills=[[.15,.55],[.1,.5],[.05,.45],[0,.4]];
+  bills.forEach(([ox,oy])=>{
+    ctx.fillStyle='rgba(30,80,30,0.6)'; ctx.fillRect(W*(.2+ox),H*oy,W*.6,H*.12);
+    ctx.strokeStyle='rgba(60,140,60,0.4)'; ctx.lineWidth=1; ctx.strokeRect(W*(.2+ox),H*oy,W*.6,H*.12);
+  });
+  // Big € symbol
+  ctx.font=`bold ${W*.5}px Impact`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(60,200,60,0.6)'; ctx.fillText('€',W*.5,H*.45);
+  ctx.strokeStyle='rgba(100,255,100,0.3)'; ctx.lineWidth=1.5; ctx.strokeText('€',W*.5,H*.45);
+  // "PAY DAY" graffiti-style
+  ctx.font=`bold ${W*.13}px Impact`; ctx.fillStyle='rgba(255,200,40,0.5)'; ctx.fillText('PAY DAY',W*.5,H*.78);
+  grain(ctx,W,H);
 }
 
-const DRAW_FNS = [drawZoneI, drawZoneII, drawZoneIII, drawZoneIV, drawZoneV];
+function drawDripProtocol(ctx, W, H) {
+  // Fashion runway meets skate
+  ctx.fillStyle='#0a060e'; ctx.fillRect(0,0,W,H);
+  // Runway lights (perspective)
+  const rl=[[.5,.95],[.38,.8],[.3,.65],[.24,.52],[.2,.42]];
+  const rr=[[.5,.95],[.62,.8],[.7,.65],[.76,.52],[.8,.42]];
+  const lightColor='rgba(255,220,120,';
+  rl.forEach((p,i)=>{
+    const g=ctx.createRadialGradient(W*p[0],H*p[1],0,W*p[0],H*p[1],W*.06);
+    g.addColorStop(0,lightColor+`${0.8-i*.1})`); g.addColorStop(1,lightColor+'0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  });
+  rr.forEach((p,i)=>{
+    const g=ctx.createRadialGradient(W*p[0],H*p[1],0,W*p[0],H*p[1],W*.06);
+    g.addColorStop(0,lightColor+`${0.8-i*.1})`); g.addColorStop(1,lightColor+'0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  });
+  // Diamond suit symbol (fashion)
+  ctx.font=`${W*.45}px Georgia`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(200,150,255,0.25)'; ctx.fillText('◆',W*.5,H*.42);
+  // Skateboard deck silhouette (skate meets fashion)
+  ctx.fillStyle='rgba(240,210,80,0.25)';
+  ctx.beginPath(); ctx.roundRect(W*.3,H*.6,W*.4,H*.08,6); ctx.fill();
+  grain(ctx,W,H);
+}
 
-function buildCard(data, idx) {
+function drawShopBattle(ctx, W, H) {
+  // Split composition: left vs right
+  // Left side (Attitude — warm reds/purples)
+  const leftG=ctx.createLinearGradient(0,0,W*.5,H);
+  leftG.addColorStop(0,'#1a0820'); leftG.addColorStop(1,'#200a10');
+  ctx.fillStyle=leftG; ctx.fillRect(0,0,W*.5,H);
+  // Right side (Titus — blues/grays)
+  const rightG=ctx.createLinearGradient(W*.5,0,W,H);
+  rightG.addColorStop(0,'#0a1020'); rightG.addColorStop(1,'#081018');
+  ctx.fillStyle=rightG; ctx.fillRect(W*.5,0,W*.5,H);
+  // Center dividing line (gold)
+  const divG=ctx.createLinearGradient(W*.5,0,W*.5,H);
+  divG.addColorStop(0,'rgba(196,154,40,0)'); divG.addColorStop(0.5,'rgba(196,154,40,0.8)'); divG.addColorStop(1,'rgba(196,154,40,0)');
+  ctx.strokeStyle=divG; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(W*.5,0); ctx.lineTo(W*.5,H); ctx.stroke();
+  // Left silhouette
+  ctx.fillStyle='rgba(220,80,80,0.5)';
+  ctx.font=`bold ${W*.3}px Impact`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('A',W*.25,H*.45);
+  // Right silhouette
+  ctx.fillStyle='rgba(60,120,220,0.5)';
+  ctx.fillText('T',W*.75,H*.45);
+  // VS in center
+  ctx.font=`bold ${W*.14}px Impact`; ctx.fillStyle='rgba(240,208,80,0.8)';
+  ctx.fillText('VS',W*.5,H*.75);
+  // Glow effects
+  const lg=ctx.createRadialGradient(W*.25,H*.5,0,W*.25,H*.5,W*.3);
+  lg.addColorStop(0,'rgba(220,60,60,0.15)'); lg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=lg; ctx.fillRect(0,0,W,H);
+  const rg2=ctx.createRadialGradient(W*.75,H*.5,0,W*.75,H*.5,W*.3);
+  rg2.addColorStop(0,'rgba(60,100,220,0.15)'); rg2.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=rg2; ctx.fillRect(0,0,W,H);
+  grain(ctx,W,H);
+}
+
+function drawDarkHorse(ctx, W, H) {
+  // Lone spotlight on dark stage
+  ctx.fillStyle='#030208'; ctx.fillRect(0,0,W,H);
+  // Spotlight cone from top center
+  const slG=ctx.createConicalGradient
+    ? ctx.createConicalGradient(W*.5,0,0,Math.PI)
+    : null;
+  // Fallback: triangle beam
+  const beam=ctx.createLinearGradient(W*.5,0,W*.5,H);
+  beam.addColorStop(0,'rgba(255,240,180,0.0)'); beam.addColorStop(0.3,'rgba(255,240,180,0.15)'); beam.addColorStop(1,'rgba(255,240,180,0.04)');
+  ctx.fillStyle=beam;
+  ctx.beginPath(); ctx.moveTo(W*.5,0); ctx.lineTo(W*.15,H); ctx.lineTo(W*.85,H); ctx.closePath(); ctx.fill();
+  // Ground pool of light
+  const pool=ctx.createRadialGradient(W*.5,H*.88,0,W*.5,H*.88,W*.3);
+  pool.addColorStop(0,'rgba(255,230,150,0.4)'); pool.addColorStop(0.5,'rgba(255,200,100,0.1)'); pool.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=pool; ctx.fillRect(0,0,W,H);
+  // Figure silhouette (standing tall in spotlight)
+  ctx.fillStyle='rgba(240,200,60,0.7)';
+  // Head
+  ctx.beginPath(); ctx.arc(W*.5,H*.38,W*.055,0,Math.PI*2); ctx.fill();
+  // Body
+  ctx.fillRect(W*.465,H*.44,W*.07,H*.22);
+  // Arms
+  ctx.fillRect(W*.39,H*.46,W*.08,H*.04); ctx.fillRect(W*.53,H*.46,W*.08,H*.04);
+  // Legs
+  ctx.fillRect(W*.463,H*.66,W*.03,H*.2); ctx.fillRect(W*.507,H*.66,W*.03,H*.2);
+  // Board under feet
+  ctx.fillStyle='rgba(196,154,40,0.6)';
+  ctx.beginPath(); ctx.roundRect(W*.38,H*.86,W*.24,H*.04,3); ctx.fill();
+  // Question mark (unknown)
+  ctx.font=`bold ${W*.22}px Georgia`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(255,200,60,0.12)'; ctx.fillText('?',W*.5,H*.55);
+  grain(ctx,W,H);
+}
+
+const FIELD_DRAW = [drawFieldI, drawFieldII, drawFieldIII, drawFieldIV, drawFieldV];
+const SPONSOR_DRAW = [drawDistriVault, drawCultureField, drawYoungGun, drawOnlineOracle, drawCash4Tricks, drawDripProtocol, drawShopBattle, drawDarkHorse];
+
+/* ── Card builder ── */
+function buildFieldCard(data, idx) {
   const card = document.createElement('div');
   card.className = 'card';
-
+  const nameClass = data.name.length > 16 ? 'card-name sm' : 'card-name';
   card.innerHTML = `
-    <div class="c-corner tl"></div>
-    <div class="c-corner tr"></div>
-    <div class="c-corner bl"></div>
-    <div class="c-corner br"></div>
-
+    <div class="c-corner tl"></div><div class="c-corner tr"></div>
+    <div class="c-corner bl"></div><div class="c-corner br"></div>
     <div class="card-header">
-      <h2 class="card-name">${data.name}</h2>
-      <div class="spell-badge">
-        <span class="badge-top">SPELL</span>
-        <span class="badge-kanji">魔</span>
-      </div>
+      <h2 class="${nameClass}">${data.name}</h2>
+      <div class="spell-badge"><span class="badge-top">SPELL</span><span class="badge-kanji">魔</span></div>
     </div>
-
-    <div class="type-line">
-      <span class="type-text">[ Field Spell &mdash; Zone ${data.zone} ]</span>
-    </div>
-
+    <div class="type-line"><span class="type-text">[ Field Spell &mdash; Zone ${data.zone} ]</span></div>
     <div class="art-wrap">
       <canvas class="card-canvas" width="286" height="185"></canvas>
-      <span class="art-star tl">&#x2726;</span>
-      <span class="art-star tr">&#x2726;</span>
-      <span class="art-star bl">&#x2726;</span>
-      <span class="art-star br">&#x2726;</span>
+      <span class="art-star tl">&#x2726;</span><span class="art-star tr">&#x2726;</span>
+      <span class="art-star bl">&#x2726;</span><span class="art-star br">&#x2726;</span>
     </div>
-
     <div class="text-box">
-      <div class="tb-corner tl"></div>
-      <div class="tb-corner tr"></div>
-      <div class="tb-corner bl"></div>
-      <div class="tb-corner br"></div>
+      <div class="tb-corner tl"></div><div class="tb-corner tr"></div>
+      <div class="tb-corner bl"></div><div class="tb-corner br"></div>
       <p class="effect-text">${data.effect}</p>
-      <div class="atk-def">
-        ATK:&nbsp;<span class="atk-val">${data.atk}</span>
-        &nbsp;/&nbsp;
-        DEF:&nbsp;<span class="def-val">${data.def}</span>
-      </div>
+      <div class="atk-def">ATK:&nbsp;<span class="atk-val">${data.atk}</span>&nbsp;/&nbsp;DEF:&nbsp;<span class="def-val">${data.def}</span></div>
     </div>
-
     <div class="card-footer">
       <span class="footer-corner l">&#9733;</span>
       <span class="footer-id">UPARK-VOL2</span>
       <span class="footer-logo">&#220;</span>
       <span class="footer-zone">ZONE-${data.zone}</span>
       <span class="footer-corner r">&#9733;</span>
-    </div>
-  `;
-
-  // Draw canvas art
+    </div>`;
   requestAnimationFrame(() => {
-    const canvas = card.querySelector('.card-canvas');
-    DRAW_FNS[idx](canvas.getContext('2d'), canvas.width, canvas.height);
+    const c = card.querySelector('canvas');
+    FIELD_DRAW[idx](c.getContext('2d'), c.width, c.height);
   });
+  return card;
+}
 
+function buildSponsorCard(data, idx) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  const nameClass = data.name.length > 18 ? 'card-name sm' : 'card-name';
+  card.innerHTML = `
+    <div class="c-corner tl"></div><div class="c-corner tr"></div>
+    <div class="c-corner bl"></div><div class="c-corner br"></div>
+    <div class="card-header">
+      <h2 class="${nameClass}">${data.name}</h2>
+      <div class="spell-badge"><span class="badge-top">SPELL</span><span class="badge-kanji">魔</span></div>
+    </div>
+    <div class="type-line"><span class="type-text">[ ${data.type} ]</span></div>
+    <div class="art-wrap">
+      <canvas class="card-canvas" width="286" height="185"></canvas>
+      <span class="art-star tl">&#x2726;</span><span class="art-star tr">&#x2726;</span>
+      <span class="art-star bl">&#x2726;</span><span class="art-star br">&#x2726;</span>
+    </div>
+    <div class="text-box">
+      <div class="tb-corner tl"></div><div class="tb-corner tr"></div>
+      <div class="tb-corner bl"></div><div class="tb-corner br"></div>
+      <p class="effect-text">${data.effect}</p>
+      <div class="atk-def">ATK:&nbsp;<span class="atk-val">${data.atk}</span>&nbsp;/&nbsp;DEF:&nbsp;<span class="def-val">${data.def}</span></div>
+    </div>
+    <div class="card-footer">
+      <span class="footer-corner l">&#9733;</span>
+      <span class="footer-id">UPARK-VOL2</span>
+      <span class="footer-logo">&#220;</span>
+      <span class="footer-zone">${data.id}</span>
+      <span class="footer-corner r">&#9733;</span>
+    </div>`;
+  requestAnimationFrame(() => {
+    const c = card.querySelector('canvas');
+    SPONSOR_DRAW[idx](c.getContext('2d'), c.width, c.height);
+  });
   return card;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const gallery = document.getElementById('gallery');
-  CARDS.forEach((c, i) => gallery.appendChild(buildCard(c, i)));
+  const fg = document.getElementById('field-gallery');
+  FIELD_CARDS.forEach((c,i) => fg.appendChild(buildFieldCard(c, i)));
+  const sg = document.getElementById('sponsor-gallery');
+  SPONSOR_CARDS.forEach((c,i) => sg.appendChild(buildSponsorCard(c, i)));
 });
 </script>

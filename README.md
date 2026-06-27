@@ -12,6 +12,8 @@ Planungsrepository für das **Üpark Payday 2026** Skateboarding-Event.
 | [`docs/distribution.md`](docs/distribution.md) | Kartenverteilung, Tombola-Regeln & Logistik |
 | [`docs/refinement-plan.md`](docs/refinement-plan.md) | 5-Schritte-Plan zur Eingrenzung & Finalisierung |
 | [`docs/card-texts.md`](docs/card-texts.md) | Finale Kartentexte (Social Media, Flyer, physische Karten) |
+| [`docs/field-series.md`](docs/field-series.md) | Vollständige Field Spell Serie — alle 5 Zonen mit Kartentexten |
+| [`cards/index.html`](cards/index.html) | Interaktive Kartenгалерея im finalen Stil (HTML/Canvas) |
 
 ## Konzept auf einen Blick
 

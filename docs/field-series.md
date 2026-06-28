@@ -1,11 +1,11 @@
 # Field Spell Series — UPARK-VOL2
 
 Komplette Kartenserie aller Obstacles im Üpark als Field Spell Cards.  
-Referenz-Design: siehe `cards/index.html` und die Muster-JPEGs im Projekt.
+Referenz-Design: siehe `cards/index.html`.
 
 ---
 
-## Visueller Stil (aus Muster-Karten extrahiert)
+## Visueller Stil
 
 | Element | Wert |
 |---|---|
@@ -18,78 +18,87 @@ Referenz-Design: siehe `cards/index.html` und die Muster-JPEGs im Projekt.
 | Textbox | Pergament-Verlauf `#e8d080 → #a07828`, rote Eckornamente |
 | ATK/DEF-Werte | Violett `#9060d0` |
 | Footer | `UPARK-VOL2` | Ü-Emblem | `ZONE-X` — Courier New, Neon |
-| Foto-Style | HDR, goldene Stunde, Weitwinkel-Perspektive von unten |
+| Foto-Stil | Echtfotos aus Üpark-Aufnahmen, object-fit: cover |
 
 ---
 
-## Zone I — The Long Rail
+## Zone I — London Gap
 
-**Name:** THE LONG RAIL  
+**Name:** LONDON GAP  
 **Typ:** \[Field Spell — Zone I\]
 
-> *When this card is activated, select 1 Skater monster on your field. That monster may attempt any grind or slide without Speed tribute until End Phase. Consecutive tricks in a chain each gain +100 ATK — commitment compounds. This obstacle rewards clean feet and locked-in conviction.*
+> *When this card is activated, approach at full speed — no Speed tribute required. Skater monsters that gap the mound peak gain +250 ATK. If the landing is clean, draw 1 Combo Extender. Bail on the approach: take 200 damage and lose momentum. The gap is real. The consequence is real.*
 
-**ATK:** LOCKED IN &nbsp;/&nbsp; **DEF:** STEADY GRIND  
+**ATK:** AIR OVER CONCRETE &nbsp;/&nbsp; **DEF:** MOUND CLEARED  
 **Set-ID:** UPARK-VOL2 — ZONE-I
 
 ---
 
-## Zone II — Stair Set + Hubba
+## Zone II — The Hip
 
-**Name:** STAIR SET + HUBBA  
+**Name:** THE HIP  
 **Typ:** \[Field Spell — Zone II\]
 
-> *Select 1 rail or ledge adjacent to the stairs. Until the End Phase, you may grind, slide, or gap this obstacle freely. Handrail attempts require a Speed tribute. Hubba ledge is waxed — no tribute needed. If you miss the landing, take 300 damage.*
+> *A meeting point of angles. When a Skater monster performs a Hip Transfer in this zone, your trick chain is not interrupted — the turn does not end. Transfer tricks gain +200 ATK. Frontside and backside approaches are treated equally. This card remains active as long as a Skater monster is in motion.*
 
-**ATK:** KINETIC ENERGY &nbsp;/&nbsp; **DEF:** LOCKED GRIND  
+**ATK:** TRANSFER ATK &nbsp;/&nbsp; **DEF:** LINE EXTENDED  
 **Set-ID:** UPARK-VOL2 — ZONE-II
 
 ---
 
-## Zone III — The Wedge Hip
+## Zone III — The Ledge
 
-**Name:** THE WEDGE HIP  
+**Name:** THE LEDGE  
 **Typ:** \[Field Spell — Zone III\]
 
-> *When a Skater monster approaches this zone: You may transfer speed into air. Hip transfers are treated as combo extenders — your trick chain is not interrupted. Caveman and wallride attempts gain +200 ATK. This card remains active for the full session.*
+> *While this card is active, all grind and slide attempts on the Ledge require no wax tribute — the curve does the work. Consecutive grinds each gain +100 ATK. A Skater monster that locks a full-length grind draws 1 bonus Trick card. Style is the score. The ledge remembers every clean line.*
 
-**ATK:** AIR TIME &nbsp;/&nbsp; **DEF:** SMOOTH ROLL-IN  
+**ATK:** LOCKED ON &nbsp;/&nbsp; **DEF:** FULL LENGTH  
 **Set-ID:** UPARK-VOL2 — ZONE-III
 
 ---
 
-## Zone IV — The Pyramid
+## Zone IV — Grass Gap
 
-**Name:** THE PYRAMID  
+**Name:** GRASS GAP  
 **Typ:** \[Field Spell — Zone IV\]
 
-> *This obstacle may be approached from any angle. When a Skater monster grinds the apex ledge, draw 1 bonus Trick card. Manual attempts on the flat top gain +150 ATK. If a kickflip or heelflip is landed off the peak, all your Skater monsters gain 200 ATK until the End Phase.*
+> *Declare your gap line before approach. If the Skater monster lands clean on the far side: claim +300 ATK for the remainder of the session. If the Skater clips the edge or lands short: take 250 damage. No Speed tribute required — commitment is the only cost. The gap does not negotiate.*
 
-**ATK:** APEX CONTROL &nbsp;/&nbsp; **DEF:** FLAT TOP HOLD  
+**ATK:** COMMIT OR BAIL &nbsp;/&nbsp; **DEF:** FULL SEND ONLY  
 **Set-ID:** UPARK-VOL2 — ZONE-IV
 
 ---
 
-## Zone V — The Bank to Bank
+## Zone V — The Hubba
 
-**Name:** THE BANK TO BANK  
+**Name:** THE HUBBA  
 **Typ:** \[Field Spell — Zone V\]
 
-> *The centerpiece of the arena. When this card is active, all Skater monsters gain momentum as they approach. Speed rolls freely across this zone. Combos begun here may extend to any adjacent Zone without tribute. The sun rises and sets behind this spot — it witnesses everything.*
+> *Select 1 grind or slide. Perform it on the Hubba ledge in a single, uninterrupted motion. Each clean trick gains (10 × ledge length) bonus ATK. If the trick is combined with a manual after landing, all your Skater monsters gain 200 ATK until End Phase. The Hubba judges commitment. Hesitation is a bail.*
 
-**ATK:** FULL SEND &nbsp;/&nbsp; **DEF:** CONCRETE LEGACY  
+**ATK:** LEDGE CERTIFIED &nbsp;/&nbsp; **DEF:** DROP LANDED  
 **Set-ID:** UPARK-VOL2 — ZONE-V
+
+---
+
+## Upcoming — Noch nicht fotografiert
+
+| Obstacle | Status | Karten-Name |
+|---|---|---|
+| Double Set | Fotos ausstehend | TBD |
+| Dreierblock | Fotos ausstehend | TBD |
 
 ---
 
 ## Produktions-Status
 
-| Zone | Foto vorhanden | Kartentext | HTML-Render |
+| Zone | Foto | Kartentext | HTML-Render |
 |---|---|---|---|
-| I — The Long Rail | ✗ (Platzhalter) | ✓ | ✓ |
-| II — Stair Set + Hubba | ✓ | ✓ | ✓ |
-| III — The Wedge Hip | ✓ | ✓ | ✓ |
-| IV — The Pyramid | ✗ (Platzhalter) | ✓ | ✓ |
-| V — The Bank to Bank | ✓ | ✓ | ✓ |
-
-Fehlende Fotos (Zonen I + IV) nach Fotoprobe in SVG `<image>`-Platzhalter eintragen (→ `card-design-spec.md`).
+| I — London Gap | ✓ (IMG_5438) | ✓ | ✓ |
+| II — The Hip | ✓ (IMG_5441) | ✓ | ✓ |
+| III — The Ledge | ✓ (IMG_5437) | ✓ | ✓ |
+| IV — Grass Gap | ✓ (IMG_5439) | ✓ | ✓ |
+| V — The Hubba | ✓ (IMG_5436) | ✓ | ✓ |
+| — Double Set | ✗ ausstehend | — | — |
+| — Dreierblock | ✗ ausstehend | — | — |

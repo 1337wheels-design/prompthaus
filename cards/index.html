@@ -178,21 +178,22 @@ body {
 /* SPELL badge */
 .spell-badge {
   position: absolute;
-  top: 9px; right: 9px;
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #00ff66 0%, #00c040 60%, #008030 100%);
-  border: 1.5px solid rgba(255,255,255,0.25);
-  box-shadow: 0 0 10px var(--neon), 0 0 22px var(--neon-dim);
+  top: 7px; right: 7px;
+  width: 44px; height: 44px;
+  border-radius: 6px;
+  background: rgba(11,4,32,0.85);
+  border: 1.5px solid var(--gold);
+  box-shadow: 0 0 8px rgba(196,154,40,0.4);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   line-height: 1;
   z-index: 10;
+  padding: 2px;
 }
-.badge-top { font-family: 'Courier New', monospace; font-size: 6px; font-weight: bold; letter-spacing: 1px; color: #003318; margin-bottom: 1px; }
-.badge-kanji { font-size: 17px; color: #002214; font-weight: bold; line-height: 1; }
+.badge-top { font-family: 'Courier New', monospace; font-size: 6px; font-weight: bold; letter-spacing: 1px; color: var(--gold); margin-bottom: 2px; }
+.badge-kanji { display: none; }
 
 /* Type line */
 .type-line {
@@ -699,7 +700,7 @@ function buildFieldCard(data, idx) {
     <div class="c-corner bl"></div><div class="c-corner br"></div>
     <div class="card-header">
       <h2 class="${nameClass}">${data.name}</h2>
-      <div class="spell-badge"><span class="badge-top">SPELL</span><span class="badge-kanji">魔</span></div>
+      <div class="spell-badge"><span class="badge-top">SPELL</span><img class="badge-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAgCAYAAAB6kdqOAAAFpklEQVRYCc3Bf1AW9B3A8ffn+cFDERIiD7LnAWFW7vwxKxZ1s92SbNa6sYCBaZCdzdxUJhj3cFzNxx2QuutsdjRFfiVhpIE28kdoQZwmGxhcUgsxaWDawzOBJ374PPg8D989f/AH91y77S4MXy/hJpKSkqKEm4TZbFa9vb0I0yw6OlppNBrSnsijuMKCMM0eTVitXti8nY7ew6xfv16EaVRT1KVSNtxJUVERmZmZgo8wTZTPltW7yK/MEiYRvmfKZ86cOZx4+J/M3WtAr9cLkwg3QFBQkPJ6vbhcLsEnNTVVLV26lOTkZHJTtnDl1i+pWnwUsTgwGo3CJMIUmzVrllqyMJm/fbhX8DGbzepMRhfmwkDcbjfX/hzA6PAoXZrPSNh+v+BHmCIi4omJidHu+GkDWY1L0Gq1XLp0SSwWi8q5vAMJUCw8FonNZmP4iOJCeDtxD8QJfoTvKDY2Vm38URWvnc+gekEb788sY93cTfT9Y4AVPQlcvnyZ3tcG8HrA5XaT35bN1md38sbRcjb/8feCH8HHaDQqu90u/B+MRqOy2+2Cj/LBJzY2lo8e6qLE+TL7WkpoX9uNGofh6AHiLQtIWb6Cgs0vM3rNi+kBA+eKr7PtwAbeaiwV/Ag+hw4dUnVHOinda8FkMtHX1yd8i+It76mhnmF2fZBNa2srrt+FEvOOgaFyxdXufg4ElbAxOo/gp8Bx0suL1TkUWLcxOig0ZLoJ0WvY782kurGEgkeLsJ7cJPgRJrjdbrWt8O/YbKc59l4xPT093wAhSilhQkvKoNKf0fHN3T20Jhznt6M53G6F4QrIq8/i3ebDtJVf5Omdv2b3i7UMz7iIpu0OLpRcI6XZyKkgF6U/ycS0JJxN/3qeznWfkpSUhN1uFyYIkyif8oJu+rr6+dPBnxEWFsbePxzk8dwlREZGcjzqY+au/QEtJ86yrOY+GXpDKZdmjPFQhXfxAJ6umZw+38jK5x7j7QWj/ObTW/jComi5u5qMjAxxJilV/vlfafpxEzk5OUS9HkHlnLfIzc0VJgh+DlrOqez9j1Hzw0+ImH0buot69oW+grXRwuCrXrRGcGs9hKUauHpmjNExD8c6KzGdXcVgk4e7lt+K5ksN5588QE5ODvsX1/Bw/YMSGBionE4nwcHBOBwOzGYzHZEtHEo7zrq8dcIEwU9ERER027Kverwf6lg0cjs9Lw2gAhWmzBl8fXgEt9bL+G2K8Pv1nD/t4eTqXmqjn2XnHSdRrRpm36Phs/4zPNfxFN0Lv8B7WKHX64X/Ijs7W6mvFLtqdqGUEuFbjLw9rjw2cJqHCLg6g6awdwgPDyfCNZ/gqFvYsfpNis9lciy1l1JvFpWVlVx4xk7/3B5+XvAgHo9HXn+kVI0HKNYcXSv8DyKiQkJCcDgcIvgJCQlRlyocXL/u5ZT9A0Zn/hur1cruX3VQ0f48z2heoc1Zy9b2NXQk9rH87D0UR5WwXfcSDQ0Nwnck+LFarWrjL1/giq0f1+xe4uPjaXp6DA3XcKa3cu/ny/jLiXxWbE/mSN4R8hvycTqdwhQR/AQFBamyh66gX/M+g6d03Nf3OIFOReWCrRQWFop3k1KnP24ksSOJ+fPn09zcLEwhwU9ERISy2WxERkbSctfXuCu6iYuLw+FwyMqVK1V9fT3t7e3MmzcPl8slTDHBT+8Gj4oq0pKXl8eePXtwOBzCJOnp6aqqqkq4QYRJFi1apD66t5mRbUPodDqMRqPgx2AwqLGxMeEGESZotdoRd/po0O74MqxWKzabDZ1OJ3zPhAkxMTGqM+ETDGUzCA0NxeFwCNNAmOTgL95UaSdWCdNI8DGZTKqzs5OyVaVkvZstTCPBJy0tTZWUlGAwGAgMDBSmkeBT82Sdqnbvo7a2VphmEhwcrPr7+wkICBBuAlJXV6cSExOFm8R/AKHxZ1ysx4tIAAAAAElFTkSuQmCC" alt="PAYDAY" style="width:36px;height:auto;display:block;"></div>
     </div>
     <div class="type-line"><span class="type-text">[ Field Spell &mdash; Zone ${data.zone} ]</span></div>
     <div class="art-wrap">
@@ -738,7 +739,7 @@ function buildSponsorCard(data, idx) {
     <div class="c-corner bl"></div><div class="c-corner br"></div>
     <div class="card-header">
       <h2 class="${nameClass}">${data.name}</h2>
-      <div class="spell-badge"><span class="badge-top">SPELL</span><span class="badge-kanji">魔</span></div>
+      <div class="spell-badge"><span class="badge-top">SPELL</span><img class="badge-logo" src="data:image/png;base64,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" alt="PAYDAY" style="width:36px;height:auto;display:block;"></div>
     </div>
     <div class="type-line"><span class="type-text">[ ${data.type} ]</span></div>
     <div class="art-wrap">

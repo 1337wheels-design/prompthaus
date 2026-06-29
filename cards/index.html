@@ -264,6 +264,8 @@ body {
   flex-wrap: nowrap;
   overflow: hidden;
 }
+
+.payday-stat { height: 13px; width: auto; vertical-align: middle; margin-right: 4px; filter: brightness(1.1); }
 .atk-val, .def-val { color: var(--violet); font-weight: bold; font-size: 8.5px; letter-spacing: 0.5px; text-shadow: 0 0 6px rgba(144,96,208,0.4); }
 
 /* Card footer */
@@ -336,14 +338,14 @@ const ZONE_PHOTOS = {
 };
 
 const FIELD_CARDS = [
-  { zone:'I', name:'LONDON GAP', effect:'This zone accepts one currency: full commitment before the point of no return. Partial approach is not an attempt — it is a forfeit. Those who carry speed without hesitation are granted passage and the line. Those who arrive with doubt carry the landing in their ankles.', atk:'EUR - 220', def:'POINT OF NO RETURN' },
-  { zone:'II', name:'HIP', effect:'The hip imposes a direction change mid-motion. Balance must lead the board — not follow it. A skater whose weight transfers before the trick does inherits the line extension. A skater chasing their own board sideways pays the ground rate.', atk:'EUR - 85', def:'WEIGHT OVER WHEELS' },
-  { zone:'III', name:'LEDGE', effect:'The ledge holds the memory of every session that happened here. It rewards those who have already paid — in wax, in shins, in repetition. Foot position is not a technique, it is a tax. Settled accounts grind clean. Outstanding balances stop hard.', atk:'EUR - 65', def:'LOCK OR STOP' },
-  { zone:'IV', name:'GRASS GAP', effect:'One approach. No correction available. This zone does not negotiate distance — it measures commitment. A clean landing claims the line. An undershoot is an invoice: knees handle the settlement. The pavement ends where the decision was already made.', atk:'EUR - 190', def:'FULL SEND ONLY' },
-  { zone:'V', name:'HUBBA', effect:'Elevation changes the cost of every mistake. This zone demands a locked entry from first contact — drift before the bottom and the elevation premium applies on impact. Those who ride it out from top to bottom, locked the whole way, collect the mastery.', atk:'EUR - 290', def:'LOCKED IN ONLY' },
-  { zone:'VI', name:'DOUBLE SET', effect:'Rail or gap. The zone requires the decision before the push — not during it. An unfinished plan meets its own hole at the bottom. Impact at this obstacle is the final settlement. Those who arrive complete are granted the drop. The rest fund the lesson.', atk:'EUR - 480', def:'PLAN OR PAY' },
-  { zone:'VII', name:'KICKER RAIL', effect:'Short window. No run for correction. This zone runs on precision — foot placement is the entry condition and the rail collects the difference from anyone who is off. The obstacle does not adjust. The approach does. Accounts settled on contact.', atk:'EUR - 130', def:'EXACT FOOT PLACEMENT' },
-  { zone:'VIII', name:'BLÖCKE', effect:'No prescribed line is active here. The blocks impose one condition: arrive with a complete idea. Manual pad, gap, launch, link — the zone honours any of them if the thought was finished before the push. An incomplete idea finds its gap mid-approach. Think first.', atk:'EUR - 95', def:'BRING YOUR OWN LINE' }
+  { zone:'I', name:'LONDON GAP', effect:'This zone accepts one currency: full commitment before the point of no return. Partial approach is not an attempt — it is a forfeit. Those who carry speed without hesitation are granted passage and the line. Those who arrive with doubt carry the landing in their ankles.', atk:'€€€€', def:'POINT OF NO RETURN' },
+  { zone:'II', name:'HIP', effect:'The hip imposes a direction change mid-motion. Balance must lead the board — not follow it. A skater whose weight transfers before the trick does inherits the line extension. A skater chasing their own board sideways pays the ground rate.', atk:'€€', def:'WEIGHT OVER WHEELS' },
+  { zone:'III', name:'LEDGE', effect:'The ledge holds the memory of every session that happened here. It rewards those who have already paid — in wax, in shins, in repetition. Foot position is not a technique, it is a tax. Settled accounts grind clean. Outstanding balances stop hard.', atk:'€', def:'LOCK OR STOP' },
+  { zone:'IV', name:'GRASS GAP', effect:'One approach. No correction available. This zone does not negotiate distance — it measures commitment. A clean landing claims the line. An undershoot is an invoice: knees handle the settlement. The pavement ends where the decision was already made.', atk:'€€€', def:'FULL SEND ONLY' },
+  { zone:'V', name:'HUBBA', effect:'Elevation changes the cost of every mistake. This zone demands a locked entry from first contact — drift before the bottom and the elevation premium applies on impact. Those who ride it out from top to bottom, locked the whole way, collect the mastery.', atk:'€€€€', def:'LOCKED IN ONLY' },
+  { zone:'VI', name:'DOUBLE SET', effect:'Rail or gap. The zone requires the decision before the push — not during it. An unfinished plan meets its own hole at the bottom. Impact at this obstacle is the final settlement. Those who arrive complete are granted the drop. The rest fund the lesson.', atk:'€€€€€', def:'PLAN OR PAY' },
+  { zone:'VII', name:'KICKER RAIL', effect:'Short window. No run for correction. This zone runs on precision — foot placement is the entry condition and the rail collects the difference from anyone who is off. The obstacle does not adjust. The approach does. Accounts settled on contact.', atk:'€€€', def:'EXACT FOOT PLACEMENT' },
+  { zone:'VIII', name:'BLÖCKE', effect:'No prescribed line is active here. The blocks impose one condition: arrive with a complete idea. Manual pad, gap, launch, link — the zone honours any of them if the thought was finished before the push. An incomplete idea finds its gap mid-approach. Think first.', atk:'€€', def:'BRING YOUR OWN LINE' }
 ];
 
 /* ── Sponsor Card data ── */
@@ -688,6 +690,7 @@ const FIELD_DRAW = [drawFieldI, drawFieldII, drawFieldIII, drawFieldIV, drawFiel
 const SPONSOR_DRAW = [drawDistriVault, drawCultureField, drawYoungGun, drawOnlineOracle, drawCash4Tricks, drawDripProtocol, drawShopBattle, drawDarkHorse];
 
 /* ── Card builder ── */
+const PAYDAY_LOGO = 'data:image/png;base64,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';
 function buildFieldCard(data, idx) {
   const card = document.createElement('div');
   card.className = 'card';
@@ -714,7 +717,7 @@ function buildFieldCard(data, idx) {
       <div class="tb-corner tl"></div><div class="tb-corner tr"></div>
       <div class="tb-corner bl"></div><div class="tb-corner br"></div>
       <p class="effect-text">${data.effect}</p>
-      <div class="atk-def">ATK:&nbsp;<span class="atk-val">${data.atk}</span>&nbsp;/&nbsp;DEF:&nbsp;<span class="def-val">${data.def}</span></div>
+      <div class="atk-def"><img class="payday-stat" src="${PAYDAY_LOGO}" alt="PAYDAY"><span class="atk-val">${data.atk}</span>&nbsp;/&nbsp;DEF:&nbsp;<span class="def-val">${data.def}</span></div>
     </div>
     <div class="card-footer">
       <span class="footer-corner l">&#9733;</span>
@@ -753,7 +756,7 @@ function buildSponsorCard(data, idx) {
       <div class="tb-corner tl"></div><div class="tb-corner tr"></div>
       <div class="tb-corner bl"></div><div class="tb-corner br"></div>
       <p class="effect-text">${data.effect}</p>
-      <div class="atk-def">ATK:&nbsp;<span class="atk-val">${data.atk}</span>&nbsp;/&nbsp;DEF:&nbsp;<span class="def-val">${data.def}</span></div>
+      <div class="atk-def"><img class="payday-stat" src="${PAYDAY_LOGO}" alt="PAYDAY"><span class="atk-val">${data.atk}</span>&nbsp;/&nbsp;DEF:&nbsp;<span class="def-val">${data.def}</span></div>
     </div>
     <div class="card-footer">
       <span class="footer-corner l">&#9733;</span>

@@ -494,13 +494,13 @@ function redraw() {
   // 3. logo overlay (screen blend, clipped, rotated 90° CW to run along board length)
   const _li = getLogoImg();
   if (showLogo && _li) {
-    const drawW = H;                          // after 90° CW, logo width spans full board height
+    const drawW = H * 0.9;                    // after 90° CW, logo width spans board height (-10%)
     const drawH = drawW * getLogoAspect();    // logo height spans board width (clipped by deck shape)
     ctx.save();
     ctx.clip(path);
     ctx.translate(W / 2, H / 2);
     ctx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
-    ctx.globalCompositeOperation = 'screen';
+    ctx.globalCompositeOperation = 'source-over';
     ctx.drawImage(_li, -drawW / 2, -drawH / 2, drawW, drawH);
     ctx.restore();
   }
@@ -706,7 +706,7 @@ function download() {
     octx.save();
     octx.translate(W / 2, H / 2);
     octx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
-    octx.globalCompositeOperation = 'screen';
+    octx.globalCompositeOperation = 'source-over';
     octx.drawImage(_dli, -drawW / 2, -drawH / 2, drawW, drawH);
     octx.restore();
   }
@@ -1161,7 +1161,7 @@ function exportHiRes() {
     octx.clip(path);
     octx.translate(W / 2, H / 2);
     octx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
-    octx.globalCompositeOperation = 'screen';
+    octx.globalCompositeOperation = 'source-over';
     octx.drawImage(_eli, -drawW / 2, -drawH / 2, drawW, drawH);
     octx.restore();
   }

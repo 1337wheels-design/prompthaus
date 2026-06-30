@@ -196,55 +196,19 @@ body {
 
 <div class="workspace">
 
-  <!-- LEFT: palette panel -->
+  <!-- LEFT: camo palette panel -->
   <aside class="panel" id="leftPanel">
-    <div class="panel-title">Obstacles</div>
-    <div class="presets" id="presets"></div>
-
     <div class="panel-title">Camo Style</div>
     <div class="presets" id="camo-presets"></div>
-
-    <div class="panel-title">Field Cards</div>
-    <div class="presets" id="field-presets"></div>
-
-    <div class="panel-title">Colors</div>
-    <div class="presets" id="color-presets"></div>
-
-    <div class="panel-title">Upload SVG</div>
-    <input type="file" accept=".svg,image/svg+xml" id="svgUpload" style="display:none" onchange="loadSvgFile(this)">
-    <button class="tool-btn" style="text-align:center;" onclick="document.getElementById('svgUpload').click()">↑ Upload SVG</button>
   </aside>
 
   <!-- CENTER: canvas -->
   <div class="canvas-wrap">
     <canvas id="mainCanvas" width="400" height="1400"></canvas>
-    <div class="undo-row">
-      <button class="tool-btn" style="flex:1;text-align:center;" onclick="undo()">↩ Undo</button>
-      <button class="tool-btn danger" style="flex:1;text-align:center;border-color:var(--coral);color:var(--coral);" onclick="clearDraw()">✕ Clear</button>
-    </div>
   </div>
 
-  <!-- RIGHT: tools panel -->
+  <!-- RIGHT: logo + export panel -->
   <aside class="panel">
-    <div class="panel-title">Tool</div>
-    <div class="tool-group">
-      <button class="tool-btn active" id="btn-brush" onclick="setTool('brush')">✏ Brush</button>
-      <button class="tool-btn" id="btn-spray" onclick="setTool('spray')">◎ Spray</button>
-      <button class="tool-btn" id="btn-fill" onclick="setTool('fill')">◼ Fill All</button>
-      <button class="tool-btn" id="btn-erase" onclick="setTool('erase')">◻ Erase</button>
-    </div>
-
-    <div class="tool-group">
-      <div class="tool-group-label">Size</div>
-      <div class="size-row">
-        <button class="size-btn" onclick="setSize(4)">S</button>
-        <button class="size-btn active" onclick="setSize(10)">M</button>
-        <button class="size-btn" onclick="setSize(20)">L</button>
-        <button class="size-btn" onclick="setSize(36)">XL</button>
-        <button class="size-btn" onclick="setSize(60)">2X</button>
-      </div>
-    </div>
-
     <div class="tool-group">
       <div class="tool-group-label">Logo</div>
       <div class="toggle-row">
@@ -266,157 +230,20 @@ body {
 </div><!-- /workspace -->
 
 <script>
-// ═══════════════════════════════════════════════════════
-//  OBSTACLE BACKGROUND PRESETS (8 zones)
-// ═══════════════════════════════════════════════════════
-const OBSTACLES = [
-  {
-    name:'LONDON GAP', zone:'I', accent:'#ffd246',
-    draw(ctx, w, h) {
-      const g = ctx.createLinearGradient(0,0,0,h);
-      g.addColorStop(0,   '#0c1828');
-      g.addColorStop(0.4, '#182438');
-      g.addColorStop(0.6, '#2c2c14');
-      g.addColorStop(1,   '#382810');
-      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
-      const sg = ctx.createRadialGradient(w*.5,h*.32,0, w*.5,h*.32,w*.38);
-      sg.addColorStop(0,   'rgba(255,210,70,0.9)');
-      sg.addColorStop(0.25,'rgba(255,160,30,0.5)');
-      sg.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = sg; ctx.fillRect(0,0,w,h);
-    }
-  },
-  {
-    name:'HIP', zone:'II', accent:'#e6a050',
-    draw(ctx, w, h) {
-      const g = ctx.createLinearGradient(0,0,0,h);
-      g.addColorStop(0,   '#182438');
-      g.addColorStop(0.45,'#2e2c1e');
-      g.addColorStop(0.75,'#585850');
-      g.addColorStop(1,   '#787868');
-      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
-      const ag = ctx.createRadialGradient(w*.5,h*.45,0, w*.5,h*.45,w*.55);
-      ag.addColorStop(0,   'rgba(255,180,80,0.25)');
-      ag.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = ag; ctx.fillRect(0,0,w,h);
-    }
-  },
-  {
-    name:'LEDGE', zone:'III', accent:'#c8beac',
-    draw(ctx, w, h) {
-      const g = ctx.createLinearGradient(0,0,0,h);
-      g.addColorStop(0,   '#1c1c20');
-      g.addColorStop(0.5, '#484840');
-      g.addColorStop(1,   '#525248');
-      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
-      const cg = ctx.createRadialGradient(w*.5,0,0, w*.5,0,h*.5);
-      cg.addColorStop(0,   'rgba(200,190,140,0.18)');
-      cg.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = cg; ctx.fillRect(0,0,w,h);
-    }
-  },
-  {
-    name:'GRASS GAP', zone:'IV', accent:'#b4a050',
-    draw(ctx, w, h) {
-      const g = ctx.createLinearGradient(0,0,0,h);
-      g.addColorStop(0,   '#161610');
-      g.addColorStop(0.4, '#303028');
-      g.addColorStop(0.7, '#404038');
-      g.addColorStop(1,   '#606058');
-      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
-      const dg = ctx.createRadialGradient(w*.5,h*.3,0, w*.5,h*.3,w*.45);
-      dg.addColorStop(0,   'rgba(180,160,80,0.22)');
-      dg.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = dg; ctx.fillRect(0,0,w,h);
-    }
-  },
-  {
-    name:'HUBBA', zone:'V', accent:'#ff9620',
-    draw(ctx, w, h) {
-      const g = ctx.createLinearGradient(0,0,0,h);
-      g.addColorStop(0,   '#0e0c06');
-      g.addColorStop(0.45,'#282616');
-      g.addColorStop(0.7, '#555048');
-      g.addColorStop(1,   '#1c1a0e');
-      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
-      const hg = ctx.createRadialGradient(w*.5,h*.6,0, w*.5,h*.6,w*.4);
-      hg.addColorStop(0,   'rgba(255,160,30,0.22)');
-      hg.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = hg; ctx.fillRect(0,0,w,h);
-    }
-  },
-  {
-    name:'DOUBLE SET', zone:'VI', accent:'#ff6b47',
-    draw(ctx, w, h) {
-      const g = ctx.createLinearGradient(0,0,0,h);
-      g.addColorStop(0,   '#1a0404');
-      g.addColorStop(0.45,'#4a1208');
-      g.addColorStop(0.75,'#ff6b47');
-      g.addColorStop(1,   '#c03020');
-      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
-      const fg = ctx.createRadialGradient(w*.5,h*.6,0, w*.5,h*.6,w*.5);
-      fg.addColorStop(0,   'rgba(255,200,160,0.25)');
-      fg.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = fg; ctx.fillRect(0,0,w,h);
-    }
-  },
-  {
-    name:'KICKER RAIL', zone:'VII', accent:'#00c8b0',
-    draw(ctx, w, h) {
-      const g = ctx.createLinearGradient(0,0,0,h);
-      g.addColorStop(0,   '#000e0c');
-      g.addColorStop(0.4, '#003828');
-      g.addColorStop(0.75,'#006650');
-      g.addColorStop(1,   '#00c8b0');
-      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
-      const ag = ctx.createRadialGradient(w*.5,h*.55,0, w*.5,h*.55,w*.5);
-      ag.addColorStop(0,   'rgba(0,200,176,0.3)');
-      ag.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = ag; ctx.fillRect(0,0,w,h);
-    }
-  },
-  {
-    name:'BLÖCKE', zone:'VIII', accent:'#f0d060',
-    draw(ctx, w, h) {
-      const g = ctx.createLinearGradient(0,0,0,h);
-      g.addColorStop(0,   '#0e0a02');
-      g.addColorStop(0.4, '#2a2004');
-      g.addColorStop(0.7, '#7a5008');
-      g.addColorStop(1,   '#f0d060');
-      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
-      const gg = ctx.createRadialGradient(w*.5,h*.65,0, w*.5,h*.65,w*.5);
-      gg.addColorStop(0,   'rgba(240,208,80,0.35)');
-      gg.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = gg; ctx.fillRect(0,0,w,h);
-    }
-  }
-];
+
 
 
 
 // ═══════════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════════
-let currentTool  = 'brush';
-let brushSize    = 10;
-let currentColor = '#ff6b47';
-let showLogo     = true;
-let activePreset = 0;
-let isDrawing    = false;
-let lastX = 0, lastY = 0;
+let showLogo = true;
 
-// Off-screen canvases
+// Canvases
 const W = 400, H = 1400;
-const bgCanvas   = document.createElement('canvas');
-bgCanvas.width   = W; bgCanvas.height = H;
-const drawCanvas = document.createElement('canvas');
-drawCanvas.width = W; drawCanvas.height = H;
-const bgCtx   = bgCanvas.getContext('2d');
-const drawCtx = drawCanvas.getContext('2d');
-
-// Undo stack (store draw canvas snapshots)
-const UNDO_LIMIT = 8;
-const undoStack = [];
+const bgCanvas = document.createElement('canvas');
+bgCanvas.width = W; bgCanvas.height = H;
+const bgCtx = bgCanvas.getContext('2d');
 
 // Logo image
 let logoImg = null;
@@ -440,37 +267,6 @@ const DECK_PATH_STR = 'M 200,0 C 310.4,0 400,89.6 400,200 L 400,1200 C 400,1310.
 function getDeckPath() { return new Path2D(DECK_PATH_STR); }
 
 // ═══════════════════════════════════════════════════════
-//  INIT UI
-// ═══════════════════════════════════════════════════════
-function buildPresets() {
-  const container = document.getElementById('presets');
-  OBSTACLES.forEach((ob, i) => {
-    const mc = document.createElement('canvas');
-    mc.width = 60; mc.height = 80;
-    const mctx = mc.getContext('2d');
-    const mpath = new Path2D('M 30,0 C 46.6,0 60,13.4 60,30 L 60,50 C 60,66.6 46.6,80 30,80 C 13.4,80 0,66.6 0,50 L 0,30 C 0,13.4 13.4,0 30,0 Z');
-    mctx.save(); mctx.clip(mpath);
-    ob.draw(mctx, 60, 80);
-    mctx.restore();
-    mctx.strokeStyle = 'rgba(255,255,255,0.15)';
-    mctx.lineWidth = 1; mctx.stroke(mpath);
-
-    const btn = document.createElement('button');
-    btn.className = 'preset-btn' + (i === 0 ? ' active' : '');
-    btn.id = 'preset-' + i;
-    btn.appendChild(mc);
-
-    const tag = document.createElement('span');
-    tag.className = 'zone-tag';
-    tag.textContent = ob.zone;
-    btn.appendChild(tag);
-
-    btn.addEventListener('click', () => applyPreset(i));
-    container.appendChild(btn);
-  });
-}
-
-// ═══════════════════════════════════════════════════════
 //  RENDER
 // ═══════════════════════════════════════════════════════
 function redraw() {
@@ -486,13 +282,7 @@ function redraw() {
   ctx.drawImage(bgCanvas, 0, 0);
   ctx.restore();
 
-  // 2. drawing layer (clipped)
-  ctx.save();
-  ctx.clip(path);
-  ctx.drawImage(drawCanvas, 0, 0);
-  ctx.restore();
-
-  // 3. logo overlay (screen blend, clipped, rotated 90° CW to run along board length)
+  // 2. logo overlay (clipped, rotated 90° CW to run along board length)
   const _li = getLogoImg();
   if (showLogo && _li) {
     const drawW = H * 0.9;                    // after 90° CW, logo width spans board height (-10%)
@@ -514,174 +304,14 @@ function redraw() {
   ctx.restore();
 }
 
-// ═══════════════════════════════════════════════════════
-//  PRESET APPLICATION
-// ═══════════════════════════════════════════════════════
 function clearAllPresetBtns() {
-  ['presets','camo-presets','field-presets','color-presets'].forEach(id => {
-    document.querySelectorAll('#' + id + ' .preset-btn').forEach(b => b.classList.remove('active'));
-  });
+  document.querySelectorAll('#camo-presets .preset-btn').forEach(b => b.classList.remove('active'));
 }
 
-function applyPreset(idx) {
-  activePreset = idx;
-  bgMode = 'obstacle';
-  clearAllPresetBtns();
-  document.querySelectorAll('#presets .preset-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
-  bgCtx.clearRect(0, 0, W, H);
-  OBSTACLES[idx].draw(bgCtx, W, H);
-  redraw();
-}
-
-// ═══════════════════════════════════════════════════════
-//  COLOR SELECTION
-// ═══════════════════════════════════════════════════════
-function selectColor(hex, el) {
-  currentColor = hex;
-  document.getElementById('customColor').value = hex.length === 7 ? hex : currentColor;
-  document.querySelectorAll('.sw').forEach(s => s.classList.remove('active'));
-  if (el) el.classList.add('active');
-}
-
-function pickCustom(hex) {
-  currentColor = hex;
-  document.querySelectorAll('.sw').forEach(s => s.classList.remove('active'));
-}
-
-// ═══════════════════════════════════════════════════════
-//  TOOL SELECTION
-// ═══════════════════════════════════════════════════════
-function setTool(name) {
-  currentTool = name;
-  ['brush','spray','fill','erase'].forEach(t => {
-    const btn = document.getElementById('btn-' + t);
-    if (btn) btn.classList.toggle('active', t === name);
-  });
-}
-
-function setSize(sz) {
-  brushSize = sz;
-  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-}
-
-// ═══════════════════════════════════════════════════════
-//  DRAWING
-// ═══════════════════════════════════════════════════════
-function getCanvasPos(e) {
-  const canvas = document.getElementById('mainCanvas');
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = W / rect.width;
-  const scaleY = H / rect.height;
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return {
-    x: (clientX - rect.left) * scaleX,
-    y: (clientY - rect.top)  * scaleY,
-  };
-}
-
-function pushUndo() {
-  const snap = document.createElement('canvas');
-  snap.width = W; snap.height = H;
-  snap.getContext('2d').drawImage(drawCanvas, 0, 0);
-  undoStack.push(snap);
-  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
-}
-
-function applyBrush(x, y) {
-  if (currentTool === 'erase') {
-    drawCtx.save();
-    drawCtx.globalCompositeOperation = 'destination-out';
-    drawCtx.beginPath();
-    drawCtx.arc(x, y, brushSize, 0, Math.PI * 2);
-    drawCtx.fillStyle = 'rgba(0,0,0,1)';
-    drawCtx.fill();
-    drawCtx.restore();
-    return;
-  }
-
-  if (currentTool === 'brush') {
-    drawCtx.save();
-    drawCtx.globalCompositeOperation = 'source-over';
-    drawCtx.strokeStyle = currentColor;
-    drawCtx.lineWidth = brushSize * 2;
-    drawCtx.lineCap = 'round';
-    drawCtx.lineJoin = 'round';
-    drawCtx.beginPath();
-    drawCtx.moveTo(lastX, lastY);
-    drawCtx.lineTo(x, y);
-    drawCtx.stroke();
-    drawCtx.restore();
-  } else if (currentTool === 'spray') {
-    const density = Math.max(6, brushSize * 1.5);
-    for (let i = 0; i < density; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = Math.random() * brushSize * 1.4;
-      const px = x + Math.cos(angle) * r;
-      const py = y + Math.sin(angle) * r;
-      drawCtx.save();
-      drawCtx.globalAlpha = 0.2 + Math.random() * 0.5;
-      drawCtx.fillStyle = currentColor;
-      drawCtx.beginPath();
-      drawCtx.arc(px, py, 1 + Math.random() * 1.5, 0, Math.PI * 2);
-      drawCtx.fill();
-      drawCtx.restore();
-    }
-  }
-}
-
-function onPointerDown(e) {
-  e.preventDefault();
-  if (currentTool === 'fill') {
-    pushUndo();
-    drawCtx.save();
-    drawCtx.globalCompositeOperation = 'source-over';
-    drawCtx.fillStyle = currentColor;
-    drawCtx.fillRect(0, 0, W, H);
-    drawCtx.restore();
-    redraw();
-    return;
-  }
-  pushUndo();
-  isDrawing = true;
-  const pos = getCanvasPos(e);
-  lastX = pos.x; lastY = pos.y;
-  applyBrush(pos.x, pos.y);
-  redraw();
-}
-
-function onPointerMove(e) {
-  e.preventDefault();
-  if (!isDrawing) return;
-  const pos = getCanvasPos(e);
-  applyBrush(pos.x, pos.y);
-  lastX = pos.x; lastY = pos.y;
-  redraw();
-}
-
-function onPointerUp(e) {
-  e.preventDefault();
-  isDrawing = false;
-}
 
 // ═══════════════════════════════════════════════════════
 //  ACTIONS
 // ═══════════════════════════════════════════════════════
-function undo() {
-  if (!undoStack.length) return;
-  const snap = undoStack.pop();
-  drawCtx.clearRect(0, 0, W, H);
-  drawCtx.drawImage(snap, 0, 0);
-  redraw();
-}
-
-function clearDraw() {
-  pushUndo();
-  drawCtx.clearRect(0, 0, W, H);
-  redraw();
-}
-
 function toggleLogo() {
   showLogo = !showLogo;
   const btn = document.getElementById('logoToggle');
@@ -698,11 +328,10 @@ function download() {
 
   octx.clip(path);
   octx.drawImage(bgCanvas, 0, 0);
-  octx.drawImage(drawCanvas, 0, 0);
 
   const _dli = getLogoImg();
   if (showLogo && _dli) {
-    const drawW = H;
+    const drawW = H * 0.9;
     const drawH = drawW * getLogoAspect();
     octx.save();
     octx.translate(W / 2, H / 2);
@@ -715,9 +344,8 @@ function download() {
   out.toBlob(blob => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    const zone = OBSTACLES[activePreset].zone.toLowerCase();
     a.href = url;
-    a.download = `payday_deck_custom_zone${zone}.png`;
+    a.download = 'payday_deck_camo.png';
     a.click();
     URL.revokeObjectURL(url);
   }, 'image/png');
@@ -802,12 +430,69 @@ const CAMO_PATTERNS = [
     ['#162c4c','#1a3458','#1e3a60','#223e68'],
     ['#2a4a78','#304e80','#385688','#405e90'],
   ]},
+  { name:'CANDY',   seed:111, palettes:[
+    ['#1a000a','#240010','#2e0018','#380022'],
+    ['#7a0050','#920060','#aa0070','#c00080'],
+    ['#dd00a0','#ee10b0','#ff20c0','#ff40d0'],
+    ['#ff70e0','#ff90e8','#ffb0f0','#cc60cc'],
+  ]},
+  { name:'COBALT',  seed:222, palettes:[
+    ['#060e1a','#081222','#0a162a','#0c1a32'],
+    ['#1a3460','#203c70','#264480','#2c4c90'],
+    ['#3a5ea8','#4468b8','#4e74c8','#5880d8'],
+    ['#6e92e0','#7aa0e8','#86aef0','#6888cc'],
+  ]},
+  { name:'GHOST',   seed:333, palettes:[
+    ['#c0ccd8','#c8d4e0','#d0dce8','#d8e4f0'],
+    ['#a0b4c8','#a8bcd0','#b0c4d8','#b8cce0'],
+    ['#e0ecf8','#e8f2fc','#f0f6fe','#f4f8ff'],
+    ['#fafcff','#f6f9ff','#f0f5ff','#eaf2ff'],
+  ]},
+  { name:'BLOOD',   seed:444, palettes:[
+    ['#080000','#100002','#180004','#200006'],
+    ['#400010','#580018','#700020','#880028'],
+    ['#aa0030','#c80038','#e00040','#f00048'],
+    ['#c02040','#a81830','#901020','#801818'],
+  ]},
+  { name:'JUNGLE',  seed:555, palettes:[
+    ['#020800','#040c00','#060e00','#081200'],
+    ['#0c2408','#122e0c','#183810','#1e4214'],
+    ['#2a5c1a','#347220','#3e8826','#489e2c'],
+    ['#5cba38','#70cc48','#84d858','#98e468'],
+  ]},
+  { name:'SUNSET',  seed:666, palettes:[
+    ['#0e0600','#160900','#1e0c00','#260f00'],
+    ['#4a1800','#602000','#762800','#8c3000'],
+    ['#b44800','#cc5800','#e46800','#f07818'],
+    ['#f09030','#e8a840','#d8b848','#c8a040'],
+  ]},
+  { name:'TOXIC',   seed:888, palettes:[
+    ['#020400','#040800','#060c00','#081000'],
+    ['#103000','#184200','#205400','#286600'],
+    ['#508000','#689800','#80b000','#98c800'],
+    ['#c0e000','#d8f000','#e8fc00','#f0ff10'],
+  ]},
+  { name:'ASH',     seed:101, palettes:[
+    ['#0e0e10','#141416','#1a1a1c','#202022'],
+    ['#2c2c2e','#383838','#424242','#4c4c4e'],
+    ['#606062','#707072','#808082','#909092'],
+    ['#a8a8aa','#b8b8ba','#c8c8ca','#d8d8da'],
+  ]},
+  { name:'LAVA',    seed:202, palettes:[
+    ['#080000','#0e0000','#140000','#1a0000'],
+    ['#3a1000','#4e1400','#621800','#761c00'],
+    ['#c03000','#d44000','#e85000','#f06000'],
+    ['#f88030','#f4a050','#f0b060','#e8902c'],
+  ]},
+  { name:'CHROME',  seed:303, palettes:[
+    ['#101012','#181818','#202022','#28282a'],
+    ['#404044','#505054','#606064','#707074'],
+    ['#909096','#a0a0a6','#b0b0b6','#c0c0c6'],
+    ['#d8d8dc','#e4e4e8','#ececf0','#f4f4f8'],
+  ]},
 ];
 
 let activeCamo = 0;
-let bgMode = 'obstacle'; // 'obstacle' | 'camo' | 'field' | 'color'
-let activeFieldCard = 0;
-let activeColorTheme = 0;
 
 function buildCamoPresets() {
   const container = document.getElementById('camo-presets');
@@ -840,7 +525,6 @@ function buildCamoPresets() {
 
 function applyCamo(idx) {
   activeCamo = idx;
-  bgMode = 'camo';
   clearAllPresetBtns();
   document.querySelectorAll('#camo-presets .preset-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
   bgCtx.clearRect(0, 0, W, H);
@@ -849,390 +533,11 @@ function applyCamo(idx) {
 }
 
 // ═══════════════════════════════════════════════════════
-//  FIELD CARD BACKGROUNDS
-// ═══════════════════════════════════════════════════════
-function drawSky(ctx, W, H, sx, sy) {
-  const sky = ctx.createLinearGradient(0, 0, 0, H * 0.7);
-  sky.addColorStop(0,'#0c1828'); sky.addColorStop(0.35,'#182438');
-  sky.addColorStop(0.7,'#2c2c14'); sky.addColorStop(1,'#382810');
-  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
-  const sun = ctx.createRadialGradient(sx, sy, 0, sx, sy, W * 0.6);
-  sun.addColorStop(0,'rgba(255,210,70,0.95)'); sun.addColorStop(0.04,'rgba(255,160,30,0.65)');
-  sun.addColorStop(0.15,'rgba(255,100,10,0.28)'); sun.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle = sun; ctx.fillRect(0, 0, W, H);
-}
-function drawGround(ctx, W, H, y0) {
-  const g = ctx.createLinearGradient(0, y0, 0, H);
-  g.addColorStop(0,'#3a3828'); g.addColorStop(0.4,'#2e2c1e'); g.addColorStop(1,'#1a1810');
-  ctx.fillStyle = g; ctx.fillRect(0, y0, W, H - y0);
-}
-function grain(ctx, W, H) {
-  for (let i = 0; i < 1200; i++) {
-    ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.06})`;
-    ctx.fillRect((Math.random()*W)|0, (Math.random()*H)|0, 1, 1);
-  }
-}
-
-function drawFieldI(ctx, W, H) {
-  drawSky(ctx,W,H,W*.72,H*.18); drawGround(ctx,W,H,H*.62);
-  ctx.fillStyle='rgba(0,0,0,0.18)'; ctx.fillRect(0,H*.6,W,H*.08);
-  const ry1=H*.58,ry2=H*.52,rx1=W*.06,rx2=W*.94;
-  ctx.beginPath(); ctx.moveTo(rx1,ry1+4); ctx.lineTo(rx2,ry2+4); ctx.lineWidth=7; ctx.strokeStyle='#505050'; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(rx1,ry1); ctx.lineTo(rx2,ry2); ctx.lineWidth=3; ctx.strokeStyle='#a0a0a0'; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(rx1,ry1-1); ctx.lineTo(rx2,ry2-1); ctx.lineWidth=1; ctx.strokeStyle='rgba(255,240,180,0.6)'; ctx.stroke();
-  [0.25,0.5,0.75].forEach(t=>{
-    const lx=rx1+(rx2-rx1)*t, ty=ry1+(ry2-ry1)*t, by=H*.62;
-    ctx.beginPath(); ctx.moveTo(lx,ty+4); ctx.lineTo(lx-2,by); ctx.lineWidth=4; ctx.strokeStyle='#444'; ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(lx,ty+4); ctx.lineTo(lx+2,by); ctx.lineWidth=4; ctx.strokeStyle='#444'; ctx.stroke();
-  }); grain(ctx,W,H);
-}
-function drawFieldII(ctx, W, H) {
-  drawSky(ctx,W,H,W*.74,H*.16);
-  const steps=5,sw=W*.56/steps,sh=H*.064,bx=W*.08,by=H*.82;
-  for(let i=0;i<steps;i++){
-    const x=bx+i*sw,y=by-i*sh;
-    ctx.fillStyle=`hsl(50,8%,${32+i*2}%)`; ctx.fillRect(x,y,W*.56-i*sw+sw,sh*.3);
-    ctx.fillStyle=`hsl(50,8%,${22+i*2}%)`; ctx.fillRect(x,y+sh*.3,sw+(steps-i-1)*sw*.5,sh*.7);
-  }
-  ctx.fillStyle='#2e2c1e'; ctx.fillRect(0,by+sh*.3,W,H-by-sh*.3);
-  const hrx1=bx+sw*.5,hry1=by+sh*.1,hrx2=bx+W*.52,hry2=by-steps*sh+sh*.1;
-  ctx.beginPath(); ctx.moveTo(hrx1,hry1+4); ctx.lineTo(hrx2,hry2+4); ctx.lineWidth=7; ctx.strokeStyle='#484848'; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(hrx1,hry1); ctx.lineTo(hrx2,hry2); ctx.lineWidth=3; ctx.strokeStyle='#909090'; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(hrx1,hry1-1); ctx.lineTo(hrx2,hry2-1); ctx.lineWidth=1; ctx.strokeStyle='rgba(255,230,160,0.55)'; ctx.stroke();
-  const hx=bx+W*.53,hy=hry2-2,hw=W*.3,hh=steps*sh+sh;
-  ctx.fillStyle='#585850'; ctx.fillRect(hx,hy,hw,hh);
-  ctx.fillStyle='#787868'; ctx.fillRect(hx,hy,hw,sh*.28);
-  ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.fillRect(hx,hy,4,hh);
-  ctx.fillStyle='rgba(255,240,180,0.18)'; ctx.fillRect(hx+4,hy+1,hw-8,3);
-  grain(ctx,W,H);
-}
-function drawFieldIII(ctx, W, H) {
-  drawSky(ctx,W,H,W*.82,H*.15);
-  const gy=H*.78; ctx.fillStyle='#2e2c1e'; ctx.fillRect(0,gy,W,H-gy);
-  ctx.fillStyle='#484840'; ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(W*.44,H*.44); ctx.lineTo(W*.44,gy); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='#525248'; ctx.beginPath(); ctx.moveTo(W*.38,H*.46); ctx.quadraticCurveTo(W*.5,H*.40,W*.62,H*.46); ctx.lineTo(W*.62,H*.56); ctx.quadraticCurveTo(W*.5,H*.50,W*.38,H*.56); ctx.closePath(); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(W*.38,H*.46); ctx.quadraticCurveTo(W*.5,H*.40,W*.62,H*.46); ctx.lineWidth=1.5; ctx.strokeStyle='rgba(200,190,140,0.5)'; ctx.stroke();
-  ctx.fillStyle='#404038'; ctx.beginPath(); ctx.moveTo(W*.56,H*.46); ctx.lineTo(W,H*.68); ctx.lineTo(W,gy); ctx.lineTo(W*.56,gy); ctx.closePath(); ctx.fill();
-  grain(ctx,W,H);
-}
-function drawFieldIV(ctx, W, H) {
-  drawSky(ctx,W,H,W*.5,H*.14); drawGround(ctx,W,H,H*.76);
-  ctx.strokeStyle='rgba(180,160,80,0.12)'; ctx.lineWidth=1;
-  for(let i=0;i<5;i++){const t=(i+1)/6; ctx.beginPath(); ctx.moveTo(W*t,H*.76); ctx.lineTo(W*.5,H*.42); ctx.stroke();}
-  ctx.fillStyle='#303028'; ctx.beginPath(); ctx.moveTo(W*.1,H*.78); ctx.lineTo(W*.9,H*.78); ctx.lineTo(W*.82,H*.72); ctx.lineTo(W*.18,H*.72); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='#404038'; ctx.beginPath(); ctx.moveTo(W*.82,H*.72); ctx.lineTo(W*.9,H*.78); ctx.lineTo(W*.65,H*.49); ctx.lineTo(W*.62,H*.44); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='#303028'; ctx.beginPath(); ctx.moveTo(W*.18,H*.72); ctx.lineTo(W*.1,H*.78); ctx.lineTo(W*.38,H*.49); ctx.lineTo(W*.38,H*.44); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='#606058'; ctx.beginPath(); ctx.moveTo(W*.38,H*.44); ctx.lineTo(W*.62,H*.44); ctx.lineTo(W*.65,H*.49); ctx.lineTo(W*.35,H*.49); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='rgba(255,240,180,0.15)'; ctx.fillRect(W*.38,H*.44,W*.24,3);
-  ctx.beginPath(); ctx.moveTo(W*.38,H*.44); ctx.lineTo(W*.62,H*.44); ctx.lineWidth=1.5; ctx.strokeStyle='rgba(200,190,140,0.55)'; ctx.stroke();
-  ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(W*.5,H*.77,W*.38,H*.025,0,0,Math.PI*2); ctx.fill();
-  grain(ctx,W,H);
-}
-function drawFieldV(ctx, W, H) {
-  drawSky(ctx,W,H,W*.68,H*.15);
-  const gy=H*.7; ctx.fillStyle='#282616'; ctx.fillRect(0,gy,W,H-gy);
-  const lb=ctx.createLinearGradient(0,H*.45,W*.46,gy); lb.addColorStop(0,'#555048'); lb.addColorStop(1,'#383620'); ctx.fillStyle=lb;
-  ctx.beginPath(); ctx.moveTo(0,H*.85); ctx.lineTo(0,H*.62); ctx.lineTo(W*.44,H*.45); ctx.lineTo(W*.44,gy); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='rgba(255,220,100,0.18)'; ctx.beginPath(); ctx.moveTo(0,H*.62); ctx.lineTo(W*.44,H*.45); ctx.lineTo(W*.44,H*.45+8); ctx.lineTo(0,H*.62+8); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='#1c1a0e'; ctx.fillRect(W*.38,H*.68,W*.24,H*.32);
-  const rb=ctx.createLinearGradient(W*.56,H*.45,W,gy); rb.addColorStop(0,'#4c4840'); rb.addColorStop(1,'#302e1c'); ctx.fillStyle=rb;
-  ctx.beginPath(); ctx.moveTo(W,H*.85); ctx.lineTo(W,H*.62); ctx.lineTo(W*.56,H*.45); ctx.lineTo(W*.56,gy); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='rgba(255,180,60,0.10)'; ctx.beginPath(); ctx.moveTo(W,H*.62); ctx.lineTo(W*.56,H*.45); ctx.lineTo(W*.56,H*.45+8); ctx.lineTo(W,H*.62+8); ctx.closePath(); ctx.fill();
-  grain(ctx,W,H);
-}
-function drawFieldVI(ctx, W, H) {
-  drawSky(ctx,W,H,W*.5,H*.12);
-  const steps=4, sw=W*.17, sh=H*.062;
-  for(let i=0;i<steps;i++){
-    ctx.fillStyle=`hsl(50,6%,${26+i*3}%)`; ctx.fillRect(W*.06+i*sw,H*.40+i*sh,W*.68-i*sw,sh*.3);
-    ctx.fillStyle=`hsl(50,6%,${18+i*2}%)`; ctx.fillRect(W*.06+i*sw,H*.40+i*sh+sh*.3,sw,sh*.7);
-  }
-  ctx.fillStyle='rgba(0,0,0,0.35)'; ctx.fillRect(0,H*.65,W,H*.06);
-  for(let i=0;i<steps;i++){
-    ctx.fillStyle=`hsl(50,6%,${26+i*3}%)`; ctx.fillRect(W*.22+i*sw,H*.72+i*sh,W*.68-(i+1)*sw,sh*.3);
-    ctx.fillStyle=`hsl(50,6%,${18+i*2}%)`; ctx.fillRect(W*.22+i*sw,H*.72+i*sh+sh*.3,sw,sh*.7);
-  }
-  ctx.fillStyle='#2e2c1e'; ctx.fillRect(0,H*.88,W,H*.12);
-  ctx.fillStyle='rgba(255,107,71,0.15)'; ctx.fillRect(W*.04,H*.63,W*.92,H*.04);
-  grain(ctx,W,H);
-}
-function drawFieldVII(ctx, W, H) {
-  drawSky(ctx,W,H,W*.65,H*.10);
-  ctx.fillStyle='#1c1a0e'; ctx.fillRect(0,H*.72,W,H*.28);
-  const kg=ctx.createLinearGradient(0,H*.58,W*.52,H*.72);
-  kg.addColorStop(0,'#484840'); kg.addColorStop(1,'#606058'); ctx.fillStyle=kg;
-  ctx.beginPath(); ctx.moveTo(W*.06,H*.72); ctx.lineTo(W*.54,H*.72); ctx.lineTo(W*.54,H*.56); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle='rgba(200,190,140,0.4)'; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.moveTo(W*.06,H*.72); ctx.lineTo(W*.54,H*.72); ctx.lineTo(W*.54,H*.56); ctx.stroke();
-  const r1x=W*.52,r1y=H*.54,r2x=W*.92,r2y=H*.44;
-  ctx.beginPath(); ctx.moveTo(r1x,r1y+5); ctx.lineTo(r2x,r2y+5); ctx.lineWidth=7; ctx.strokeStyle='#404040'; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(r1x,r1y); ctx.lineTo(r2x,r2y); ctx.lineWidth=3; ctx.strokeStyle='#909090'; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(r1x,r1y-1); ctx.lineTo(r2x,r2y-1); ctx.lineWidth=1; ctx.strokeStyle='rgba(255,230,160,0.5)'; ctx.stroke();
-  [0.35,0.6,0.85].forEach(t=>{
-    const bx=r1x+(r2x-r1x)*t, by=r1y+(r2y-r1y)*t;
-    ctx.beginPath(); ctx.moveTo(bx,by+4); ctx.lineTo(bx,H*.72); ctx.lineWidth=3; ctx.strokeStyle='#505050'; ctx.stroke();
-  });
-  grain(ctx,W,H);
-}
-function drawFieldVIII(ctx, W, H) {
-  drawSky(ctx,W,H,W*.4,H*.08);
-  ctx.fillStyle='#1a1810'; ctx.fillRect(0,H*.82,W,H*.18);
-  const blocks=[
-    {x:.08,y:.46,w:.30,h:.09},{x:.42,y:.46,w:.50,h:.09},
-    {x:.10,y:.35,w:.26,h:.11},{x:.56,y:.32,w:.30,h:.14},
-    {x:.18,y:.25,w:.18,h:.10},
-  ];
-  blocks.forEach(({x,y,w,h},i)=>{
-    ctx.fillStyle=`hsl(50,5%,${28+i*3}%)`;
-    ctx.fillRect(W*x,H*y,W*w,H*h*.28);
-    ctx.fillStyle=`hsl(50,5%,${18+i*2}%)`;
-    ctx.fillRect(W*x,H*y+H*h*.28,W*w,H*h*.72);
-    ctx.fillStyle=`hsl(50,5%,${10+i*2}%)`;
-    ctx.fillRect(W*(x+w),H*y,W*.03,H*h);
-    ctx.strokeStyle='rgba(200,190,140,0.28)'; ctx.lineWidth=1;
-    ctx.strokeRect(W*x,H*y,W*w,H*h);
-  });
-  ctx.fillStyle='rgba(240,208,80,0.18)'; ctx.fillRect(W*.06,H*.55,W*.88,2);
-  grain(ctx,W,H);
-}
-
-const FIELD_PRESETS = [
-  {name:'LONDON GAP', zone:'I',    draw: drawFieldI   },
-  {name:'HIP',        zone:'II',   draw: drawFieldII  },
-  {name:'LEDGE',      zone:'III',  draw: drawFieldIII },
-  {name:'GRASS GAP',  zone:'IV',   draw: drawFieldIV  },
-  {name:'HUBBA',      zone:'V',    draw: drawFieldV   },
-  {name:'DOUBLE SET', zone:'VI',   draw: drawFieldVI  },
-  {name:'KICKER RAIL',zone:'VII',  draw: drawFieldVII },
-  {name:'BLÖCKE',     zone:'VIII', draw: drawFieldVIII},
-];
-
-function buildFieldPresets() {
-  const container = document.getElementById('field-presets');
-  const miniPath = 'M 30,0 C 46.6,0 60,13.4 60,30 L 60,50 C 60,66.6 46.6,80 30,80 C 13.4,80 0,66.6 0,50 L 0,30 C 0,13.4 13.4,0 30,0 Z';
-  FIELD_PRESETS.forEach((fp, i) => {
-    const mc = document.createElement('canvas');
-    mc.width = 60; mc.height = 80;
-    const mctx = mc.getContext('2d');
-    const mpath = new Path2D(miniPath);
-    mctx.save(); mctx.clip(mpath);
-    fp.draw(mctx, 60, 80);
-    mctx.restore();
-    mctx.strokeStyle = 'rgba(255,255,255,0.15)'; mctx.lineWidth = 1; mctx.stroke(mpath);
-    const btn = document.createElement('button');
-    btn.className = 'preset-btn'; btn.id = 'field-' + i;
-    btn.appendChild(mc);
-    const tag = document.createElement('span'); tag.className = 'zone-tag'; tag.textContent = fp.zone;
-    btn.appendChild(tag);
-    btn.addEventListener('click', () => applyFieldCard(i));
-    container.appendChild(btn);
-  });
-}
-
-function applyFieldCard(idx) {
-  activeFieldCard = idx;
-  bgMode = 'field';
-  clearAllPresetBtns();
-  document.querySelectorAll('#field-presets .preset-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
-  bgCtx.clearRect(0, 0, W, H);
-  FIELD_PRESETS[idx].draw(bgCtx, W, H);
-  redraw();
-}
-
-// ═══════════════════════════════════════════════════════
-//  COLOR THEME BACKGROUNDS
-// ═══════════════════════════════════════════════════════
-const COLOR_THEMES = [
-  { name:'VOID', draw(ctx,w,h){ ctx.fillStyle='#000000'; ctx.fillRect(0,0,w,h); } },
-  { name:'BLOOD', draw(ctx,w,h){
-    const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#0a0000'); g.addColorStop(0.5,'#2a0000'); g.addColorStop(1,'#500000'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-    const r=ctx.createRadialGradient(w*.5,h*.4,0,w*.5,h*.4,w*.7); r.addColorStop(0,'rgba(180,0,0,0.45)'); r.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=r; ctx.fillRect(0,0,w,h);
-  }},
-  { name:'COBALT', draw(ctx,w,h){
-    const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#000818'); g.addColorStop(0.5,'#001040'); g.addColorStop(1,'#002060'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-    const r=ctx.createRadialGradient(w*.5,h*.35,0,w*.5,h*.35,w*.65); r.addColorStop(0,'rgba(30,80,220,0.35)'); r.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=r; ctx.fillRect(0,0,w,h);
-  }},
-  { name:'VIRIDIAN', draw(ctx,w,h){
-    const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#000e06'); g.addColorStop(0.5,'#002010'); g.addColorStop(1,'#003818'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-    const r=ctx.createRadialGradient(w*.5,h*.4,0,w*.5,h*.4,w*.7); r.addColorStop(0,'rgba(0,160,80,0.30)'); r.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=r; ctx.fillRect(0,0,w,h);
-  }},
-  { name:'DUSK', draw(ctx,w,h){
-    const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#0c0218'); g.addColorStop(0.4,'#280828'); g.addColorStop(0.7,'#401010'); g.addColorStop(1,'#582008'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-    const r=ctx.createRadialGradient(w*.5,h*.55,0,w*.5,h*.55,w*.8); r.addColorStop(0,'rgba(255,100,20,0.22)'); r.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=r; ctx.fillRect(0,0,w,h);
-  }},
-  { name:'CHROME', draw(ctx,w,h){
-    const g=ctx.createLinearGradient(0,0,w,h); g.addColorStop(0,'#181818'); g.addColorStop(0.3,'#303030'); g.addColorStop(0.6,'#484848'); g.addColorStop(1,'#282828'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-    const r=ctx.createRadialGradient(w*.5,h*.3,0,w*.5,h*.3,w*.6); r.addColorStop(0,'rgba(200,200,210,0.20)'); r.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=r; ctx.fillRect(0,0,w,h);
-  }},
-  { name:'PAYDIRT', draw(ctx,w,h){
-    const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#0c0800'); g.addColorStop(0.5,'#281800'); g.addColorStop(1,'#503000'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-    const r=ctx.createRadialGradient(w*.5,h*.35,0,w*.5,h*.35,w*.8); r.addColorStop(0,'rgba(220,160,0,0.35)'); r.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=r; ctx.fillRect(0,0,w,h);
-  }},
-  { name:'JADE', draw(ctx,w,h){
-    const g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#000c08'); g.addColorStop(0.5,'#002818'); g.addColorStop(1,'#005040'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-    const r=ctx.createRadialGradient(w*.5,h*.5,0,w*.5,h*.5,w*.7); r.addColorStop(0,'rgba(0,200,140,0.25)'); r.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=r; ctx.fillRect(0,0,w,h);
-  }},
-];
-
-function buildColorPresets() {
-  const container = document.getElementById('color-presets');
-  const miniPath = 'M 30,0 C 46.6,0 60,13.4 60,30 L 60,50 C 60,66.6 46.6,80 30,80 C 13.4,80 0,66.6 0,50 L 0,30 C 0,13.4 13.4,0 30,0 Z';
-  COLOR_THEMES.forEach((ct, i) => {
-    const mc = document.createElement('canvas');
-    mc.width = 60; mc.height = 80;
-    const mctx = mc.getContext('2d');
-    const mpath = new Path2D(miniPath);
-    mctx.save(); mctx.clip(mpath);
-    ct.draw(mctx, 60, 80);
-    mctx.restore();
-    mctx.strokeStyle = 'rgba(255,255,255,0.15)'; mctx.lineWidth = 1; mctx.stroke(mpath);
-    const btn = document.createElement('button');
-    btn.className = 'preset-btn'; btn.id = 'color-' + i;
-    btn.appendChild(mc);
-    const tag = document.createElement('span'); tag.className = 'zone-tag'; tag.textContent = ct.name.slice(0,3);
-    btn.appendChild(tag);
-    btn.addEventListener('click', () => applyColorTheme(i));
-    container.appendChild(btn);
-  });
-}
-
-function applyColorTheme(idx) {
-  activeColorTheme = idx;
-  bgMode = 'color';
-  clearAllPresetBtns();
-  document.querySelectorAll('#color-presets .preset-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
-  bgCtx.clearRect(0, 0, W, H);
-  COLOR_THEMES[idx].draw(bgCtx, W, H);
-  redraw();
-}
-
-function setLogo(type) {
-  logoType = type;
-  document.getElementById('logo-word').classList.toggle('active', type === 'word');
-  document.getElementById('logo-graf').classList.toggle('active', type === 'graf');
-  redraw();
-}
-
-function getExportDeckPath(s, ox, oy) {
-  const r = 200 * s, cr = 110.4 * s, EW = 400 * s, EH = 1400 * s;
-  return new Path2D(
-    `M ${ox+r},${oy} C ${ox+r+cr},${oy} ${ox+EW},${oy+r-cr} ${ox+EW},${oy+r}` +
-    ` L ${ox+EW},${oy+EH-r} C ${ox+EW},${oy+EH-r+cr} ${ox+r+cr},${oy+EH} ${ox+r},${oy+EH}` +
-    ` C ${ox+r-cr},${oy+EH} ${ox},${oy+EH-r+cr} ${ox},${oy+EH-r}` +
-    ` L ${ox},${oy+r} C ${ox},${oy+r-cr} ${ox+r-cr},${oy} ${ox+r},${oy} Z`
-  );
-}
-
-function exportHiRes() {
-  const EW = 5000, EH = 10000;
-  const scale = Math.min(EW / W, EH / H);
-  const dw = Math.round(W * scale);
-  const dh = Math.round(H * scale);
-  const ox = Math.round((EW - dw) / 2);
-  const oy = Math.round((EH - dh) / 2);
-
-  const out = document.createElement('canvas');
-  out.width = EW; out.height = EH;
-  const octx = out.getContext('2d');
-  octx.fillStyle = '#000000';
-  octx.fillRect(0, 0, EW, EH);
-
-  const ePath = getExportDeckPath(scale, ox, oy);
-
-  // Background: render natively at full export resolution
-  const tempBg = document.createElement('canvas');
-  tempBg.width = dw; tempBg.height = dh;
-  const tempCtx = tempBg.getContext('2d');
-  if (bgMode === 'camo') {
-    drawCamoBlobs(tempCtx, dw, dh, CAMO_PATTERNS[activeCamo].palettes, CAMO_PATTERNS[activeCamo].seed);
-  } else if (bgMode === 'field') {
-    FIELD_PRESETS[activeFieldCard].draw(tempCtx, dw, dh);
-  } else if (bgMode === 'color') {
-    COLOR_THEMES[activeColorTheme].draw(tempCtx, dw, dh);
-  } else {
-    OBSTACLES[activePreset].draw(tempCtx, dw, dh);
-  }
-
-  octx.save(); octx.clip(ePath);
-  octx.drawImage(tempBg, ox, oy);
-  octx.restore();
-
-  // Paint strokes: scale up from drawCanvas with smoothing
-  octx.save(); octx.clip(ePath);
-  octx.imageSmoothingEnabled = true; octx.imageSmoothingQuality = 'high';
-  octx.drawImage(drawCanvas, ox, oy, dw, dh);
-  octx.restore();
-
-  // Logo: draw natively at export coordinates
-  const _eli = getLogoImg();
-  if (showLogo && _eli) {
-    const drawW = dh * 0.9;
-    const drawH = drawW * getLogoAspect();
-    const cx = ox + dw / 2;
-    const cy = oy + dh / 2;
-    octx.save();
-    octx.clip(ePath);
-    octx.translate(cx, cy);
-    octx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
-    octx.imageSmoothingEnabled = true; octx.imageSmoothingQuality = 'high';
-    octx.globalCompositeOperation = 'source-over';
-    octx.drawImage(_eli, -drawW / 2, -drawH / 2, drawW, drawH);
-    octx.restore();
-  }
-
-  // Deck outline at native resolution (no scale factor needed)
-  octx.save();
-  octx.strokeStyle = 'rgba(210,210,212,0.25)';
-  octx.lineWidth = 2;
-  octx.stroke(ePath);
-  octx.restore();
-
-  out.toBlob(blob => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'payday_deck_5000x10000.png';
-    a.click();
-    URL.revokeObjectURL(url);
-  }, 'image/png');
-}
-
-
-// ═══════════════════════════════════════════════════════
-//  SVG FILE UPLOAD
-// ═══════════════════════════════════════════════════════
-function loadSvgFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    bgMode = 'svg';
-    clearAllPresetBtns();
-    const img = new Image();
-    img.onload = () => { bgCtx.clearRect(0,0,W,H); bgCtx.drawImage(img, 0, 0, W, H); redraw(); };
-    img.src = 'data:image/svg+xml,' + encodeURIComponent(e.target.result);
-  };
-  reader.readAsText(file);
-  input.value = '';
-}
-// ═══════════════════════════════════════════════════════
 //  EVENT WIRING
 // ═══════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  buildPresets();
   buildCamoPresets();
-  buildFieldPresets();
-  buildColorPresets();
-  applyPreset(0);
-
-  const canvas = document.getElementById('mainCanvas');
-  canvas.addEventListener('mousedown',  onPointerDown);
-  canvas.addEventListener('mousemove',  onPointerMove);
-  canvas.addEventListener('mouseup',    onPointerUp);
-  canvas.addEventListener('mouseleave', onPointerUp);
-  canvas.addEventListener('touchstart', onPointerDown, {passive:false});
-  canvas.addEventListener('touchmove',  onPointerMove, {passive:false});
-  canvas.addEventListener('touchend',   onPointerUp);
+  applyCamo(0);
 });
 </script>
 </body>

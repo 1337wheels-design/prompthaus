@@ -485,17 +485,17 @@ function redraw() {
   ctx.drawImage(drawCanvas, 0, 0);
   ctx.restore();
 
-  // 3. logo overlay (screen blend, clipped)
+  // 3. logo overlay (screen blend, clipped, rotated 90° CW to run along board length)
   const _li = getLogoImg();
   if (showLogo && _li) {
-    const lw = W * 0.92;
-    const lh = lw * getLogoAspect();
-    const lx = (W - lw) / 2;
-    const ly = H * 0.50 - lh / 2;
+    const drawW = H;                          // after 90° CW, logo width spans full board height
+    const drawH = drawW * getLogoAspect();    // logo height spans board width (clipped by deck shape)
     ctx.save();
     ctx.clip(path);
+    ctx.translate(W / 2, H / 2);
+    ctx.rotate(Math.PI / 2);
     ctx.globalCompositeOperation = 'screen';
-    ctx.drawImage(_li, lx, ly, lw, lh);
+    ctx.drawImage(_li, -drawW / 2, -drawH / 2, drawW, drawH);
     ctx.restore();
   }
 
@@ -689,12 +689,14 @@ function download() {
 
   const _dli = getLogoImg();
   if (showLogo && _dli) {
-    const lw = W * 0.92;
-    const lh = lw * getLogoAspect();
-    const lx = (W - lw) / 2;
-    const ly = H * 0.50 - lh / 2;
+    const drawW = H;
+    const drawH = drawW * getLogoAspect();
+    octx.save();
+    octx.translate(W / 2, H / 2);
+    octx.rotate(Math.PI / 2);
     octx.globalCompositeOperation = 'screen';
-    octx.drawImage(_dli, lx, ly, lw, lh);
+    octx.drawImage(_dli, -drawW / 2, -drawH / 2, drawW, drawH);
+    octx.restore();
   }
 
   out.toBlob(blob => {
@@ -877,13 +879,14 @@ function exportHiRes() {
 
   const _eli = getLogoImg();
   if (showLogo && _eli) {
-    const lw = W * 0.92;
-    const lh = lw * getLogoAspect();
-    const lx = (W - lw) / 2;
-    const ly = H * 0.50 - lh / 2;
-    octx.save(); octx.clip(path);
+    const drawW = H;
+    const drawH = drawW * getLogoAspect();
+    octx.save();
+    octx.clip(path);
+    octx.translate(W / 2, H / 2);
+    octx.rotate(Math.PI / 2);
     octx.globalCompositeOperation = 'screen';
-    octx.drawImage(_eli, lx, ly, lw, lh);
+    octx.drawImage(_eli, -drawW / 2, -drawH / 2, drawW, drawH);
     octx.restore();
   }
 

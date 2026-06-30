@@ -311,6 +311,18 @@ body {
 
 /* Page footer */
 .page-footer { text-align: center; margin-top: 72px; font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 4px; color: var(--gold-lo); opacity: 0.5; text-transform: uppercase; }
+
+/* Challenge Spell Cards — aqua accent instead of coral */
+.challenge-card .type-line { color: var(--aqua); }
+.challenge-card .type-line .type-text { text-shadow: 0 0 10px var(--aqua); }
+.challenge-card .art-wrap {
+  border-color: var(--aqua);
+  box-shadow: 0 0 0 1px rgba(0,200,176,0.15),
+              0 0 12px var(--aqua),
+              0 0 28px rgba(0,200,176,0.22),
+              inset 0 0 12px rgba(0,200,176,0.06);
+}
+.challenge-card .art-star { color: var(--aqua); text-shadow: 0 0 8px var(--aqua), 0 0 18px rgba(0,200,176,0.22); }
 </style>
 
 <header class="page-header">
@@ -330,8 +342,8 @@ body {
 
 <div class="section-divider">
   <div class="section-divider-rule"><span>◆</span></div>
-  <div class="section-divider-title">Sponsor Cards</div>
-  <div class="section-divider-sub">Quarter · Attitude · Titus · Skate Deluxe · Pay Day · Designer Mode · Shop Battle · Dark Horse</div>
+  <div class="section-divider-title">Sponsor Challenges</div>
+  <div class="section-divider-sub">Cash for Tricks · Switch Drop · Young Gun Pass · Street Pass · Shop Battle · Deathrace · Stuff for Steeze · S.K.A.T.E.</div>
 </div>
 
 <main class="gallery" id="sponsor-gallery"></main>
@@ -366,14 +378,14 @@ const FIELD_CARDS = [
 
 /* ── Sponsor Card data ── */
 const SPONSOR_CARDS = [
-  { id:'DISTRI-01', name:'THE DISTRI VAULT',        type:'Continuous Spell — Distribution Zone', effect:'Once per turn: select 1 brand from the Quarter Catalog. Assign that brand\'s signature obstacle as a free Special Summon point — no Speed tribute required. If 3 or more different brands are activated within the same session, the Distri Jackpot is triggered: draw 1 Full Setup card from the prize pool.',                                                    atk:'CATALOG POWER',   def:'DEEP STOCK'       },
-  { id:'ATT-02',    name:'THE CULTURE FIELD',        type:'Continuous Spell — Art Zone',          effect:'While this card is active, the Art Jury adds a Style Modifier (+0 to +2) to every trick score — technique alone is not enough. Tricks performed adjacent to the live mural wall gain +300 ATK. Special condition: a Skater scoring 5/5 on the Drip Scale may treat all their grinds as waxed for the remainder of the session.',                                  atk:'STYLE POINTS',    def:'CULTURAL CAPITAL' },
-  { id:'TIT-03',    name:'YOUNG GUN PROTOCOL',       type:'Quick-Play Spell — Youth Bracket',     effect:'All Skater monsters aged under 18 gain 500 ATK until End Phase. Veteran Skaters (Level 6+) must pay 1 Speed tribute to enter this Zone. Once per session: the highest-scoring Young Gun may Special Summon a Shop Sponsorship Token — redeemable immediately after the Tombola. The future doesn\'t wait for the End Phase.',                                    atk:'NEXT LEVEL',      def:'SHOP BACKING'     },
-  { id:'SD-04',     name:'THE ONLINE ORACLE',        type:'Spell — Digital Drop Zone',            effect:'During Standby Phase: scan the QR code in this Zone to unlock 1 Digital Prize Token. Collect up to 3 tokens and redeem at End Phase (18:45) from the Deluxe Vault. Flash Drop Protocol: if all 3 tokens are claimed before 17:00, one exclusive colorway unlocks for QR-holders only — 30 minutes, no restock, no online release.',                             atk:'WISHLIST LOADED', def:'FREE SHIPPING'    },
-  { id:'PAY-05',    name:'CA$H4TRICKS BOUNTY',       type:'Spell — Bounty Protocol',              effect:'Before your trick attempt, declare your move. First try: claim the full Cash Bounty (€100). Second try: claim half (€50). Third try or bail: the pot returns to Pay Day — take 200 damage. Only one bounty active per obstacle per turn. This card cannot be negated by hesitation or a weak pop. Pay Day is always watching.',                                   atk:'CASH MONEY',      def:'SECOND TRY'       },
-  { id:'MODE-06',   name:'DRIP PROTOCOL',            type:'Continuous Spell — Fashion Zone',      effect:'At the start of each Round, the Fashion Jury assigns a Drip Score (1–5) to each Skater\'s fit. Add (Drip Score × 100) ATK to all tricks this Round. Full Fit Check (5/5): all grinds require no wax tribute until End Phase. Collab Clause: outfit combining a skate and fashion brand gains +200 ATK per qualifying item.',                                  atk:'FIT CHECK',       def:'COLLAB LOCKED'    },
-  { id:'BATTLE-07', name:'SHOP BATTLE ROYALE',       type:'Field Spell — Team Zone',              effect:'Attitude Bremen and Titus each field a team of 3 Skater monsters. Judges score combined trick output: style, technicality, and local knowledge. The Shop Champion\'s team gains 300 ATK for the rest of the session. Defeated riders receive a Respect Token and remain eligible for all individual categories.',                                                   atk:'SHOP PRIDE',      def:'LOCAL ROOTS'      },
-  { id:'WILD-08',   name:'DARK HORSE PROTOCOL',      type:'Quick-Play Spell — Wildcard',          effect:'Activate when an unsponsored Skater monster delivers the highest single-trick score of any session. That Skater may issue a Sponsor Me declaration — if 2 or more Shop representatives confirm, Special Summon a Shop Sponsorship Token permanently. This card may only be activated once. No tribute. No prerequisites. Pure hunger.',                           atk:'UNKNOWN LEVEL',   def:'PURE HUNGER'      },
+  { id:'CHX-01', name:'CASH FOR TRICKS',  sponsor:'ALL SPONSORS',    type:'Quick-Play Spell — Global Bounty',   effect:'Activate when a trick lands clean on any obstacle. Draw from the bounty pool: 5€ for standard execution, up to 20€ for high-difficulty. This card remains active until the pool is empty. All zones qualify simultaneously. The only condition is the landing.',                                                                                                                                         atk:'5–20€ CASH',      def:'POOL OR PASS'      },
+  { id:'CHX-02', name:'SWITCH DROP',      sponsor:'PAY DAY',         type:'Normal Spell — Trick Bounty',        effect:'The designated trick for this bounty is a switch drop from the extension at full height. Three attempts permitted. Execution must be switch stance, clean landing. Partial attempts are void. Two out of three clean landings claims the Pay Day bounty. Judges call execution — no appeals.',                                                                                                     atk:'EXTENSION CASH',  def:'SWITCH ONLY'       },
+  { id:'CHX-03', name:'YOUNG GUN PASS',   sponsor:'TITUS',           type:'Continuous Spell — Youth Bracket',   effect:'Activate at registration. Valid for riders under 18. All zone attempts score at elevated multiplier and feed the separate Young Gun leaderboard. Titus funds this bracket\'s prize pool. Declare age at entry — this card cannot be activated retroactively mid-session.',                                                                                                                    atk:'TITUS GEAR',      def:'UNDER 18 ONLY'     },
+  { id:'CHX-04', name:'STREET PASS',      sponsor:'FIRST',           type:'Continuous Spell — Open Bracket',    effect:'Activate at registration. Valid for riders without active commercial sponsorship. All zone scores feed an independent Open Bracket leaderboard. First Skateshop underwrites the prize pool. Declare unsigned status at entry. Signing during the event does not deactivate this card.',                                                                                                     atk:'FIRST GEAR',      def:'UNSIGNED ONLY'     },
+  { id:'CHX-05', name:'SHOP BATTLE',      sponsor:'FIRST + ATTITUDE',type:'Field Spell — Shop Battle',          effect:'Each shop nominates their team before the event opens. Zone scores of affiliated riders accumulate per shop. The shop with the highest combined team score at 18:00 wins the Shop Battle purse. Only shop-affiliated riders contribute points. Individuals without shop affiliation do not activate this card.',                                                                             atk:'TEAM PRIZE',      def:'SHOP OR NOTHING'   },
+  { id:'CHX-06', name:'DEATHRACE',        sponsor:'PAY DAY',         type:'Normal Spell — Race Format',         effect:'A designated course connects multiple zones in a single timed run. Every checkpoint obstacle must be hit in sequence. One DNF ends the run immediately. The fastest clean run across all checkpoints wins a complete skateboard setup. One attempt per rider. The clock runs when the first trick contacts the first obstacle.',                                                            atk:'COMPLETE SETUP',  def:'DNF = ELIMINATION' },
+  { id:'CHX-07', name:'STUFF FOR STEEZE', sponsor:'ALL SPONSORS',    type:'Continuous Spell — Style Bounty',    effect:'Active across the entire event on every zone simultaneously. Style judges score independently of the technical leaderboard. Steeze Points accumulate throughout the session. Top steeze score at event close collects the prize pool. Technical execution is not the criteria — presence and originality are. Style is not subjective. It is just rare.',                                  atk:'STEEZE GEAR',     def:'STYLE OR NOTHING'  },
+  { id:'CHX-08', name:'S.K.A.T.E.',       sponsor:'ALL SPONSORS',    type:'Normal Spell — Elimination',         effect:'Elimination format, London Gap only. One rider sets a trick — the opponent must match it exactly: stance, obstacle contact, style. Failure to match adds a letter. Spell S.K.A.T.E. and you are eliminated. Disputes go to judges — final call, no appeals. Last rider without the full word wins. The gap is the only arena.',                                                    atk:'ELIM. PRIZE',     def:'MATCH OR LETTER'   },
 ];
 
 /* ── Canvas art: Field Spells ── */
@@ -467,7 +479,161 @@ function drawFieldV(ctx, W, H) {
   grain(ctx,W,H);
 }
 
-/* ── Canvas art: Sponsor Cards ── */
+/* ── Canvas art: Challenge Spells ── */
+
+function drawCashForTricks(ctx, W, H) {
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#060f0a'); bg.addColorStop(1, '#0d1a10');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  const cols = 8, rows = 6, cx = W / cols, cy = H / rows;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = cx * c + cx / 2, y = cy * r + cy / 2;
+      const alpha = 0.25 + 0.5 * Math.abs(Math.sin(r * 0.7 + c * 0.5));
+      ctx.beginPath(); ctx.arc(x, y, cx * 0.30, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(192,154,40,${alpha})`; ctx.fill();
+      ctx.strokeStyle = `rgba(240,208,80,${alpha * 0.5})`; ctx.lineWidth = 1; ctx.stroke();
+    }
+  }
+  ctx.font = `bold ${W * 0.28}px Georgia`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(240,208,80,0.13)'; ctx.fillText('€', W * 0.5, H * 0.5);
+  grain(ctx, W, H);
+}
+function drawSwitchDrop(ctx, W, H) {
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#060a0f'); bg.addColorStop(1, '#0a0f18');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  for (let i = 0; i < 12; i++) {
+    const y = H * 0.1 + H * 0.78 * (i / 12);
+    const len = W * (0.25 + 0.5 * (i % 3 === 0 ? 1 : 0.35));
+    const alpha = 0.07 + 0.18 * (i % 3 === 0 ? 1 : 0.3);
+    ctx.beginPath(); ctx.moveTo(W * 0.08, y); ctx.lineTo(W * 0.08 + len, y);
+    ctx.strokeStyle = `rgba(0,200,176,${alpha})`; ctx.lineWidth = (i % 3 === 0) ? 2 : 1; ctx.stroke();
+  }
+  ctx.beginPath(); ctx.moveTo(W * 0.18, H * 0.06);
+  ctx.bezierCurveTo(W * 0.18, H * 0.42, W * 0.72, H * 0.52, W * 0.84, H * 0.93);
+  ctx.strokeStyle = 'rgba(0,200,176,0.65)'; ctx.lineWidth = 3; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W * 0.78, H * 0.89); ctx.lineTo(W * 0.84, H * 0.93); ctx.lineTo(W * 0.80, H * 0.82);
+  ctx.strokeStyle = 'rgba(0,200,176,0.65)'; ctx.lineWidth = 2; ctx.stroke();
+  grain(ctx, W, H);
+}
+function drawYoungGunChallenge(ctx, W, H) {
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#050d08'); bg.addColorStop(1, '#0c1a0e');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  const cx = W * 0.5, cy = H * 0.46, rays = 24;
+  for (let i = 0; i < rays; i++) {
+    const angle = (i / rays) * Math.PI * 2;
+    const len = (i % 3 === 0) ? W * 0.44 : W * 0.26;
+    const alpha = (i % 3 === 0) ? 0.45 : 0.18;
+    ctx.beginPath(); ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(angle) * len, cy + Math.sin(angle) * len);
+    ctx.strokeStyle = `rgba(0,200,176,${alpha})`; ctx.lineWidth = (i % 3 === 0) ? 2 : 1; ctx.stroke();
+  }
+  const star = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.065);
+  star.addColorStop(0, 'rgba(0,220,190,0.85)'); star.addColorStop(1, 'rgba(0,200,176,0)');
+  ctx.beginPath(); ctx.arc(cx, cy, W * 0.065, 0, Math.PI * 2);
+  ctx.fillStyle = star; ctx.fill();
+  ctx.font = `bold ${W * 0.14}px Georgia`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(0,200,176,0.10)'; ctx.fillText('< 18', cx, cy + H * 0.3);
+  grain(ctx, W, H);
+}
+function drawStreetPass(ctx, W, H) {
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#060e0a'); bg.addColorStop(1, '#0d160f');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  const horizon = H * 0.42, vx = W * 0.5;
+  for (let i = 0; i < 10; i++) {
+    const t = i / 9;
+    const y = horizon + (H - horizon) * t * t;
+    const xLeft  = vx - (W * 0.07 + W * 0.44 * t * t);
+    const xRight = vx + (W * 0.07 + W * 0.44 * t * t);
+    ctx.beginPath(); ctx.moveTo(xLeft, y); ctx.lineTo(xRight, y);
+    ctx.strokeStyle = `rgba(0,200,176,${0.08 + 0.32 * t})`; ctx.lineWidth = 1 + t * 2; ctx.stroke();
+  }
+  for (let i = 0; i < 6; i++) {
+    const t = (i + 0.5) / 6;
+    const y = horizon + (H - horizon) * t * t;
+    const dh = H * 0.024 * t;
+    ctx.fillStyle = `rgba(240,208,80,${0.18 + 0.38 * t})`;
+    ctx.fillRect(vx - W * 0.011, y - dh / 2, W * 0.022, dh);
+  }
+  grain(ctx, W, H);
+}
+function drawShopBattleChallenge(ctx, W, H) {
+  const bg = ctx.createLinearGradient(0, 0, W, 0);
+  bg.addColorStop(0, '#060a0f'); bg.addColorStop(0.5, '#050d08'); bg.addColorStop(1, '#060a0f');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  ctx.beginPath(); ctx.moveTo(0, H * 0.1); ctx.lineTo(W * 0.55, H * 0.5); ctx.lineTo(0, H * 0.9);
+  ctx.fillStyle = 'rgba(0,200,176,0.16)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(0,200,176,0.48)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W, H * 0.1); ctx.lineTo(W * 0.45, H * 0.5); ctx.lineTo(W, H * 0.9);
+  ctx.fillStyle = 'rgba(255,107,71,0.16)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(255,107,71,0.48)'; ctx.lineWidth = 2; ctx.stroke();
+  const clash = ctx.createRadialGradient(W * 0.5, H * 0.5, 0, W * 0.5, H * 0.5, W * 0.17);
+  clash.addColorStop(0, 'rgba(240,208,80,0.42)'); clash.addColorStop(1, 'rgba(240,208,80,0)');
+  ctx.fillStyle = clash; ctx.fillRect(0, 0, W, H);
+  grain(ctx, W, H);
+}
+function drawDeathrace(ctx, W, H) {
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#07080a'); bg.addColorStop(1, '#0d0e12');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  const tileW = W / 10, tileH = H * 0.11, tileY = H * 0.79;
+  for (let c = 0; c < 10; c++) {
+    ctx.fillStyle = (c % 2 === 0) ? 'rgba(235,235,235,0.52)' : 'rgba(10,10,10,0.52)';
+    ctx.fillRect(c * tileW, tileY, tileW, tileH);
+  }
+  for (let i = 0; i < 16; i++) {
+    const y = H * 0.05 + H * 0.64 * (i / 16);
+    const x0 = W * (0.04 + 0.18 * Math.abs(Math.sin(i * 1.3)));
+    const len = W * (0.18 + 0.62 * ((i + 1) / 16));
+    ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x0 + len, y);
+    ctx.strokeStyle = `rgba(0,200,176,${0.07 + 0.28 * ((i + 1) / 16)})`; ctx.lineWidth = (i % 4 === 0) ? 2.5 : 1; ctx.stroke();
+  }
+  grain(ctx, W, H);
+}
+function drawStuffForSteeze(ctx, W, H) {
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#060e0c'); bg.addColorStop(1, '#0a1610');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  const waves = 8;
+  for (let w = 0; w < waves; w++) {
+    const yBase = H * (0.1 + 0.8 * (w / (waves - 1)));
+    const amp = H * 0.038 * (1 + (w % 3) * 0.5);
+    const freq = 2 + w * 0.4;
+    const alpha = 0.10 + 0.22 * (w % 2 === 0 ? 1 : 0.4);
+    const hue = w % 2 === 0 ? '0,200,176' : '240,208,80';
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 2) {
+      const y = yBase + amp * Math.sin((x / W) * Math.PI * freq + w * 0.8);
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = `rgba(${hue},${alpha})`; ctx.lineWidth = (w % 2 === 0) ? 2 : 1; ctx.stroke();
+  }
+  grain(ctx, W, H);
+}
+function drawSkateElim(ctx, W, H) {
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#08060e'); bg.addColorStop(1, '#100d18');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  const letters = ['S','K','A','T','E'];
+  const alphas  = [0.72, 0.52, 0.35, 0.18, 0.07];
+  const lw = W / letters.length;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  letters.forEach((l, i) => {
+    const x = lw * i + lw / 2;
+    ctx.font = `bold ${W * 0.15}px 'CG-AtomPixel', monospace`;
+    ctx.fillStyle = `rgba(0,200,176,${alphas[i]})`; ctx.fillText(l, x, H * 0.37);
+    if (i < 3) {
+      ctx.beginPath(); ctx.moveTo(x - lw * 0.33, H * 0.37); ctx.lineTo(x + lw * 0.33, H * 0.37);
+      ctx.strokeStyle = `rgba(255,107,71,${alphas[i] * 0.75})`; ctx.lineWidth = 2; ctx.stroke();
+    }
+  });
+  ctx.font = `${W * 0.065}px 'CG-AtomPixel', monospace`;
+  ctx.fillStyle = 'rgba(240,208,80,0.32)'; ctx.fillText('LONDON GAP', W * 0.5, H * 0.7);
+  grain(ctx, W, H);
+}
 
 function drawDistriVault(ctx, W, H) {
   // Dark background + multi-brand color columns
@@ -703,7 +869,7 @@ function drawDarkHorse(ctx, W, H) {
 }
 
 const FIELD_DRAW = [drawFieldI, drawFieldII, drawFieldIII, drawFieldIV, drawFieldV];
-const SPONSOR_DRAW = [drawDistriVault, drawCultureField, drawYoungGun, drawOnlineOracle, drawCash4Tricks, drawDripProtocol, drawShopBattle, drawDarkHorse];
+const SPONSOR_DRAW = [drawCashForTricks, drawSwitchDrop, drawYoungGunChallenge, drawStreetPass, drawShopBattleChallenge, drawDeathrace, drawStuffForSteeze, drawSkateElim];
 
 /* ── Card builder ── */
 const PAYDAY_LOGO = 'data:image/png;base64,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';
@@ -753,7 +919,7 @@ function buildFieldCard(data, idx) {
 
 function buildSponsorCard(data, idx) {
   const card = document.createElement('div');
-  card.className = 'card';
+  card.className = 'card challenge-card';
   const nameClass = data.name.length > 18 ? 'card-name sm' : 'card-name';
   card.innerHTML = `
     <div class="c-corner tl"></div><div class="c-corner tr"></div>

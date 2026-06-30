@@ -259,7 +259,7 @@ body {
 
     <div style="margin-top:auto; display:flex; flex-direction:column; gap:8px;">
       <button class="action-btn" onclick="download()">↓ Download</button>
-      <button class="action-btn" onclick="exportHiRes()" style="border-color:#8d61a6;color:#8d61a6;">↑ 10K Export</button>
+      <button class="action-btn" onclick="exportHiRes()" style="border-color:#8d61a6;color:#8d61a6;">↑ 5K×10K Export</button>
     </div>
   </aside>
 
@@ -1127,7 +1127,7 @@ function setLogo(type) {
 }
 
 function exportHiRes() {
-  const EW = 10000, EH = 5000;
+  const EW = 5000, EH = 10000;
   const scale = Math.min(EW / W, EH / H);
   const dw = Math.round(W * scale);
   const dh = Math.round(H * scale);
@@ -1191,7 +1191,7 @@ function exportHiRes() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'payday_deck_10000x5000.png';
+    a.download = 'payday_deck_5000x10000.png';
     a.click();
     URL.revokeObjectURL(url);
   }, 'image/png');

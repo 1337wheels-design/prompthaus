@@ -264,181 +264,129 @@ body {
 //  OBSTACLE BACKGROUND PRESETS (8 zones)
 // ═══════════════════════════════════════════════════════
 const OBSTACLES = [
-  { name:'LONDON GAP', zone:'I', accent:'#ffd246',
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 1400"><defs><linearGradient id="s1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5a1880"/><stop offset="28%" stop-color="#c030a0"/><stop offset="58%" stop-color="#f07020"/><stop offset="100%" stop-color="#f8e040"/></linearGradient></defs>
-<!-- sky --><rect width="400" height="680" fill="url(#s1)"/>
-<!-- ground plane --><polygon points="0,540 400,440 400,1400 0,1400" fill="#c2cbcb"/>
-<!-- grass strip --><polygon points="95,560 310,460 325,510 300,590 80,680" fill="#4ab840" stroke="#228022" stroke-width="2"/>
-<!-- grass marks --><line x1="130" y1="575" x2="134" y2="555" stroke="#228022" stroke-width="2"/><line x1="165" y1="557" x2="169" y2="540" stroke="#228022" stroke-width="2"/><line x1="205" y1="540" x2="209" y2="522" stroke="#228022" stroke-width="2"/><line x1="245" y1="525" x2="249" y2="507" stroke="#228022" stroke-width="2"/><line x1="278" y1="512" x2="282" y2="495" stroke="#228022" stroke-width="2"/>
-<!-- background trees left --><ellipse cx="40" cy="440" rx="38" ry="44" fill="#2e6828"/><ellipse cx="68" cy="430" rx="30" ry="36" fill="#3a7830"/><rect x="37" y="474" width="6" height="50" fill="#5a3010"/>
-<!-- background trees right --><ellipse cx="345" cy="410" rx="32" ry="40" fill="#2e6828"/><ellipse cx="375" cy="420" rx="25" ry="32" fill="#3a7830"/><rect x="343" y="442" width="6" height="45" fill="#5a3010"/>
-<!-- left wave bank body --><path d="M -10,720 Q 20,520 130,480 Q 85,570 65,720 Z" fill="#a4b0b0" stroke="#111" stroke-width="3" stroke-linejoin="round"/>
-<!-- left bank top face --><path d="M -10,720 Q 20,520 130,480 Q 60,590 5,680 Z" fill="#c0cccc" stroke="#111" stroke-width="2.5"/>
-<!-- left bank crack --><line x1="30" y1="600" x2="60" y2="590" stroke="#8a9898" stroke-width="1.2"/>
-<!-- right wave bank body --><path d="M 285,470 Q 375,415 420,475 L 420,680 Q 375,610 285,570 Z" fill="#a4b0b0" stroke="#111" stroke-width="3"/>
-<!-- right bank top face --><path d="M 285,470 Q 375,415 420,475 L 420,510 Q 368,470 285,508 Z" fill="#c0cccc" stroke="#111" stroke-width="2.5"/>
-<!-- fire hydrant base --><rect x="186" y="596" width="22" height="30" rx="4" fill="#cc2020" stroke="#111" stroke-width="2.5"/>
-<!-- hydrant collar --><rect x="181" y="615" width="32" height="9" rx="3" fill="#cc2020" stroke="#111" stroke-width="2"/>
-<!-- hydrant cap --><ellipse cx="197" cy="596" rx="13" ry="8" fill="#1e7acc" stroke="#111" stroke-width="2.5"/>
-<!-- hydrant nozzle --><rect x="194" y="586" width="6" height="12" rx="2" fill="#165898" stroke="#111" stroke-width="1.5"/>
-<!-- hydrant side nuts --><rect x="177" y="603" width="8" height="7" rx="2" fill="#aa1818" stroke="#111" stroke-width="1.5"/><rect x="209" y="603" width="8" height="7" rx="2" fill="#aa1818" stroke="#111" stroke-width="1.5"/>
-<!-- foreground concrete --><rect x="0" y="1080" width="400" height="320" fill="#c8d0d0"/>
-<!-- crack lines --><polyline points="20,1150 85,1120 140,1142" fill="none" stroke="#a4aeae" stroke-width="1.4"/><polyline points="260,1200 330,1178 390,1195" fill="none" stroke="#a4aeae" stroke-width="1.4"/>
-<!-- mid ground --><rect x="0" y="780" width="400" height="300" fill="#b8c2c2"/>
-<line x1="0" y1="785" x2="400" y2="785" stroke="#a0aaaa" stroke-width="2"/>
-</svg>` },
-  { name:'HIP', zone:'II', accent:'#e6a050',
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 1400"><defs><linearGradient id="s2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a7028"/><stop offset="60%" stop-color="#6a9040"/></linearGradient></defs>
-<!-- sandy/tan ground background --><rect width="400" height="1400" fill="#c8b880"/>
-<!-- sky strip at top --><rect width="400" height="200" fill="#e8d890"/>
-<!-- grass top --><polygon points="0,180 400,140 400,210 0,240" fill="url(#s2)"/>
-<!-- grass marks --><line x1="50" y1="192" x2="54" y2="178" stroke="#285018" stroke-width="2"/><line x1="100" y1="182" x2="104" y2="168" stroke="#285018" stroke-width="2"/><line x1="160" y1="172" x2="164" y2="158" stroke="#285018" stroke-width="2"/><line x1="230" y1="164" x2="234" y2="150" stroke="#285018" stroke-width="2"/><line x1="300" y1="158" x2="304" y2="144" stroke="#285018" stroke-width="2"/><line x1="360" y1="152" x2="364" y2="138" stroke="#285018" stroke-width="2"/>
-<!-- left approach ramp --><polygon points="0,700 0,900 180,750 160,600" fill="#b8a868" stroke="#111" stroke-width="2"/>
-<!-- hip ledge body (large curved slab) --><path d="M -20,480 Q 60,360 200,350 Q 340,340 420,430 L 420,520 Q 340,440 200,450 Q 80,460 0,580 Z" fill="#a09060" stroke="#111" stroke-width="3"/>
-<!-- hip coping / top edge (dark curved metal) --><path d="M -20,480 Q 60,355 200,345 Q 340,335 420,425" fill="none" stroke="#222" stroke-width="8"/>
-<path d="M -20,485 Q 60,362 200,352 Q 340,342 420,432" fill="none" stroke="#444" stroke-width="4"/>
-<!-- green triangular supports --><polygon points="50,480 80,545 20,545" fill="#2eb040" stroke="#111" stroke-width="2"/><polygon points="110,465 140,535 80,535" fill="#2eb040" stroke="#111" stroke-width="2"/><polygon points="170,458 200,528 140,528" fill="#2eb040" stroke="#111" stroke-width="2"/><polygon points="230,452 260,522 200,522" fill="#2eb040" stroke="#111" stroke-width="2"/><polygon points="290,450 320,520 260,520" fill="#2eb040" stroke="#111" stroke-width="2"/><polygon points="350,455 380,525 320,525" fill="#2eb040" stroke="#111" stroke-width="2"/>
-<!-- support highlight --><line x1="55" y1="490" x2="60" y2="505" stroke="#40c050" stroke-width="2"/><line x1="115" y1="476" x2="120" y2="491" stroke="#40c050" stroke-width="2"/><line x1="175" y1="468" x2="180" y2="483" stroke="#40c050" stroke-width="2"/>
-<!-- cast shadow --><polygon points="30,550 370,530 400,640 0,660" fill="#a09060" opacity="0.5"/>
-<!-- ground shadow (dark patch under hip) --><polygon points="0,570 420,550 420,630 0,650" fill="#8a7848" stroke="none"/>
-<!-- foreground approach --><rect x="0" y="900" width="400" height="500" fill="#c8b880"/>
-<polygon points="0,900 400,860 400,920 0,960" fill="#b0a070" stroke="#111" stroke-width="1.5"/>
-<!-- floor cracks --><line x1="80" y1="980" x2="160" y2="970" stroke="#a09060" stroke-width="1.2"/><line x1="240" y1="1060" x2="350" y2="1045" stroke="#a09060" stroke-width="1.2"/>
-</svg>` },
-  { name:'LEDGE', zone:'III', accent:'#c8beac',
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 1400"><defs><linearGradient id="s3a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b0b8b8"/><stop offset="100%" stop-color="#888f8f"/></linearGradient><linearGradient id="s3b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d0a050"/><stop offset="100%" stop-color="#f0c060"/></linearGradient></defs>
-<!-- sky/ambient --><rect width="400" height="1400" fill="#a8b0b0"/>
-<!-- warm orange sky --><rect width="400" height="420" fill="url(#s3b)"/>
-<!-- background trees --><ellipse cx="50" cy="380" rx="45" ry="50" fill="#4a6830"/><ellipse cx="90" cy="368" rx="35" ry="42" fill="#5a7838"/><ellipse cx="150" cy="360" rx="30" ry="38" fill="#4a6830"/><ellipse cx="340" cy="370" rx="38" ry="46" fill="#4a6830"/><ellipse cx="375" cy="380" rx="28" ry="34" fill="#5a7838"/>
-<!-- tree trunks --><rect x="47" y="420" width="7" height="60" fill="#503010"/><rect x="87" y="400" width="6" height="55" fill="#503010"/><rect x="337" y="408" width="7" height="58" fill="#503010"/>
-<!-- grass strip --><polygon points="0,430 400,390 400,450 0,490" fill="#5a8030" stroke="#3a6020" stroke-width="1.5"/>
-<!-- ledge top face --><polygon points="0,490 400,400 400,460 0,560" fill="#d0d8d8" stroke="#111" stroke-width="3"/>
-<!-- ledge angled surface with brick/diamond texture --><polygon points="0,560 400,460 400,900 0,980" fill="url(#s3a)" stroke="#111" stroke-width="3"/>
-<!-- brick pattern (diagonal grid) --><g stroke="#7a8888" stroke-width="1" opacity="0.7">
-<!-- horizontal brick lines --><line x1="0" y1="620" x2="400" y2="540"/><line x1="0" y1="680" x2="400" y2="600"/><line x1="0" y1="740" x2="400" y2="660"/><line x1="0" y1="800" x2="400" y2="720"/><line x1="0" y1="860" x2="400" y2="780"/><line x1="0" y1="920" x2="400" y2="840"/>
-<!-- vertical brick lines --><line x1="50" y1="490" x2="50" y2="980"/><line x1="110" y1="470" x2="110" y2="980"/><line x1="170" y1="455" x2="170" y2="980"/><line x1="230" y1="440" x2="230" y2="980"/><line x1="290" y1="425" x2="290" y2="980"/><line x1="350" y1="410" x2="350" y2="980"/>
-</g>
-<!-- graffiti on ledge face --><text x="60" y="720" font-size="42" font-weight="bold" fill="#1a1a1a" opacity="0.5" transform="skewY(-5)" font-family="sans-serif">1337</text>
-<!-- ledge bottom shadow face --><polygon points="0,980 400,900 400,950 0,1020" fill="#888f8f" stroke="#111" stroke-width="2"/>
-<!-- ledge coping (top metal edge) --><polygon points="0,490 400,400 400,420 0,512" fill="#d8e0e0" stroke="#111" stroke-width="1.5"/>
-<!-- foreground floor --><rect x="0" y="1020" width="400" height="380" fill="#b0b8b8"/>
-<line x1="0" y1="1026" x2="400" y2="1026" stroke="#9a9f9f" stroke-width="2"/>
-<!-- floor cracks --><polyline points="40,1100 120,1082 180,1095" fill="none" stroke="#9a9f9f" stroke-width="1.3"/>
-</svg>` },
-  { name:'GRASS GAP', zone:'IV', accent:'#b4a050',
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 1400"><defs><linearGradient id="s4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#605820"/><stop offset="50%" stop-color="#887040"/><stop offset="100%" stop-color="#a89060"/></linearGradient></defs>
-<!-- warm amber dusk sky --><rect width="400" height="1400" fill="#c8a860"/>
-<rect width="400" height="300" fill="#d0b060"/>
-<!-- overhead warmth --><ellipse cx="200" cy="0" rx="300" ry="200" fill="#f0c840" opacity="0.4"/>
-<!-- shadow planes --><polygon points="0,800 400,650 400,1400 0,1400" fill="url(#s4)"/>
-<!-- left bank (concrete ramp) --><path d="M -10,680 Q 50,480 180,500 L 180,580 Q 80,560 0,750 Z" fill="#b0b8a0" stroke="#111" stroke-width="3"/>
-<!-- left bank top --><path d="M -10,680 Q 50,480 180,500 L 160,520 Q 40,500 -10,700 Z" fill="#c8d0b8" stroke="#111" stroke-width="2"/>
-<!-- grass gap strip --><polygon points="170,500 240,460 260,520 195,570" fill="#5ab030" stroke="#2a7018" stroke-width="2"/>
-<!-- weeds / plants growing in gap --><line x1="195" y1="495" x2="190" y2="475" stroke="#2a7018" stroke-width="2"/><line x1="205" y1="488" x2="202" y2="469" stroke="#2a7018" stroke-width="2"/><line x1="218" y1="480" x2="215" y2="462" stroke="#2a7018" stroke-width="2"/><line x1="232" y1="473" x2="229" y2="455" stroke="#2a7018" stroke-width="2"/>
-<!-- grass gap detail marks --><line x1="188" y1="520" x2="192" y2="505" stroke="#1a5010" stroke-width="1.5"/><line x1="210" y1="510" x2="214" y2="496" stroke="#1a5010" stroke-width="1.5"/>
-<!-- right bank --><path d="M 250,460 Q 340,420 420,440 L 420,570 Q 360,540 250,540 Z" fill="#b0b8a0" stroke="#111" stroke-width="3"/>
-<!-- right bank top face --><path d="M 250,460 Q 340,420 420,440 L 420,470 Q 350,450 250,490 Z" fill="#c8d0b8" stroke="#111" stroke-width="2"/>
-<!-- gap shadow below --><polygon points="170,520 255,475 265,540 185,590" fill="#887040" opacity="0.6"/>
-<!-- fire hydrant (tiny, in gap) --><rect x="208" y="504" width="14" height="20" rx="3" fill="#bb1818" stroke="#111" stroke-width="1.5"/><ellipse cx="215" cy="504" rx="8" ry="5" fill="#1868bb" stroke="#111" stroke-width="1.5"/>
-<!-- foreground concrete --><rect x="0" y="950" width="400" height="450" fill="#c0b870"/>
-<polygon points="0,950 400,890 400,960 0,1020" fill="#a89050" stroke="#111" stroke-width="2"/>
-<!-- crack lines --><line x1="60" y1="1050" x2="160" y2="1038" stroke="#9a8840" stroke-width="1.3"/>
-<line x1="280" y1="1100" x2="370" y2="1088" stroke="#9a8840" stroke-width="1.3"/>
-</svg>` },
-  { name:'HUBBA', zone:'V', accent:'#ff9620',
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 1400"><defs><linearGradient id="s5a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a060c0"/><stop offset="100%" stop-color="#7040a0"/></linearGradient><linearGradient id="s5b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8b870"/><stop offset="100%" stop-color="#a09050"/></linearGradient></defs>
-<!-- purple/gold background --><rect width="400" height="1400" fill="#b080c0"/>
-<!-- yellow diagonal lines --><line x1="-40" y1="0" x2="160" y2="1400" stroke="#d4a020" stroke-width="18" opacity="0.6"/><line x1="80" y1="0" x2="280" y2="1400" stroke="#d4a020" stroke-width="12" opacity="0.4"/><line x1="200" y1="0" x2="440" y2="1400" stroke="#d4a020" stroke-width="18" opacity="0.6"/>
-<!-- background stripes (purple planes) --><polygon points="0,0 400,0 400,300 0,350" fill="#8040a0" opacity="0.6"/>
-<!-- ground plane --><polygon points="0,850 400,780 400,1400 0,1400" fill="url(#s5b)"/>
-<!-- block pedestal body (front face - purple with graffiti) --><polygon points="80,750 320,680 320,1020 80,1060" fill="url(#s5a)" stroke="#111" stroke-width="4"/>
-<!-- graffiti on front face - green tag style --><text x="100" y="870" font-size="28" fill="#3ac040" font-weight="900" font-family="sans-serif" transform="skewX(-5)">SKATE</text><text x="95" y="910" font-size="22" fill="#28a030" font-weight="900" font-family="sans-serif" transform="skewX(-5)">OR DIE</text>
-<!-- bubble graffiti outline --><ellipse cx="175" cy="870" rx="90" ry="55" fill="none" stroke="#28a030" stroke-width="2" opacity="0.5"/>
-<!-- block top face (silver/waxed) --><polygon points="80,750 320,680 360,640 120,700" fill="#c8d0d0" stroke="#111" stroke-width="3"/>
-<!-- wax marks on top --><line x1="140" y1="720" x2="280" y2="674" stroke="#a8b0b0" stroke-width="1.5"/><line x1="160" y1="728" x2="300" y2="682" stroke="#a8b0b0" stroke-width="1"/>
-<!-- paint splats on top --><ellipse cx="190" cy="700" rx="12" ry="6" fill="#cc2020" transform="rotate(-5,190,700)"/><ellipse cx="240" cy="688" rx="10" ry="5" fill="#2080cc" transform="rotate(3,240,688)"/>
-<!-- block right side face --><polygon points="320,680 360,640 360,980 320,1020" fill="#8060a0" stroke="#111" stroke-width="3"/>
-<!-- graffiti on right side --><text x="328" y="800" font-size="14" fill="#a040c0" font-weight="bold" font-family="sans-serif" transform="rotate(90,338,850)">1337</text>
-<!-- block cast shadow --><polygon points="320,1020 360,980 400,1040 380,1100 300,1080" fill="#705090" opacity="0.5"/>
-<!-- blue dots on foreground --><circle cx="60" cy="1100" r="8" fill="#2080cc"/><circle cx="120" cy="1150" r="7" fill="#2080cc"/><circle cx="200" cy="1120" r="9" fill="#2080cc"/><circle cx="300" cy="1160" r="7" fill="#2080cc"/><circle cx="370" cy="1100" r="8" fill="#2080cc"/>
-<!-- foreground floor --><rect x="0" y="1080" width="400" height="320" fill="#a89060"/>
-<line x1="0" y1="1085" x2="400" y2="1085" stroke="#907840" stroke-width="2"/>
-</svg>` },
-  { name:'DOUBLE SET', zone:'VI', accent:'#ff6b47',
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 1400"><defs><linearGradient id="s6" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7010c0"/><stop offset="20%" stop-color="#d020a0"/><stop offset="45%" stop-color="#f06020"/><stop offset="70%" stop-color="#f8c030"/><stop offset="100%" stop-color="#f0e060"/></linearGradient></defs>
-<!-- rainbow sunset sky --><rect width="400" height="680" fill="url(#s6)"/>
-<!-- tree line --><ellipse cx="30" cy="530" rx="40" ry="50" fill="#2a5818"/><ellipse cx="65" cy="516" rx="32" ry="40" fill="#346028"/><ellipse cx="130" cy="508" rx="28" ry="36" fill="#2a5818"/><ellipse cx="340" cy="498" rx="35" ry="44" fill="#2a5818"/><ellipse cx="375" cy="510" rx="26" ry="34" fill="#346028"/>
-<!-- tree trunks --><rect x="27" y="572" width="6" height="65" fill="#4a2808"/><rect x="62" y="548" width="5" height="58" fill="#4a2808"/><rect x="337" y="534" width="6" height="60" fill="#4a2808"/>
-<!-- approach ramp left --><polygon points="0,640 0,780 160,680 140,600" fill="#c0c8c8" stroke="#111" stroke-width="2.5"/>
-<!-- step 1 (top, smallest) --><polygon points="80,600 320,540 320,620 80,680" fill="#d0d8d8" stroke="#111" stroke-width="3"/>
-<polygon points="320,540 360,520 360,600 320,620" fill="#b0b8b8" stroke="#111" stroke-width="2.5"/>
-<!-- step 2 (middle) --><polygon points="60,680 320,620 320,710 60,770" fill="#d0d8d8" stroke="#111" stroke-width="3"/>
-<polygon points="320,620 360,600 360,690 320,710" fill="#b0b8b8" stroke="#111" stroke-width="2.5"/>
-<!-- step 3 (bottom, largest) --><polygon points="40,770 320,710 320,800 40,860" fill="#d0d8d8" stroke="#111" stroke-width="3"/>
-<polygon points="320,710 360,690 360,780 320,800" fill="#b0b8b8" stroke="#111" stroke-width="2.5"/>
-<!-- shadow stripes on steps --><polygon points="80,600 320,540 320,545 80,605" fill="#a8b0b0" opacity="0.5"/>
-<polygon points="60,680 320,620 320,627 60,687" fill="#a8b0b0" opacity="0.5"/>
-<polygon points="40,770 320,710 320,717 40,777" fill="#a8b0b0" opacity="0.5"/>
-<!-- double handrail left post --><rect x="108" y="585" width="10" height="200" rx="5" fill="#909898" stroke="#111" stroke-width="2" transform="rotate(-5,113,685)"/>
-<!-- double handrail right post --><rect x="248" y="545" width="10" height="200" rx="5" fill="#909898" stroke="#111" stroke-width="2" transform="rotate(-5,253,645)"/>
-<!-- handrail horizontal top bar --><line x1="108" y1="588" x2="248" y2="548" stroke="#909898" stroke-width="10" stroke-linecap="round"/>
-<line x1="108" y1="588" x2="248" y2="548" stroke="#c0c8c8" stroke-width="5" stroke-linecap="round"/>
-<!-- handrail horizontal bottom bar --><line x1="112" y1="778" x2="252" y2="738" stroke="#909898" stroke-width="10" stroke-linecap="round"/>
-<line x1="112" y1="778" x2="252" y2="738" stroke="#c0c8c8" stroke-width="5" stroke-linecap="round"/>
-<!-- handrail connecting bar left --><line x1="108" y1="588" x2="112" y2="778" stroke="#909898" stroke-width="8" stroke-linecap="round"/>
-<!-- handrail connecting bar right --><line x1="248" y1="548" x2="252" y2="738" stroke="#909898" stroke-width="8" stroke-linecap="round"/>
-<!-- shadow cast by handrail --><polygon points="200,640 350,600 360,620 205,660" fill="#9098a0" opacity="0.35"/>
-<!-- graffiti on side of stairs --><text x="32" y="760" font-size="16" fill="#4a4848" font-family="sans-serif" transform="skewY(-8)">SNKBRS</text>
-<!-- foreground ground --><rect x="0" y="860" width="400" height="540" fill="#c8d0d0"/>
-<line x1="0" y1="868" x2="400" y2="868" stroke="#a8b0b0" stroke-width="2"/>
-<!-- floor cracks --><line x1="50" y1="950" x2="140" y2="940" stroke="#a8b0b0" stroke-width="1.3"/><line x1="280" y1="1020" x2="380" y2="1005" stroke="#a8b0b0" stroke-width="1.3"/>
-</svg>` },
-  { name:'KICKER RAIL', zone:'VII', accent:'#00c8b0',
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 1400"><defs><linearGradient id="s7a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5a1880"/><stop offset="40%" stop-color="#806028"/><stop offset="100%" stop-color="#c89040"/></linearGradient><linearGradient id="s7b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#909898"/><stop offset="100%" stop-color="#707878"/></linearGradient></defs>
-<!-- background: dark to amber --><rect width="400" height="1400" fill="#c89040"/>
-<!-- sky zone --><rect width="400" height="360" fill="url(#s7a)"/>
-<!-- background fence/netting (park) --><line x1="0" y1="280" x2="400" y2="240" stroke="#2a4a20" stroke-width="2"/><line x1="50" y1="240" x2="45" y2="360" stroke="#2a4a20" stroke-width="1.5"/><line x1="130" y1="228" x2="125" y2="345" stroke="#2a4a20" stroke-width="1.5"/><line x1="210" y1="218" x2="205" y2="334" stroke="#2a4a20" stroke-width="1.5"/><line x1="290" y1="208" x2="285" y2="325" stroke="#2a4a20" stroke-width="1.5"/><line x1="370" y1="200" x2="365" y2="316" stroke="#2a4a20" stroke-width="1.5"/>
-<!-- building in background --><rect x="140" y="250" width="120" height="90" fill="#b0b8c8" stroke="#889098" stroke-width="2"/><line x1="140" y1="268" x2="260" y2="260" stroke="#889098" stroke-width="1"/><line x1="140" y1="286" x2="260" y2="278" stroke="#889098" stroke-width="1"/><line x1="140" y1="304" x2="260" y2="296" stroke="#889098" stroke-width="1"/>
-<!-- goal post (park) --><rect x="308" y="290" width="5" height="80" fill="#9a9a9a" stroke="#666" stroke-width="1"/><rect x="330" y="290" width="5" height="80" fill="#9a9a9a" stroke="#666" stroke-width="1"/><line x1="308" y1="290" x2="335" y2="290" stroke="#9a9a9a" stroke-width="4"/>
-<!-- trees --><ellipse cx="30" cy="350" rx="36" ry="44" fill="#3a6828"/><ellipse cx="380" cy="330" rx="30" ry="38" fill="#3a6828"/>
-<!-- kicker ramp body --><path d="M 40,900 Q 60,650 200,580 L 360,560 L 360,680 Q 220,700 100,950 Z" fill="url(#s7b)" stroke="#111" stroke-width="3"/>
-<!-- kicker ramp top surface --><path d="M 40,900 Q 60,650 200,580 L 360,560 Q 220,575 90,880 Z" fill="#a0a8a8" stroke="#111" stroke-width="2"/>
-<!-- kicker ramp side shadows --><polygon points="360,560 400,540 400,650 360,680" fill="#606868" stroke="#111" stroke-width="2"/>
-<!-- rail mounted on kicker --><line x1="90" y1="878" x2="350" y2="568" stroke="#606868" stroke-width="14" stroke-linecap="round"/>
-<line x1="90" y1="878" x2="350" y2="568" stroke="#b0b8b8" stroke-width="8" stroke-linecap="round"/>
-<line x1="92" y1="876" x2="352" y2="566" stroke="#d0d8d8" stroke-width="4" stroke-linecap="round"/>
-<!-- left rail post --><line x1="90" y1="878" x2="95" y2="920" stroke="#606868" stroke-width="8" stroke-linecap="round"/>
-<!-- right rail post --><line x1="350" y1="568" x2="355" y2="610" stroke="#606868" stroke-width="8" stroke-linecap="round"/>
-<!-- shadow of rail on ramp --><line x1="160" y1="860" x2="360" y2="640" stroke="#888f8f" stroke-width="5" opacity="0.5"/>
-<!-- ground --><rect x="0" y="950" width="400" height="450" fill="#c89040"/>
-<polygon points="0,950 400,900 400,970 0,1020" fill="#a07030" stroke="#111" stroke-width="2"/>
-<!-- ground marks --><line x1="100" y1="1050" x2="200" y2="1040" stroke="#9a6828" stroke-width="1.3"/><line x1="250" y1="1100" x2="360" y2="1088" stroke="#9a6828" stroke-width="1.3"/>
-</svg>` },
-  { name:'BLÖCKE', zone:'VIII', accent:'#f0d060',
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 1400"><defs><linearGradient id="s8a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a09068"/><stop offset="60%" stop-color="#c8a060"/><stop offset="100%" stop-color="#d4a868"/></linearGradient><linearGradient id="s8b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b88858"/><stop offset="100%" stop-color="#a07848"/></linearGradient></defs>
-<!-- warm amber dusk --><rect width="400" height="1400" fill="url(#s8a)"/>
-<!-- sky --><rect width="400" height="340" fill="#c8a060"/>
-<ellipse cx="200" cy="300" rx="350" ry="120" fill="#f0c050" opacity="0.3"/>
-<!-- distant trees silhouette --><ellipse cx="30" cy="310" rx="38" ry="46" fill="#606828"/><ellipse cx="68" cy="300" rx="30" ry="38" fill="#706a28"/><ellipse cx="110" cy="295" rx="26" ry="34" fill="#606828"/><ellipse cx="280" cy="285" rx="32" ry="40" fill="#606828"/><ellipse cx="320" cy="290" rx="28" ry="36" fill="#706a28"/><ellipse cx="365" cy="298" rx="24" ry="30" fill="#606828"/>
-<!-- tree trunks --><rect x="28" y="348" width="5" height="55" fill="#4a3010"/><rect x="66" y="330" width="5" height="50" fill="#4a3010"/><rect x="278" y="318" width="5" height="52" fill="#4a3010"/>
-<!-- street light pole --><rect x="188" y="260" width="5" height="110" fill="#888080"/><ellipse cx="191" cy="258" rx="14" ry="6" fill="#a09898"/>
-<!-- second street light --><rect x="338" y="248" width="5" height="110" fill="#888080"/><ellipse cx="341" cy="246" rx="14" ry="6" fill="#a09898"/>
-<!-- people in background (silhouette) --><ellipse cx="105" cy="400" rx="6" ry="10" fill="#606060"/><rect x="102" y="410" width="6" height="14" fill="#606060"/><ellipse cx="130" cy="398" rx="5" ry="9" fill="#606060"/><rect x="127" y="408" width="5" height="12" fill="#606060"/>
-<!-- main ledge — top surface --><polygon points="0,450 400,380 400,450 0,530" fill="#c0a870" stroke="#111" stroke-width="3"/>
-<!-- main ledge — front face (tall, with graffiti) --><polygon points="0,530 400,450 400,820 0,880" fill="url(#s8b)" stroke="#111" stroke-width="3"/>
-<!-- graffiti "1337" on ledge face --><text x="100" y="700" font-size="80" font-weight="900" font-family="serif" fill="#a09078" letter-spacing="2">1337</text>
-<!-- "1337" outline (lighter, embossed) --><text x="100" y="700" font-size="80" font-weight="900" font-family="serif" fill="none" stroke="#c8b080" stroke-width="2" letter-spacing="2">1337</text>
-<!-- ledge bottom shadow edge --><polygon points="0,880 400,820 400,870 0,930" fill="#907848" stroke="#111" stroke-width="2"/>
-<!-- second tier ledge left --><polygon points="0,370 160,330 160,390 0,440" fill="#c8a860" stroke="#111" stroke-width="2.5"/>
-<polygon points="0,440 160,390 160,540 0,580" fill="#b89050" stroke="#111" stroke-width="2.5"/>
-<!-- second tier right side view --><polygon points="160,330 200,315 200,375 160,390" fill="#a07840" stroke="#111" stroke-width="2"/>
-<!-- skating figure silhouette on ledge --><ellipse cx="250" cy="370" rx="9" ry="12" fill="#4a3020"/><rect x="246" y="382" width="8" height="16" fill="#4a3020"/><ellipse cx="246" cy="400" rx="5" ry="3" fill="#3a2818"/><ellipse cx="256" cy="400" rx="5" ry="3" fill="#3a2818"/>
-<!-- foreground concrete plaza --><rect x="0" y="930" width="400" height="470" fill="#c0a868"/>
-<line x1="0" y1="936" x2="400" y2="936" stroke="#a08848" stroke-width="2"/>
-<line x1="0" y1="1100" x2="400" y2="1100" stroke="#a08848" stroke-width="1.3"/>
-<!-- pavement joints --><line x1="100" y1="936" x2="100" y2="1400" stroke="#a08848" stroke-width="1.3"/><line x1="200" y1="936" x2="200" y2="1400" stroke="#a08848" stroke-width="1.3"/><line x1="300" y1="936" x2="300" y2="1400" stroke="#a08848" stroke-width="1.3"/>
-</svg>` }
+  {
+    name:'LONDON GAP', zone:'I', accent:'#ffd246',
+    draw(ctx, w, h) {
+      const g = ctx.createLinearGradient(0,0,0,h);
+      g.addColorStop(0,   '#0c1828');
+      g.addColorStop(0.4, '#182438');
+      g.addColorStop(0.6, '#2c2c14');
+      g.addColorStop(1,   '#382810');
+      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+      const sg = ctx.createRadialGradient(w*.5,h*.32,0, w*.5,h*.32,w*.38);
+      sg.addColorStop(0,   'rgba(255,210,70,0.9)');
+      sg.addColorStop(0.25,'rgba(255,160,30,0.5)');
+      sg.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = sg; ctx.fillRect(0,0,w,h);
+    }
+  },
+  {
+    name:'HIP', zone:'II', accent:'#e6a050',
+    draw(ctx, w, h) {
+      const g = ctx.createLinearGradient(0,0,0,h);
+      g.addColorStop(0,   '#182438');
+      g.addColorStop(0.45,'#2e2c1e');
+      g.addColorStop(0.75,'#585850');
+      g.addColorStop(1,   '#787868');
+      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+      const ag = ctx.createRadialGradient(w*.5,h*.45,0, w*.5,h*.45,w*.55);
+      ag.addColorStop(0,   'rgba(255,180,80,0.25)');
+      ag.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = ag; ctx.fillRect(0,0,w,h);
+    }
+  },
+  {
+    name:'LEDGE', zone:'III', accent:'#c8beac',
+    draw(ctx, w, h) {
+      const g = ctx.createLinearGradient(0,0,0,h);
+      g.addColorStop(0,   '#1c1c20');
+      g.addColorStop(0.5, '#484840');
+      g.addColorStop(1,   '#525248');
+      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+      const cg = ctx.createRadialGradient(w*.5,0,0, w*.5,0,h*.5);
+      cg.addColorStop(0,   'rgba(200,190,140,0.18)');
+      cg.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = cg; ctx.fillRect(0,0,w,h);
+    }
+  },
+  {
+    name:'GRASS GAP', zone:'IV', accent:'#b4a050',
+    draw(ctx, w, h) {
+      const g = ctx.createLinearGradient(0,0,0,h);
+      g.addColorStop(0,   '#161610');
+      g.addColorStop(0.4, '#303028');
+      g.addColorStop(0.7, '#404038');
+      g.addColorStop(1,   '#606058');
+      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+      const dg = ctx.createRadialGradient(w*.5,h*.3,0, w*.5,h*.3,w*.45);
+      dg.addColorStop(0,   'rgba(180,160,80,0.22)');
+      dg.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = dg; ctx.fillRect(0,0,w,h);
+    }
+  },
+  {
+    name:'HUBBA', zone:'V', accent:'#ff9620',
+    draw(ctx, w, h) {
+      const g = ctx.createLinearGradient(0,0,0,h);
+      g.addColorStop(0,   '#0e0c06');
+      g.addColorStop(0.45,'#282616');
+      g.addColorStop(0.7, '#555048');
+      g.addColorStop(1,   '#1c1a0e');
+      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+      const hg = ctx.createRadialGradient(w*.5,h*.6,0, w*.5,h*.6,w*.4);
+      hg.addColorStop(0,   'rgba(255,160,30,0.22)');
+      hg.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = hg; ctx.fillRect(0,0,w,h);
+    }
+  },
+  {
+    name:'DOUBLE SET', zone:'VI', accent:'#ff6b47',
+    draw(ctx, w, h) {
+      const g = ctx.createLinearGradient(0,0,0,h);
+      g.addColorStop(0,   '#1a0404');
+      g.addColorStop(0.45,'#4a1208');
+      g.addColorStop(0.75,'#ff6b47');
+      g.addColorStop(1,   '#c03020');
+      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+      const fg = ctx.createRadialGradient(w*.5,h*.6,0, w*.5,h*.6,w*.5);
+      fg.addColorStop(0,   'rgba(255,200,160,0.25)');
+      fg.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = fg; ctx.fillRect(0,0,w,h);
+    }
+  },
+  {
+    name:'KICKER RAIL', zone:'VII', accent:'#00c8b0',
+    draw(ctx, w, h) {
+      const g = ctx.createLinearGradient(0,0,0,h);
+      g.addColorStop(0,   '#000e0c');
+      g.addColorStop(0.4, '#003828');
+      g.addColorStop(0.75,'#006650');
+      g.addColorStop(1,   '#00c8b0');
+      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+      const ag = ctx.createRadialGradient(w*.5,h*.55,0, w*.5,h*.55,w*.5);
+      ag.addColorStop(0,   'rgba(0,200,176,0.3)');
+      ag.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = ag; ctx.fillRect(0,0,w,h);
+    }
+  },
+  {
+    name:'BLÖCKE', zone:'VIII', accent:'#f0d060',
+    draw(ctx, w, h) {
+      const g = ctx.createLinearGradient(0,0,0,h);
+      g.addColorStop(0,   '#0e0a02');
+      g.addColorStop(0.4, '#2a2004');
+      g.addColorStop(0.7, '#7a5008');
+      g.addColorStop(1,   '#f0d060');
+      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+      const gg = ctx.createRadialGradient(w*.5,h*.65,0, w*.5,h*.65,w*.5);
+      gg.addColorStop(0,   'rgba(240,208,80,0.35)');
+      gg.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = gg; ctx.fillRect(0,0,w,h);
+    }
+  }
 ];
+
+
 
 // ═══════════════════════════════════════════════════════
 //  STATE
@@ -494,20 +442,11 @@ function buildPresets() {
     mc.width = 60; mc.height = 80;
     const mctx = mc.getContext('2d');
     const mpath = new Path2D('M 30,0 C 46.6,0 60,13.4 60,30 L 60,50 C 60,66.6 46.6,80 30,80 C 13.4,80 0,66.6 0,50 L 0,30 C 0,13.4 13.4,0 30,0 Z');
-    // solid accent fallback while SVG loads
-    mctx.fillStyle = ob.accent;
-    mctx.save(); mctx.clip(mpath); mctx.fillRect(0,0,60,80); mctx.restore();
-    // async SVG render
-    const timg = new Image();
-    timg.onload = () => {
-      mctx.clearRect(0,0,60,80);
-      mctx.save(); mctx.clip(mpath);
-      mctx.drawImage(timg, 0, 0, 60, 80);
-      mctx.restore();
-      mctx.strokeStyle = 'rgba(255,255,255,0.15)';
-      mctx.lineWidth = 1; mctx.stroke(mpath);
-    };
-    timg.src = 'data:image/svg+xml,' + encodeURIComponent(ob.svg);
+    mctx.save(); mctx.clip(mpath);
+    ob.draw(mctx, 60, 80);
+    mctx.restore();
+    mctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    mctx.lineWidth = 1; mctx.stroke(mpath);
 
     const btn = document.createElement('button');
     btn.className = 'preset-btn' + (i === 0 ? ' active' : '');
@@ -549,10 +488,10 @@ function redraw() {
   // 3. logo overlay (screen blend, clipped)
   const _li = getLogoImg();
   if (showLogo && _li) {
-    const lw = W * 0.88;
+    const lw = W * 0.92;
     const lh = lw * getLogoAspect();
     const lx = (W - lw) / 2;
-    const ly = H * 0.44 - lh / 2;
+    const ly = H * 0.50 - lh / 2;
     ctx.save();
     ctx.clip(path);
     ctx.globalCompositeOperation = 'screen';
@@ -577,9 +516,8 @@ function applyPreset(idx) {
   document.querySelectorAll('#presets .preset-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
   document.querySelectorAll('#camo-presets .preset-btn').forEach(b => b.classList.remove('active'));
   bgCtx.clearRect(0, 0, W, H);
-  const img = new Image();
-  img.onload = () => { bgCtx.drawImage(img, 0, 0, W, H); redraw(); };
-  img.src = 'data:image/svg+xml,' + encodeURIComponent(OBSTACLES[idx].svg);
+  OBSTACLES[idx].draw(bgCtx, W, H);
+  redraw();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -751,10 +689,10 @@ function download() {
 
   const _dli = getLogoImg();
   if (showLogo && _dli) {
-    const lw = W * 0.88;
+    const lw = W * 0.92;
     const lh = lw * getLogoAspect();
     const lx = (W - lw) / 2;
-    const ly = H * 0.44 - lh / 2;
+    const ly = H * 0.50 - lh / 2;
     octx.globalCompositeOperation = 'screen';
     octx.drawImage(_dli, lx, ly, lw, lh);
   }
@@ -914,59 +852,58 @@ function exportHiRes() {
   octx.fillStyle = '#000000';
   octx.fillRect(0, 0, EW, EH);
 
-  function doExport(bgSrc) {
-    octx.save();
-    octx.translate(ox, oy);
-    octx.scale(scale, scale);
-    const path = getDeckPath();
+  octx.save();
+  octx.translate(ox, oy);
+  octx.scale(scale, scale);
+  const path = getDeckPath();
 
-    octx.save(); octx.clip(path);
-    octx.imageSmoothingEnabled = true; octx.imageSmoothingQuality = 'high';
-    octx.drawImage(bgSrc, 0, 0, W, H);
-    octx.restore();
-
-    octx.save(); octx.clip(path);
-    octx.drawImage(drawCanvas, 0, 0);
-    octx.restore();
-
-    const _eli = getLogoImg();
-    if (showLogo && _eli) {
-      const lw = W * 0.88;
-      const lh = lw * getLogoAspect();
-      const lx = (W - lw) / 2;
-      const ly = H * 0.44 - lh / 2;
-      octx.save(); octx.clip(path);
-      octx.globalCompositeOperation = 'screen';
-      octx.drawImage(_eli, lx, ly, lw, lh);
-      octx.restore();
-    }
-
-    octx.save();
-    octx.strokeStyle = 'rgba(210,210,212,0.25)';
-    octx.lineWidth = 2 / scale;
-    octx.stroke(getDeckPath());
-    octx.restore();
-    octx.restore();
-
-    out.toBlob(blob => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'payday_deck_10000x5000.png';
-      a.click();
-      URL.revokeObjectURL(url);
-    }, 'image/png');
-  }
-
+  const tempBg = document.createElement('canvas');
+  tempBg.width = W; tempBg.height = H;
+  const tempCtx = tempBg.getContext('2d');
   if (isCamoActive) {
-    const tempBg = document.createElement('canvas');
-    tempBg.width = W; tempBg.height = H;
-    drawCamoBlobs(tempBg.getContext('2d'), W, H, CAMO_PATTERNS[activeCamo].palettes, CAMO_PATTERNS[activeCamo].seed);
-    doExport(tempBg);
+    drawCamoBlobs(tempCtx, W, H, CAMO_PATTERNS[activeCamo].palettes, CAMO_PATTERNS[activeCamo].seed);
   } else {
-    doExport(bgCanvas);
+    OBSTACLES[activePreset].draw(tempCtx, W, H);
   }
+
+  octx.save(); octx.clip(path);
+  octx.imageSmoothingEnabled = true; octx.imageSmoothingQuality = 'high';
+  octx.drawImage(tempBg, 0, 0);
+  octx.restore();
+
+  octx.save(); octx.clip(path);
+  octx.drawImage(drawCanvas, 0, 0);
+  octx.restore();
+
+  const _eli = getLogoImg();
+  if (showLogo && _eli) {
+    const lw = W * 0.92;
+    const lh = lw * getLogoAspect();
+    const lx = (W - lw) / 2;
+    const ly = H * 0.50 - lh / 2;
+    octx.save(); octx.clip(path);
+    octx.globalCompositeOperation = 'screen';
+    octx.drawImage(_eli, lx, ly, lw, lh);
+    octx.restore();
+  }
+
+  octx.save();
+  octx.strokeStyle = 'rgba(210,210,212,0.25)';
+  octx.lineWidth = 2 / scale;
+  octx.stroke(getDeckPath());
+  octx.restore();
+  octx.restore();
+
+  out.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'payday_deck_10000x5000.png';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, 'image/png');
 }
+
 
 // ═══════════════════════════════════════════════════════
 //  SVG FILE UPLOAD
@@ -985,7 +922,6 @@ function loadSvgFile(input) {
   reader.readAsText(file);
   input.value = '';
 }
-
 // ═══════════════════════════════════════════════════════
 //  EVENT WIRING
 // ═══════════════════════════════════════════════════════

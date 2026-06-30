@@ -493,7 +493,7 @@ function redraw() {
     ctx.save();
     ctx.clip(path);
     ctx.translate(W / 2, H / 2);
-    ctx.rotate(Math.PI / 2);
+    ctx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
     ctx.globalCompositeOperation = 'screen';
     ctx.drawImage(_li, -drawW / 2, -drawH / 2, drawW, drawH);
     ctx.restore();
@@ -693,7 +693,7 @@ function download() {
     const drawH = drawW * getLogoAspect();
     octx.save();
     octx.translate(W / 2, H / 2);
-    octx.rotate(Math.PI / 2);
+    octx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
     octx.globalCompositeOperation = 'screen';
     octx.drawImage(_dli, -drawW / 2, -drawH / 2, drawW, drawH);
     octx.restore();
@@ -884,7 +884,7 @@ function exportHiRes() {
     octx.save();
     octx.clip(path);
     octx.translate(W / 2, H / 2);
-    octx.rotate(Math.PI / 2);
+    octx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
     octx.globalCompositeOperation = 'screen';
     octx.drawImage(_eli, -drawW / 2, -drawH / 2, drawW, drawH);
     octx.restore();

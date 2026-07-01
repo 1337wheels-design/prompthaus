@@ -509,6 +509,12 @@ const CAMO_PATTERNS = [
     ['#909096','#a0a0a6','#b0b0b6','#c0c0c6'],
     ['#d8d8dc','#e4e4e8','#ececf0','#f4f4f8'],
   ]},
+  { name:'DUSK',    seed:505, palettes:[
+    ['#180010','#200018','#280020','#300028'],
+    ['#600030','#800040','#a00050','#c00060'],
+    ['#c04000','#d85020','#e86030','#f07040'],
+    ['#e08000','#e89000','#f0a000','#f8b800'],
+  ]},
 ];
 
 const ILLUSTRATION_DATA = [
@@ -587,6 +593,23 @@ function makeMonoPalette(hex) {
   ];
 }
 
+// Fade top+bottom edges of illustration box into bg camo color — hides white letterbox bands
+function drawIllusEdgeFades(ctx, w, illusY, illusH, bgColor) {
+  const r = parseInt(bgColor.slice(1,3),16), g = parseInt(bgColor.slice(3,5),16), b = parseInt(bgColor.slice(5,7),16);
+  const rgb = `${r},${g},${b}`;
+  const fadeH = Math.round(illusH * 0.235); // ~228 canvas px at full size, scales with context
+  const topGrad = ctx.createLinearGradient(0, illusY, 0, illusY + fadeH);
+  topGrad.addColorStop(0, `rgba(${rgb},1)`);
+  topGrad.addColorStop(1, `rgba(${rgb},0)`);
+  ctx.fillStyle = topGrad;
+  ctx.fillRect(0, illusY, w, fadeH);
+  const botGrad = ctx.createLinearGradient(0, illusY + illusH - fadeH, 0, illusY + illusH);
+  botGrad.addColorStop(0, `rgba(${rgb},0)`);
+  botGrad.addColorStop(1, `rgba(${rgb},1)`);
+  ctx.fillStyle = botGrad;
+  ctx.fillRect(0, illusY + illusH - fadeH, w, fadeH);
+}
+
 function drawIllustration(ctx, w, h, img, ox, oy) {
   ox = ox || 0; oy = oy || 0;
   ctx.imageSmoothingEnabled = true;
@@ -640,6 +663,10 @@ function buildIllustrationPresets() {
       mctx.beginPath(); mctx.rect(0, tiy, 60, tih); mctx.clip();
       drawIllustration(mctx, 60, tih, img, 0, tiy);
       mctx.restore();
+      mctx.save();
+      mctx.clip(mpath);
+      drawIllusEdgeFades(mctx, 60, tiy, tih, ILLUSTRATION_BG[i]);
+      mctx.restore();
       mctx.strokeStyle = 'rgba(255,255,255,0.18)';
       mctx.lineWidth = 1;
       mctx.stroke(mpath);
@@ -664,6 +691,7 @@ function applyIllustration(idx) {
     bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();
     drawIllustration(bgCtx, W, ILLUS_H, img, 0, ILLUS_Y);
     bgCtx.restore();
+    drawIllusEdgeFades(bgCtx, W, ILLUS_Y, ILLUS_H, illusBgColor);
     redraw();
   } else {
     img.addEventListener('load', () => {
@@ -671,6 +699,7 @@ function applyIllustration(idx) {
       bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();
       drawIllustration(bgCtx, W, ILLUS_H, img, 0, ILLUS_Y);
       bgCtx.restore();
+      drawIllusEdgeFades(bgCtx, W, ILLUS_Y, ILLUS_H, illusBgColor);
       redraw();
     }, { once: true });
   }
@@ -684,6 +713,7 @@ function applyCustom() {
   bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();
   drawIllustration(bgCtx, W, ILLUS_H, customImgEl, 0, ILLUS_Y);
   bgCtx.restore();
+  drawIllusEdgeFades(bgCtx, W, ILLUS_Y, ILLUS_H, illusBgColor);
   redraw();
 }
 
@@ -730,6 +760,7 @@ function exportHiRes() {
     tempCtx.beginPath(); tempCtx.rect(0, eIY, dw, eIH); tempCtx.clip();
     drawIllustration(tempCtx, dw, eIH, eImg, 0, eIY);
     tempCtx.restore();
+    drawIllusEdgeFades(tempCtx, dw, eIY, eIH, illusBgColor);
   } else {
     drawCamoBlobs(tempCtx, dw, dh, CAMO_PATTERNS[activeCamo].palettes, CAMO_PATTERNS[activeCamo].seed);
   }
@@ -814,6 +845,7 @@ window.addEventListener('DOMContentLoaded', () => {
         drawIllustration(bgCtx, W, ILLUS_H, customImgEl, 0, ILLUS_Y);
         bgCtx.restore();
       }
+      drawIllusEdgeFades(bgCtx, W, ILLUS_Y, ILLUS_H, illusBgColor);
       redraw();
     }
   });

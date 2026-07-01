@@ -212,6 +212,10 @@ body {
       + Import SVG / Image
       <input type="file" id="importFileInput" accept="image/*,.svg" style="display:none;">
     </label>
+    <div style="margin-top:6px;display:flex;align-items:center;gap:6px;padding:0 4px;">
+      <label style="font-size:0.55rem;color:#888;white-space:nowrap;">BG Color</label>
+      <input type="color" id="illusBgPicker" value="#2a1008" style="width:100%;height:22px;border:none;background:none;cursor:pointer;border-radius:3px;">
+    </div>
   </aside>
 
   <!-- CENTER: canvas -->
@@ -253,6 +257,9 @@ let showLogo = true;
 
 // Canvases
 const W = 400, H = 1400;
+  const ILLUS_H = 970, ILLUS_Y = 215;
+  const LOGO_X_OFFSET = -22;
+  const ILLUSTRATION_BG = ['#2a1008', '#182030', '#181828', '#201810', '#0e2010'];
 const bgCanvas = document.createElement('canvas');
 bgCanvas.width = W; bgCanvas.height = H;
 const bgCtx = bgCanvas.getContext('2d');
@@ -301,7 +308,7 @@ function redraw() {
     const drawH = drawW * getLogoAspect();    // logo height spans board width (clipped by deck shape)
     ctx.save();
     ctx.clip(path);
-    ctx.translate(W / 2, H / 2);
+    ctx.translate(W / 2 + LOGO_X_OFFSET, H / 2);
     ctx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
     ctx.globalCompositeOperation = 'source-over';
     ctx.drawImage(_li, -drawW / 2, -drawH / 2, drawW, drawH);
@@ -346,7 +353,7 @@ function download() {
     const drawW = H * 0.9;
     const drawH = drawW * getLogoAspect();
     octx.save();
-    octx.translate(W / 2, H / 2);
+    octx.translate(W / 2 + LOGO_X_OFFSET, H / 2);
     octx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
     octx.globalCompositeOperation = 'source-over';
     octx.drawImage(_dli, -drawW / 2, -drawH / 2, drawW, drawH);
@@ -514,6 +521,8 @@ const ILLUSTRATION_DATA = [
 
 let activeCamo = 0;
 let activeMode = 'camo';
+  let illusBgColor = ILLUSTRATION_BG[0];
+  const illusBgSeed = 451;
 let activeIllustration = 0;
 let customImgEl = null;
 let customImgUrl = null;
@@ -561,7 +570,22 @@ function applyCamo(idx) {
 //  ILLUSTRATION PRESETS
 // ═══════════════════════════════════════════════════════
 
-function drawIllustration(ctx, w, h, img) {
+function makeMonoPalette(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  const h2 = (v) => Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0');
+  const mk = (rv,gv,bv) => '#'+h2(rv)+h2(gv)+h2(bv);
+  const dk = (f) => mk(r*f, g*f, b*f);
+  const lt = (f,t) => mk(r*f+(255-r)*t, g*f+(255-g)*t, b*f+(255-b)*t);
+  return [
+    [dk(0.30), dk(0.36), dk(0.42), dk(0.48)],
+    [dk(0.55), dk(0.65), dk(0.75), dk(0.85)],
+    [dk(0.88), dk(0.93), dk(0.97), dk(1.00)],
+    [lt(0.90,0.05), lt(0.85,0.10), lt(0.80,0.15), lt(0.70,0.22)],
+  ];
+}
+
+function drawIllustration(ctx, w, h, img, ox, oy) {
+  ox = ox || 0; oy = oy || 0;
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
   const srcAspect = img.naturalWidth / img.naturalHeight;
@@ -569,10 +593,10 @@ function drawIllustration(ctx, w, h, img) {
   let drawW, drawH, sx, sy;
   if (srcAspect > dstAspect) {
     drawH = h; drawW = h * srcAspect;
-    sx = (w - drawW) / 2; sy = 0;
+    sx = ox + (w - drawW) / 2; sy = oy;
   } else {
     drawW = w; drawH = w / srcAspect;
-    sx = 0; sy = (h - drawH) / 2;
+    sx = ox; sy = oy + (h - drawH) / 2;
   }
   ctx.drawImage(img, sx, sy, drawW, drawH);
 }
@@ -604,9 +628,14 @@ function buildIllustrationPresets() {
     const img = new Image();
     illustrationImgs.push(img);
     img.onload = () => {
+      const ts = 80 / H;
+      const tiy = Math.round(ILLUS_Y * ts);
+      const tih = Math.round(ILLUS_H * ts);
       mctx.save();
       mctx.clip(mpath);
-      drawIllustration(mctx, 60, 80, img);
+      drawCamoBlobs(mctx, 60, 80, makeMonoPalette(ILLUSTRATION_BG[i]), illusBgSeed);
+      mctx.beginPath(); mctx.rect(0, tiy, 60, tih); mctx.clip();
+      drawIllustration(mctx, 60, tih, img, 0, tiy);
       mctx.restore();
       mctx.strokeStyle = 'rgba(255,255,255,0.18)';
       mctx.lineWidth = 1;
@@ -619,22 +648,39 @@ function buildIllustrationPresets() {
 function applyIllustration(idx) {
   activeMode = 'illustration';
   activeIllustration = idx;
+  illusBgColor = ILLUSTRATION_BG[idx];
+  const picker = document.getElementById('illusBgPicker');
+  if (picker) picker.value = illusBgColor;
   clearAllPresetBtns();
   document.getElementById('ill-preset-' + idx).classList.add('active');
   const img = illustrationImgs[idx];
   bgCtx.clearRect(0, 0, W, H);
+  drawCamoBlobs(bgCtx, W, H, makeMonoPalette(illusBgColor), illusBgSeed);
   if (img.complete && img.naturalWidth > 0) {
-    drawIllustration(bgCtx, W, H, img);
+    bgCtx.save();
+    bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();
+    drawIllustration(bgCtx, W, ILLUS_H, img, 0, ILLUS_Y);
+    bgCtx.restore();
     redraw();
   } else {
-    img.addEventListener('load', () => { drawIllustration(bgCtx, W, H, img); redraw(); }, { once: true });
+    img.addEventListener('load', () => {
+      bgCtx.save();
+      bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();
+      drawIllustration(bgCtx, W, ILLUS_H, img, 0, ILLUS_Y);
+      bgCtx.restore();
+      redraw();
+    }, { once: true });
   }
 }
 
 function applyCustom() {
   if (!customImgEl) return;
   bgCtx.clearRect(0, 0, W, H);
-  drawIllustration(bgCtx, W, H, customImgEl);
+  drawCamoBlobs(bgCtx, W, H, makeMonoPalette(illusBgColor), illusBgSeed);
+  bgCtx.save();
+  bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();
+  drawIllustration(bgCtx, W, ILLUS_H, customImgEl, 0, ILLUS_Y);
+  bgCtx.restore();
   redraw();
 }
 
@@ -672,11 +718,15 @@ function exportHiRes() {
   const tempBg = document.createElement('canvas');
   tempBg.width = dw; tempBg.height = dh;
   const tempCtx = tempBg.getContext('2d');
-  if (activeMode === 'illustration') {
-    // drawImage re-rasterizes SVGs at destination size — vector quality for SVG imports
-    drawIllustration(tempCtx, dw, dh, illustrationImgs[activeIllustration]);
-  } else if (activeMode === 'custom' && customImgEl) {
-    drawIllustration(tempCtx, dw, dh, customImgEl);
+  if (activeMode === 'illustration' || (activeMode === 'custom' && customImgEl)) {
+    const eImg = activeMode === 'illustration' ? illustrationImgs[activeIllustration] : customImgEl;
+    drawCamoBlobs(tempCtx, dw, dh, makeMonoPalette(illusBgColor), illusBgSeed);
+    const eIY = Math.round(ILLUS_Y * scale);
+    const eIH = Math.round(ILLUS_H * scale);
+    tempCtx.save();
+    tempCtx.beginPath(); tempCtx.rect(0, eIY, dw, eIH); tempCtx.clip();
+    drawIllustration(tempCtx, dw, eIH, eImg, 0, eIY);
+    tempCtx.restore();
   } else {
     drawCamoBlobs(tempCtx, dw, dh, CAMO_PATTERNS[activeCamo].palettes, CAMO_PATTERNS[activeCamo].seed);
   }
@@ -694,7 +744,7 @@ function exportHiRes() {
     const cy = oy + dh / 2;
     octx.save();
     octx.clip(ePath);
-    octx.translate(cx, cy);
+    octx.translate(cx + LOGO_X_OFFSET * (dw / W), cy);
     octx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
     octx.imageSmoothingEnabled = true; octx.imageSmoothingQuality = 'high';
     octx.globalCompositeOperation = 'source-over';
@@ -742,6 +792,27 @@ window.addEventListener('DOMContentLoaded', () => {
     img.onerror = () => URL.revokeObjectURL(url);
     img.src = url;
     e.target.value = '';
+  });
+
+  document.getElementById('illusBgPicker').addEventListener('input', (e) => {
+    if (activeMode === 'illustration' || activeMode === 'custom') {
+      illusBgColor = e.target.value;
+      bgCtx.clearRect(0, 0, W, H);
+      drawCamoBlobs(bgCtx, W, H, makeMonoPalette(illusBgColor), illusBgSeed);
+      if (activeMode === 'illustration') {
+        const img = illustrationImgs[activeIllustration];
+        bgCtx.save();
+        bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();
+        drawIllustration(bgCtx, W, ILLUS_H, img, 0, ILLUS_Y);
+        bgCtx.restore();
+      } else if (customImgEl) {
+        bgCtx.save();
+        bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();
+        drawIllustration(bgCtx, W, ILLUS_H, customImgEl, 0, ILLUS_Y);
+        bgCtx.restore();
+      }
+      redraw();
+    }
   });
 });
 </script>

@@ -235,6 +235,10 @@ body {
         <button class="size-btn active" id="logo-word" onclick="setLogo('word')">WORD</button>
         <button class="size-btn" id="logo-graf" onclick="setLogo('graf')">GRAF</button>
       </div>
+      <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
+        <label style="font-size:0.5rem;color:#888;white-space:nowrap;">OPACITY</label>
+        <input type="range" id="logoOpacitySlider" min="0" max="100" value="100" style="flex:1;height:4px;accent-color:#8d61a6;cursor:pointer;">
+      </div>
     </div>
 
     <div style="margin-top:auto; display:flex; flex-direction:column; gap:8px;">
@@ -254,6 +258,7 @@ body {
 //  STATE
 // ═══════════════════════════════════════════════════════
 let showLogo = true;
+let logoOpacity = 1.0;
 
 // Canvases
 const W = 400, H = 1400;
@@ -311,6 +316,7 @@ function redraw() {
     ctx.translate(W / 2 + LOGO_X_OFFSET, H / 2);
     ctx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
     ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = logoOpacity;
     ctx.drawImage(_li, -drawW / 2, -drawH / 2, drawW, drawH);
     ctx.restore();
   }
@@ -356,6 +362,7 @@ function download() {
     octx.translate(W / 2 + LOGO_X_OFFSET, H / 2);
     octx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
     octx.globalCompositeOperation = 'source-over';
+    octx.globalAlpha = logoOpacity;
     octx.drawImage(_dli, -drawW / 2, -drawH / 2, drawW, drawH);
     octx.restore();
   }
@@ -881,6 +888,7 @@ function exportHiRes() {
     octx.rotate(Math.PI / 2 + 21 * Math.PI / 180);
     octx.imageSmoothingEnabled = true; octx.imageSmoothingQuality = 'high';
     octx.globalCompositeOperation = 'source-over';
+    octx.globalAlpha = logoOpacity;
     octx.drawImage(_eli, -drawW / 2, -drawH / 2, drawW, drawH);
     octx.restore();
   }
@@ -952,6 +960,11 @@ window.addEventListener('DOMContentLoaded', () => {
       }
       redraw();
     }
+  });
+
+  document.getElementById('logoOpacitySlider').addEventListener('input', (e) => {
+    logoOpacity = e.target.value / 100;
+    redraw();
   });
 });
 </script>

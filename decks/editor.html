@@ -316,6 +316,7 @@ function redraw() {
     ctx.save();
     ctx.clip(path);
     ctx.translate(W / 2, H / 2);
+    ctx.rotate(-5 * Math.PI / 180);
     ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = logoOpacity;
     ctx.drawImage(_li, -drawW / 2, -drawH / 2, drawW, drawH);
@@ -388,6 +389,7 @@ function download() {
     const drawW = drawH * (_dli.naturalWidth / _dli.naturalHeight);
     octx.save();
     octx.translate(W / 2, H / 2);
+    octx.rotate(-5 * Math.PI / 180);
     octx.globalCompositeOperation = 'source-over';
     octx.globalAlpha = logoOpacity;
     octx.drawImage(_dli, -drawW / 2, -drawH / 2, drawW, drawH);
@@ -956,6 +958,7 @@ function exportHiRes() {
     octx.save();
     octx.clip(ePath);
     octx.translate(cx, cy);
+    octx.rotate(-5 * Math.PI / 180);
     octx.imageSmoothingEnabled = true; octx.imageSmoothingQuality = 'high';
     octx.globalCompositeOperation = 'source-over';
     octx.globalAlpha = logoOpacity;

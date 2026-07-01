@@ -527,9 +527,11 @@ const ILLUSTRATION_DATA = [
     skyOverlay: { hFrac: 0.34, stops: ['#7C0B7E','#B00873','#E06020','#F49F21'] },
     topColor: '#7C0B7E', bottomColor: '#120F12' },
   { name: "RAIL",   src: "illus_RAIL.svg",
-    topColor: '#4C3559', bottomColor: '#4C3559' },
+    topColor: '#4C3559', bottomColor: '#4C3559',
+    whiteBands: { topFrac: 0.21, bottomFrac: 0.24 } },
   { name: "MANUAL", src: "illus_MANUAL.svg",
-    topColor: '#7C0B7E', bottomColor: '#2B490C' },
+    topColor: '#7C0B7E', bottomColor: '#2B490C',
+    whiteBands: { topFrac: 0.20, bottomFrac: 0.20 } },
 ];
 
 let activeCamo = 0;
@@ -630,6 +632,24 @@ function drawIllusEdgeFades(ctx, w, illusY, illusH, bgColor, topColor, bottomCol
   ctx.fillRect(0, illusY + illusH - fadeH, w, fadeH);
 }
 
+// Overdraws white letterbox bands with the camo pattern so camo "bleeds into" the illustration
+function drawCamoBleedBands(ctx, ctxW, ctxH, illusY, illusH, palette, seed, bands) {
+  if (bands.topFrac) {
+    const topH = Math.round(illusH * bands.topFrac);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, illusY, ctxW, topH); ctx.clip();
+    drawCamoBlobs(ctx, ctxW, ctxH, palette, seed);
+    ctx.restore();
+  }
+  if (bands.bottomFrac) {
+    const botH = Math.round(illusH * bands.bottomFrac);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, illusY + illusH - botH, ctxW, botH); ctx.clip();
+    drawCamoBlobs(ctx, ctxW, ctxH, palette, seed);
+    ctx.restore();
+  }
+}
+
 // Canvas-side sky gradient overlay — draws on top of the SVG to restore vivid sky colors
 // that vtracer posterized into dark/muddy tones
 function drawSkyOverlay(ctx, w, illusY, illusH, overlay) {
@@ -702,6 +722,7 @@ function buildIllustrationPresets() {
       mctx.beginPath(); mctx.rect(0, tiy, 60, tih); mctx.clip();
       drawIllustration(mctx, 60, tih, img, 0, tiy);
       if (till.skyOverlay) drawSkyOverlay(mctx, 60, tiy, tih, till.skyOverlay);
+      if (till.whiteBands) drawCamoBleedBands(mctx, 60, 80, tiy, tih, makeMonoPalette(ILLUSTRATION_BG[i]), illusBgSeed, till.whiteBands);
       mctx.restore();
       mctx.save();
       mctx.clip(mpath);
@@ -727,11 +748,13 @@ function applyIllustration(idx) {
   bgCtx.clearRect(0, 0, W, H);
   drawCamoBlobs(bgCtx, W, H, makeMonoPalette(illusBgColor), illusBgSeed);
   const ill = ILLUSTRATION_DATA[idx];
+  const illusPalette = makeMonoPalette(illusBgColor);
   if (img.complete && img.naturalWidth > 0) {
     bgCtx.save();
     bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();
     drawIllustration(bgCtx, W, ILLUS_H, img, 0, ILLUS_Y);
     if (ill.skyOverlay) drawSkyOverlay(bgCtx, W, ILLUS_Y, ILLUS_H, ill.skyOverlay);
+    if (ill.whiteBands) drawCamoBleedBands(bgCtx, W, H, ILLUS_Y, ILLUS_H, illusPalette, illusBgSeed, ill.whiteBands);
     bgCtx.restore();
     drawIllusEdgeFades(bgCtx, W, ILLUS_Y, ILLUS_H, illusBgColor, ill.topColor, ill.bottomColor);
     redraw();
@@ -741,6 +764,7 @@ function applyIllustration(idx) {
       bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();
       drawIllustration(bgCtx, W, ILLUS_H, img, 0, ILLUS_Y);
       if (ill.skyOverlay) drawSkyOverlay(bgCtx, W, ILLUS_Y, ILLUS_H, ill.skyOverlay);
+      if (ill.whiteBands) drawCamoBleedBands(bgCtx, W, H, ILLUS_Y, ILLUS_H, illusPalette, illusBgSeed, ill.whiteBands);
       bgCtx.restore();
       drawIllusEdgeFades(bgCtx, W, ILLUS_Y, ILLUS_H, illusBgColor, ill.topColor, ill.bottomColor);
       redraw();
@@ -804,6 +828,7 @@ function exportHiRes() {
     tempCtx.beginPath(); tempCtx.rect(0, eIY, dw, eIH); tempCtx.clip();
     drawIllustration(tempCtx, dw, eIH, eImg, 0, eIY);
     if (eIll.skyOverlay) drawSkyOverlay(tempCtx, dw, eIY, eIH, eIll.skyOverlay);
+    if (eIll.whiteBands) drawCamoBleedBands(tempCtx, dw, dh, eIY, eIH, makeMonoPalette(illusBgColor), illusBgSeed, eIll.whiteBands);
     tempCtx.restore();
     drawIllusEdgeFades(tempCtx, dw, eIY, eIH, illusBgColor, eIll.topColor, eIll.bottomColor);
   } else {
@@ -881,10 +906,12 @@ window.addEventListener('DOMContentLoaded', () => {
       if (activeMode === 'illustration') {
         const img = illustrationImgs[activeIllustration];
         const ill = ILLUSTRATION_DATA[activeIllustration];
+        const pal = makeMonoPalette(illusBgColor);
         bgCtx.save();
         bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();
         drawIllustration(bgCtx, W, ILLUS_H, img, 0, ILLUS_Y);
         if (ill.skyOverlay) drawSkyOverlay(bgCtx, W, ILLUS_Y, ILLUS_H, ill.skyOverlay);
+        if (ill.whiteBands) drawCamoBleedBands(bgCtx, W, H, ILLUS_Y, ILLUS_H, pal, illusBgSeed, ill.whiteBands);
         bgCtx.restore();
         drawIllusEdgeFades(bgCtx, W, ILLUS_Y, ILLUS_H, illusBgColor, ill.topColor, ill.bottomColor);
       } else if (customImgEl) {

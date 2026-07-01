@@ -259,7 +259,7 @@ let showLogo = true;
 const W = 400, H = 1400;
   const ILLUS_H = 970, ILLUS_Y = 215;
   const LOGO_X_OFFSET = -11;
-  const ILLUSTRATION_BG = ['#2a1008', '#182030', '#181828', '#201810', '#0e2010', '#281830', '#282030', '#2a0820'];
+  const ILLUSTRATION_BG = ['#2a1008', '#182030', '#181828', '#201810', '#0e2010', '#282030', '#2a0820'];
 const bgCanvas = document.createElement('canvas');
 bgCanvas.width = W; bgCanvas.height = H;
 const bgCtx = bgCanvas.getContext('2d');
@@ -529,14 +529,9 @@ const ILLUSTRATION_DATA = [
   { name: "HUBBA",  src: "illus_HUBBA.svg" },
   { name: "DOUBLE", src: "illus_DOUBLE.svg" },
   { name: "GRASS",  src: "illus_GRASS.svg" },
-  { name: "MOIN",   src: "illus_MOIN.svg",
-    skyOverlay: { hFrac: 0.34, stops: ['#7C0B7E', '#F49F21'] },
-    topColor: '#7C0B7E', bottomColor: '#120F12' },
   { name: "RAIL",   src: "illus_RAIL.svg",
-    topColor: '#4C3559', bottomColor: '#4C3559',
     whiteBands: { topFrac: 0.21, bottomFrac: 0.24 } },
   { name: "MANUAL", src: "illus_MANUAL.svg",
-    topColor: '#7C0B7E', bottomColor: '#2B490C',
     whiteBands: { topFrac: 0.20, bottomFrac: 0.20 } },
 ];
 
@@ -656,6 +651,28 @@ function drawCamoBleedBands(ctx, ctxW, ctxH, illusY, illusH, palette, seed, band
   }
 }
 
+function drawCamoEdgeBleed(ctx, w, h, illusY, illusH, palette, seed) {
+  const fadeH = Math.round(illusH * 0.20);
+  const topOfc = document.createElement('canvas');
+  topOfc.width = w; topOfc.height = fadeH;
+  const tc = topOfc.getContext('2d');
+  tc.save(); tc.translate(0, -illusY); drawCamoBlobs(tc, w, h, palette, seed); tc.restore();
+  const tg = tc.createLinearGradient(0, 0, 0, fadeH);
+  tg.addColorStop(0, 'rgba(0,0,0,1)'); tg.addColorStop(1, 'rgba(0,0,0,0)');
+  tc.globalCompositeOperation = 'destination-in';
+  tc.fillStyle = tg; tc.fillRect(0, 0, w, fadeH);
+  ctx.drawImage(topOfc, 0, illusY);
+  const botOfc = document.createElement('canvas');
+  botOfc.width = w; botOfc.height = fadeH;
+  const bc = botOfc.getContext('2d');
+  bc.save(); bc.translate(0, -(illusY + illusH - fadeH)); drawCamoBlobs(bc, w, h, palette, seed); bc.restore();
+  const bg_ = bc.createLinearGradient(0, 0, 0, fadeH);
+  bg_.addColorStop(0, 'rgba(0,0,0,0)'); bg_.addColorStop(1, 'rgba(0,0,0,1)');
+  bc.globalCompositeOperation = 'destination-in';
+  bc.fillStyle = bg_; bc.fillRect(0, 0, w, fadeH);
+  ctx.drawImage(botOfc, 0, illusY + illusH - fadeH);
+}
+
 // Canvas-side sky gradient overlay — draws on top of the SVG to restore vivid sky colors
 // that vtracer posterized into dark/muddy tones
 function drawSkyOverlay(ctx, w, illusY, illusH, overlay) {
@@ -732,7 +749,7 @@ function buildIllustrationPresets() {
       mctx.restore();
       mctx.save();
       mctx.clip(mpath);
-      drawIllusEdgeFades(mctx, 60, tiy, tih, ILLUSTRATION_BG[i], till.topColor, till.bottomColor);
+      drawCamoEdgeBleed(mctx, 60, 80, tiy, tih, makeMonoPalette(ILLUSTRATION_BG[i]), illusBgSeed);
       mctx.restore();
       mctx.strokeStyle = 'rgba(255,255,255,0.18)';
       mctx.lineWidth = 1;
@@ -762,7 +779,7 @@ function applyIllustration(idx) {
     if (ill.skyOverlay) drawSkyOverlay(bgCtx, W, ILLUS_Y, ILLUS_H, ill.skyOverlay);
     if (ill.whiteBands) drawCamoBleedBands(bgCtx, W, H, ILLUS_Y, ILLUS_H, illusPalette, illusBgSeed, ill.whiteBands);
     bgCtx.restore();
-    drawIllusEdgeFades(bgCtx, W, ILLUS_Y, ILLUS_H, illusBgColor, ill.topColor, ill.bottomColor);
+    drawCamoEdgeBleed(bgCtx, W, H, ILLUS_Y, ILLUS_H, illusPalette, illusBgSeed);
     redraw();
   } else {
     img.addEventListener('load', () => {
@@ -772,7 +789,7 @@ function applyIllustration(idx) {
       if (ill.skyOverlay) drawSkyOverlay(bgCtx, W, ILLUS_Y, ILLUS_H, ill.skyOverlay);
       if (ill.whiteBands) drawCamoBleedBands(bgCtx, W, H, ILLUS_Y, ILLUS_H, illusPalette, illusBgSeed, ill.whiteBands);
       bgCtx.restore();
-      drawIllusEdgeFades(bgCtx, W, ILLUS_Y, ILLUS_H, illusBgColor, ill.topColor, ill.bottomColor);
+      drawCamoEdgeBleed(bgCtx, W, H, ILLUS_Y, ILLUS_H, illusPalette, illusBgSeed);
       redraw();
     }, { once: true });
   }
@@ -836,7 +853,7 @@ function exportHiRes() {
     if (eIll.skyOverlay) drawSkyOverlay(tempCtx, dw, eIY, eIH, eIll.skyOverlay);
     if (eIll.whiteBands) drawCamoBleedBands(tempCtx, dw, dh, eIY, eIH, makeMonoPalette(illusBgColor), illusBgSeed, eIll.whiteBands);
     tempCtx.restore();
-    drawIllusEdgeFades(tempCtx, dw, eIY, eIH, illusBgColor, eIll.topColor, eIll.bottomColor);
+    drawCamoEdgeBleed(tempCtx, dw, dh, eIY, eIH, makeMonoPalette(illusBgColor), illusBgSeed);
   } else {
     drawCamoBlobs(tempCtx, dw, dh, CAMO_PATTERNS[activeCamo].palettes, CAMO_PATTERNS[activeCamo].seed);
   }
@@ -919,7 +936,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (ill.skyOverlay) drawSkyOverlay(bgCtx, W, ILLUS_Y, ILLUS_H, ill.skyOverlay);
         if (ill.whiteBands) drawCamoBleedBands(bgCtx, W, H, ILLUS_Y, ILLUS_H, pal, illusBgSeed, ill.whiteBands);
         bgCtx.restore();
-        drawIllusEdgeFades(bgCtx, W, ILLUS_Y, ILLUS_H, illusBgColor, ill.topColor, ill.bottomColor);
+        drawCamoEdgeBleed(bgCtx, W, H, ILLUS_Y, ILLUS_H, pal, illusBgSeed);
       } else if (customImgEl) {
         bgCtx.save();
         bgCtx.beginPath(); bgCtx.rect(0, ILLUS_Y, W, ILLUS_H); bgCtx.clip();

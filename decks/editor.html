@@ -272,7 +272,6 @@ let logoScale = 0.85;
 // Canvases
 const W = 400, H = 1400;
   const ILLUS_H = 970, ILLUS_Y = 215;
-  const LOGO_X_OFFSET = -11;
   const ILLUSTRATION_BG = ['#2a1008', '#182030', '#181828', '#201810', '#0e2010', '#282030', '#2a0820'];
 const bgCanvas = document.createElement('canvas');
 bgCanvas.width = W; bgCanvas.height = H;
@@ -280,7 +279,6 @@ const bgCtx = bgCanvas.getContext('2d');
 
 // Logo image
 let logoImg = null;
-let logoType = 'word'; // 'word' = PDF wordmark | 'graf' = graffiti
 
 const imgEl = new Image();
 imgEl.onload  = () => { logoImg = imgEl; redraw(); };

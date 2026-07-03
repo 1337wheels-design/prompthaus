@@ -1,0 +1,616 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛹</text></svg>">
+<title>Üpark Payday 2026 — Field Spell Cards · Obstacle Reference</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  min-height:100vh;
+  background:#060e08;
+  background-image:
+    radial-gradient(ellipse 70% 55% at 18% 18%,rgba(20,55,28,0.28) 0%,transparent 100%),
+    radial-gradient(ellipse 60% 80% at 82% 82%,rgba(0,0,0,0.42) 0%,transparent 100%);
+  font-family:'Courier New',monospace;
+  padding:36px 20px 64px;
+  color:#c8a820;
+}
+
+/* ── Page header ─────────────────────────────────── */
+.pg-hd{text-align:center;margin-bottom:40px}
+.pg-hd h1{
+  font-family:Impact,'Arial Narrow',Arial,sans-serif;
+  font-size:30px;letter-spacing:0.07em;
+  color:#e8c030;
+  text-shadow:0 0 40px rgba(200,160,20,0.22);
+}
+.pg-hd p{
+  font-size:9.5px;letter-spacing:0.18em;
+  color:rgba(200,160,32,0.4);
+  margin-top:7px;text-transform:uppercase;
+}
+
+/* ── Section labels ──────────────────────────────── */
+.sec-lbl{
+  font-size:8.5px;letter-spacing:0.16em;
+  color:rgba(200,160,32,0.32);
+  text-transform:uppercase;margin-bottom:10px;
+}
+
+/* ── Park overview map ───────────────────────────── */
+.map-sec{max-width:920px;margin:0 auto 52px}
+.map-wrap{
+  border:1px solid rgba(180,140,28,0.22);
+  border-radius:5px;overflow:hidden;background:#030807;
+}
+.map-wrap svg{display:block;width:100%;height:auto}
+
+/* ── Card grid ───────────────────────────────────── */
+.grid-sec{max-width:880px;margin:0 auto}
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:26px;
+}
+@media(max-width:660px){.card-grid{grid-template-columns:1fr}}
+
+/* ── Field Spell Card shell ──────────────────────── */
+.fc-scene{display:flex;justify-content:center}
+.fc-wrap{
+  border-radius:13px;padding:6px;width:100%;max-width:400px;
+  background:linear-gradient(145deg,#9a7a10 0%,#e8c040 18%,#c9a020 40%,#a07808 58%,#e0b830 80%,#9a7a10 100%);
+  box-shadow:0 0 0 1px rgba(0,0,0,0.65),0 14px 40px rgba(0,0,0,0.75);
+}
+.fc{
+  border-radius:8px;
+  border:1.5px solid rgba(120,90,8,0.55);
+  overflow:hidden;display:flex;flex-direction:column;
+  background:linear-gradient(160deg,#1e4828 0%,#183d20 50%,#112818 100%);
+}
+
+/* Title bar */
+.fc-tb{
+  background:linear-gradient(to bottom,#0c2010 0%,#172e1c 100%);
+  padding:8px 10px 7px;
+  border-bottom:2px solid;
+  border-image:linear-gradient(to right,#705a08,#c49815,#a07810,#705a08) 1;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.fc-name{
+  flex:1;
+  font-family:Impact,'Arial Narrow',Arial,sans-serif;
+  font-size:16px;letter-spacing:0.04em;
+  color:#ecc830;text-transform:uppercase;line-height:1.05;
+  text-shadow:0 1px 4px rgba(0,0,0,0.9);
+}
+.fc-name span{
+  display:block;font-family:'Courier New',monospace;
+  font-size:8.5px;letter-spacing:0.08em;
+  color:#a08018;font-weight:normal;margin-top:2px;
+}
+.fc-badge{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  background:radial-gradient(circle at 40% 35%,#2a5a32 0%,#0e2a14 100%);
+  border:2px solid #c9a020;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'Courier New',monospace;font-size:5.5px;
+  color:#ecc830;letter-spacing:0.04em;text-align:center;line-height:1.4;
+  box-shadow:0 0 10px rgba(30,80,40,0.4);
+}
+
+/* Type line */
+.fc-type{
+  background:linear-gradient(to right,#132018,#1a3020,#132018);
+  padding:3.5px 10px;font-size:7.5px;
+  color:#8a7018;letter-spacing:0.08em;font-style:italic;
+  border-bottom:1px solid rgba(130,100,8,0.25);
+}
+
+/* Art zone */
+.fc-art{background:#030807;border-bottom:2px solid rgba(90,70,8,0.48);overflow:hidden}
+.fc-art svg{display:block;width:100%;height:auto}
+
+/* Text box */
+.fc-tx{
+  background:linear-gradient(to bottom,#f4ecda 0%,#ebdebe 100%);
+  padding:7px 10px 8px;
+  border-bottom:1.5px solid rgba(90,70,8,0.48);
+}
+.fc-eff{
+  font-family:Georgia,serif;font-size:8px;
+  color:#1a1000;line-height:1.58;
+}
+.fc-eff em{font-style:normal;font-weight:bold}
+
+/* Footer */
+.fc-ft{
+  background:linear-gradient(to bottom,#172e1c 0%,#0c2010 100%);
+  padding:4px 10px 5px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.fc-stats{display:flex;gap:12px}
+.fc-stat{font-size:7px;color:#c9a020;letter-spacing:0.05em;text-transform:uppercase}
+.fc-stat b{color:#ecc830}
+.fc-sid{font-size:6px;color:rgba(200,160,32,0.36);letter-spacing:0.05em}
+</style>
+
+<!-- ── Page Header ── -->
+<header class="pg-hd">
+  <h1>Üpark Payday 2026</h1>
+  <p>Field Spell Cards — Obstacle Reference &amp; Prep Sheet · Vol. 1 · ÜPARK-2026</p>
+</header>
+
+<!-- ══════════════════════════════════════════════════
+     PARK SCHEMATIC MAP — all zones mixed
+════════════════════════════════════════════════════ -->
+<section class="map-sec">
+  <p class="sec-lbl">Park schematic — all obstacle zones</p>
+  <div class="map-wrap">
+    <svg viewBox="0 0 880 440" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="mpg" width="22" height="22" patternUnits="userSpaceOnUse">
+          <path d="M 22 0 L 0 0 0 22" fill="none" stroke="rgba(80,130,60,0.06)" stroke-width="0.55"/>
+        </pattern>
+        <radialGradient id="mvg" cx="50%" cy="50%" r="68%">
+          <stop offset="35%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="rgba(3,8,4,0.62)"/>
+        </radialGradient>
+      </defs>
+
+      <rect width="880" height="440" fill="#030807"/>
+      <rect width="880" height="440" fill="url(#mpg)"/>
+      <!-- Park boundary -->
+      <rect x="14" y="14" width="852" height="412" rx="5"
+            fill="none" stroke="rgba(180,140,28,0.18)" stroke-width="1"
+            stroke-dasharray="6,5"/>
+
+      <!-- Skate paths (connectors) -->
+      <g stroke="rgba(180,140,28,0.1)" fill="none" stroke-width="1.2" stroke-dasharray="10,7">
+        <path d="M 165 200 Q 360 210 460 180"/>
+        <path d="M 460 195 Q 480 310 340 335"/>
+        <path d="M 165 225 Q 250 340 245 338"/>
+      </g>
+
+      <!-- ─── ZONE I: QUARTER PIPE / BOWL (left center) ─── -->
+      <g>
+        <!-- Deck platform (top face, bird's eye) -->
+        <rect x="32" y="158" width="135" height="28"
+              fill="rgba(180,140,28,0.11)" stroke="rgba(210,168,40,0.52)" stroke-width="1.4"/>
+        <!-- Coping front edge -->
+        <line x1="32" y1="186" x2="167" y2="186"
+              stroke="rgba(210,168,40,0.68)" stroke-width="3"/>
+        <!-- Curved ramp body (top view: sweeping arc) -->
+        <path d="M 32 186 Q 32 330 167 330 L 167 316 Q 46 316 46 186 Z"
+              fill="rgba(180,140,28,0.07)" stroke="rgba(200,158,35,0.46)" stroke-width="1.3"/>
+        <!-- Ramp surface arc -->
+        <path d="M 32 186 Q 32 330 167 330"
+              stroke="rgba(210,168,40,0.38)" fill="none"
+              stroke-width="1.5" stroke-dasharray="5,3.5"/>
+        <!-- Coping bolts -->
+        <circle cx="58"  cy="186" r="2.4" fill="rgba(210,168,40,0.6)"/>
+        <circle cx="98"  cy="186" r="2.4" fill="rgba(210,168,40,0.6)"/>
+        <circle cx="138" cy="186" r="2.4" fill="rgba(210,168,40,0.6)"/>
+        <!-- Labels -->
+        <text x="36" y="155" font-family="Courier New" font-size="9" font-weight="bold"
+              fill="rgba(210,168,40,0.58)" letter-spacing="0.06em">ZONE I</text>
+        <text x="36" y="346" font-family="Courier New" font-size="7.5"
+              fill="rgba(200,160,32,0.4)" letter-spacing="0.06em">QUARTER PIPE / BOWL</text>
+      </g>
+
+      <!-- ─── ZONE II: STAIR SET + HUBBA (right) ─── -->
+      <g>
+        <!-- Top platform -->
+        <rect x="590" y="38" width="252" height="30"
+              fill="rgba(180,140,28,0.11)" stroke="rgba(210,168,40,0.52)" stroke-width="1.4"/>
+        <!-- 5 stair treads (bird's eye — staggered rectangles) -->
+        <rect x="558" y="68" width="215" height="24" fill="rgba(180,140,28,0.08)" stroke="rgba(200,158,35,0.42)" stroke-width="1.1"/>
+        <rect x="526" y="92" width="215" height="24" fill="rgba(180,140,28,0.08)" stroke="rgba(200,158,35,0.42)" stroke-width="1.1"/>
+        <rect x="494" y="116" width="215" height="24" fill="rgba(180,140,28,0.08)" stroke="rgba(200,158,35,0.42)" stroke-width="1.1"/>
+        <rect x="462" y="140" width="215" height="24" fill="rgba(180,140,28,0.08)" stroke="rgba(200,158,35,0.42)" stroke-width="1.1"/>
+        <!-- Bottom landing -->
+        <rect x="430" y="164" width="215" height="30"
+              fill="rgba(180,140,28,0.11)" stroke="rgba(210,168,40,0.52)" stroke-width="1.4"/>
+        <!-- Hubba ledge (diagonal parallelogram) -->
+        <path d="M 590 38 L 430 164 L 446 180 L 608 52 Z"
+              fill="rgba(180,140,28,0.13)" stroke="rgba(210,168,40,0.62)" stroke-width="1.9"/>
+        <!-- Handrail -->
+        <line x1="842" y1="38" x2="645" y2="194"
+              stroke="rgba(210,168,40,0.48)" stroke-width="1.6" stroke-dasharray="6,4"/>
+        <!-- Labels -->
+        <text x="500" y="30" font-family="Courier New" font-size="9" font-weight="bold"
+              fill="rgba(210,168,40,0.58)" letter-spacing="0.06em">ZONE II</text>
+        <text x="465" y="218" font-family="Courier New" font-size="7.5"
+              fill="rgba(200,160,32,0.4)" letter-spacing="0.06em">STAIR SET + HUBBA</text>
+      </g>
+
+      <!-- ─── ZONE III: LONG FIFTY LEDGE (center bottom) ─── -->
+      <g>
+        <!-- Top face -->
+        <path d="M 195 340 L 760 340 L 768 362 L 187 362 Z"
+              fill="rgba(180,140,28,0.11)" stroke="rgba(210,168,40,0.5)" stroke-width="1.4"/>
+        <!-- Front face -->
+        <rect x="187" y="362" width="581" height="20"
+              fill="rgba(180,140,28,0.08)" stroke="rgba(200,158,35,0.4)" stroke-width="1.1"/>
+        <!-- Wax marks -->
+        <line x1="240" y1="367" x2="380" y2="368" stroke="rgba(255,255,255,0.07)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="440" y1="369" x2="580" y2="368" stroke="rgba(255,255,255,0.07)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="630" y1="368" x2="730" y2="367" stroke="rgba(255,255,255,0.07)" stroke-width="5" stroke-linecap="round"/>
+        <!-- Legs -->
+        <line x1="235" y1="382" x2="235" y2="402" stroke="rgba(180,140,28,0.35)" stroke-width="1.4"/>
+        <line x1="420" y1="382" x2="420" y2="402" stroke="rgba(180,140,28,0.35)" stroke-width="1.4"/>
+        <line x1="605" y1="382" x2="605" y2="402" stroke="rgba(180,140,28,0.35)" stroke-width="1.4"/>
+        <line x1="735" y1="382" x2="738" y2="402" stroke="rgba(180,140,28,0.35)" stroke-width="1.4"/>
+        <!-- Label -->
+        <text x="350" y="328" font-family="Courier New" font-size="9" font-weight="bold"
+              fill="rgba(210,168,40,0.58)" letter-spacing="0.06em">ZONE III · LONG FIFTY LEDGE</text>
+      </g>
+
+      <!-- ─── ZONE IV: SWITCH DROP-IN WALL (left top) ─── -->
+      <g>
+        <!-- Wall face (top view: thin rect) -->
+        <rect x="32" y="58" width="135" height="26"
+              fill="rgba(180,140,28,0.13)" stroke="rgba(210,168,40,0.52)" stroke-width="1.4"/>
+        <!-- Drop-in lip (front coping) -->
+        <line x1="32" y1="84" x2="167" y2="84"
+              stroke="rgba(210,168,40,0.72)" stroke-width="3"/>
+        <!-- Brick pattern -->
+        <line x1="60"  y1="58" x2="60"  y2="84" stroke="rgba(180,140,28,0.2)" stroke-width="0.7"/>
+        <line x1="95"  y1="58" x2="95"  y2="84" stroke="rgba(180,140,28,0.2)" stroke-width="0.7"/>
+        <line x1="130" y1="58" x2="130" y2="84" stroke="rgba(180,140,28,0.2)" stroke-width="0.7"/>
+        <line x1="32"  y1="71" x2="167" y2="71" stroke="rgba(180,140,28,0.15)" stroke-width="0.7"/>
+        <!-- Coping bolts -->
+        <circle cx="60"  cy="84" r="2.4" fill="rgba(210,168,40,0.6)"/>
+        <circle cx="95"  cy="84" r="2.4" fill="rgba(210,168,40,0.6)"/>
+        <circle cx="130" cy="84" r="2.4" fill="rgba(210,168,40,0.6)"/>
+        <!-- Labels -->
+        <text x="32" y="48" font-family="Courier New" font-size="9" font-weight="bold"
+              fill="rgba(210,168,40,0.58)" letter-spacing="0.06em">ZONE IV</text>
+        <text x="32" y="102" font-family="Courier New" font-size="7.5"
+              fill="rgba(200,160,32,0.4)" letter-spacing="0.06em">SWITCH DROP-IN WALL</text>
+      </g>
+
+      <!-- Vignette + map stamp -->
+      <rect width="880" height="440" fill="url(#mvg)"/>
+      <text x="770" y="430" font-family="Courier New" font-size="7"
+            fill="rgba(200,160,32,0.18)" letter-spacing="0.07em">ÜPARK-2026 · SCHEMATIC VOL.1</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     INDIVIDUAL FIELD SPELL CARDS
+════════════════════════════════════════════════════ -->
+<section class="grid-sec">
+  <p class="sec-lbl">Individual Field Spell Cards — print prep templates</p>
+  <div class="card-grid">
+
+    <!-- ── ZONE I: Quarter Pipe / Bowl ── -->
+    <div class="fc-scene">
+      <div class="fc-wrap"><div class="fc">
+        <div class="fc-tb">
+          <div class="fc-name">Quarter Pipe
+            <span>— Zone I · Bowl Session</span>
+          </div>
+          <div class="fc-badge">FIELD<br>ZONE I</div>
+        </div>
+        <div class="fc-type">[ Field Spell — Üpark Zone I · Active While Card is Face-Up ]</div>
+        <div class="fc-art">
+          <svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="g1" width="16" height="16" patternUnits="userSpaceOnUse">
+                <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(80,130,60,0.055)" stroke-width="0.5"/>
+              </pattern>
+              <radialGradient id="gl1" cx="28%" cy="70%" r="55%">
+                <stop offset="0%" stop-color="rgba(180,140,28,0.08)"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </radialGradient>
+            </defs>
+            <rect width="360" height="210" fill="#030807"/>
+            <rect width="360" height="210" fill="url(#g1)"/>
+
+            <!-- Side wall (left vertical face) -->
+            <rect x="18" y="14" width="19" height="187"
+                  fill="rgba(180,140,28,0.1)" stroke="rgba(200,158,35,0.5)" stroke-width="1.3"/>
+            <!-- Deck platform (top) -->
+            <rect x="16" y="7" width="302" height="10"
+                  fill="rgba(180,140,28,0.12)" stroke="rgba(200,158,35,0.46)" stroke-width="1"/>
+            <!-- Coping — heavy gold line -->
+            <line x1="15" y1="17" x2="318" y2="17"
+                  stroke="rgba(210,168,40,0.76)" stroke-width="3.4"/>
+            <!-- Coping bolts -->
+            <circle cx="48"  cy="17" r="3" fill="rgba(210,168,40,0.65)"/>
+            <circle cx="98"  cy="17" r="3" fill="rgba(210,168,40,0.65)"/>
+            <circle cx="153" cy="17" r="3" fill="rgba(210,168,40,0.65)"/>
+            <circle cx="208" cy="17" r="3" fill="rgba(210,168,40,0.65)"/>
+            <circle cx="263" cy="17" r="3" fill="rgba(210,168,40,0.65)"/>
+            <!-- Right vertical edge -->
+            <line x1="318" y1="17" x2="318" y2="200"
+                  stroke="rgba(200,158,35,0.4)" stroke-width="1.3"/>
+            <!-- Main ramp curve (profile) -->
+            <path d="M 37 200 Q 37 46 82 18"
+                  stroke="rgba(210,168,40,0.55)" fill="none"
+                  stroke-width="2" stroke-dasharray="5.5,3.5"/>
+            <!-- Inner echo -->
+            <path d="M 37 194 Q 39 62 77 20"
+                  stroke="rgba(180,140,28,0.22)" fill="none" stroke-width="1.1"/>
+            <!-- Ramp body fill -->
+            <path d="M 37 200 Q 37 46 82 18 L 318 18 L 318 200 Z"
+                  fill="rgba(180,140,28,0.05)" stroke="none"/>
+            <!-- Ground line -->
+            <line x1="18" y1="200" x2="352" y2="200"
+                  stroke="rgba(180,140,28,0.3)" stroke-width="1"/>
+            <!-- Ambient glow -->
+            <rect width="360" height="210" fill="url(#gl1)"/>
+            <!-- Zone label -->
+            <text x="46" y="193" font-family="Courier New" font-size="8"
+                  fill="rgba(200,160,32,0.44)" letter-spacing="0.07em">ZONE I · QUARTER PIPE / BOWL</text>
+          </svg>
+        </div>
+        <div class="fc-tx">
+          <p class="fc-eff">Select 1 <em>Bowl</em> or <em>Ramp</em> obstacle. Until End Phase, you
+            may attempt any grind or aerial on this obstacle. Coping attempts require
+            a <em>Speed Tribute</em>. Land a 900° or higher: draw 1 Bonus Card.
+            Tribute 1 <em>Run</em> to reset obstacle for next rider.</p>
+        </div>
+        <div class="fc-ft">
+          <div class="fc-stats">
+            <div class="fc-stat">ATK: <b>KINETIC</b></div>
+            <div class="fc-stat">DEF: <b>COPING LOCK</b></div>
+          </div>
+          <div class="fc-sid">ÜPARK-2026 · ZONE-I-001</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ── ZONE II: Stair Set + Hubba ── -->
+    <div class="fc-scene">
+      <div class="fc-wrap"><div class="fc">
+        <div class="fc-tb">
+          <div class="fc-name">Stair Set + Hubba
+            <span>— Zone II · Technical Section</span>
+          </div>
+          <div class="fc-badge">FIELD<br>ZONE II</div>
+        </div>
+        <div class="fc-type">[ Field Spell — Üpark Zone II · Active While Card is Face-Up ]</div>
+        <div class="fc-art">
+          <svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="g2" width="16" height="16" patternUnits="userSpaceOnUse">
+                <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(80,130,60,0.055)" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="360" height="210" fill="#030807"/>
+            <rect width="360" height="210" fill="url(#g2)"/>
+
+            <!-- Top platform -->
+            <rect x="284" y="12" width="72" height="12"
+                  fill="rgba(180,140,28,0.11)" stroke="rgba(200,158,35,0.48)" stroke-width="1.1"/>
+            <line x1="284" y1="12" x2="356" y2="12"
+                  stroke="rgba(210,168,40,0.62)" stroke-width="2.5"/>
+            <!-- 5 steps (stair profile — front view) -->
+            <polyline points="356,12 356,42 296,42 296,72 236,72 236,102 176,102 176,132 116,132 116,162 56,162"
+                      stroke="rgba(200,158,35,0.58)" fill="none" stroke-width="1.5"/>
+            <!-- Step top-face fills -->
+            <rect x="296" y="30" width="60" height="14" fill="rgba(180,140,28,0.08)" stroke="none"/>
+            <rect x="236" y="60" width="60" height="14" fill="rgba(180,140,28,0.08)" stroke="none"/>
+            <rect x="176" y="90" width="60" height="14" fill="rgba(180,140,28,0.08)" stroke="none"/>
+            <rect x="116" y="120" width="60" height="14" fill="rgba(180,140,28,0.08)" stroke="none"/>
+            <!-- Bottom landing -->
+            <line x1="12"  y1="162" x2="60"  y2="162"
+                  stroke="rgba(210,168,40,0.62)" stroke-width="2.5"/>
+            <rect x="12" y="162" width="50" height="12"
+                  fill="rgba(180,140,28,0.1)" stroke="rgba(200,158,35,0.45)" stroke-width="1"/>
+            <!-- Handrail (thick diagonal) -->
+            <line x1="357" y1="8" x2="13" y2="162"
+                  stroke="rgba(210,168,40,0.72)" stroke-width="3.2"/>
+            <!-- Hubba ledge body -->
+            <path d="M 298 12 L 14 162 L 9 154 L 294 4 Z"
+                  fill="rgba(180,140,28,0.11)" stroke="rgba(200,158,35,0.58)" stroke-width="1.3"/>
+            <!-- Wax on hubba -->
+            <line x1="220" y1="62" x2="145" y2="100"
+                  stroke="rgba(255,255,255,0.07)" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="120" y1="108" x2="50"  y2="146"
+                  stroke="rgba(255,255,255,0.07)" stroke-width="3.5" stroke-linecap="round"/>
+            <!-- Ground -->
+            <line x1="12" y1="178" x2="352" y2="178"
+                  stroke="rgba(180,140,28,0.28)" stroke-width="1"/>
+            <!-- Zone label -->
+            <text x="26" y="196" font-family="Courier New" font-size="8"
+                  fill="rgba(200,160,32,0.44)" letter-spacing="0.07em">ZONE II · STAIR SET + HUBBA</text>
+          </svg>
+        </div>
+        <div class="fc-tx">
+          <p class="fc-eff">Select 1 <em>Rail</em> or <em>Ledge</em> adjacent to the stairs. Until
+            End Phase, grind, slide, or gap freely. <em>Handrail</em> requires a Speed
+            Tribute. <em>Hubba Ledge</em> is waxed — no tribute needed. Miss the
+            landing: take <em>300 damage</em>.</p>
+        </div>
+        <div class="fc-ft">
+          <div class="fc-stats">
+            <div class="fc-stat">ATK: <b>TECH</b></div>
+            <div class="fc-stat">DEF: <b>LOCKED GRIND</b></div>
+          </div>
+          <div class="fc-sid">ÜPARK-2026 · ZONE-II-001</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ── ZONE III: Long Fifty Ledge ── -->
+    <div class="fc-scene">
+      <div class="fc-wrap"><div class="fc">
+        <div class="fc-tb">
+          <div class="fc-name">Long Fifty Ledge
+            <span>— Zone III · Precision Line</span>
+          </div>
+          <div class="fc-badge">FIELD<br>ZONE III</div>
+        </div>
+        <div class="fc-type">[ Field Spell — Üpark Zone III · Active While Card is Face-Up ]</div>
+        <div class="fc-art">
+          <svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="g3" width="16" height="16" patternUnits="userSpaceOnUse">
+                <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(80,130,60,0.055)" stroke-width="0.5"/>
+              </pattern>
+              <radialGradient id="gl3" cx="50%" cy="58%" r="52%">
+                <stop offset="0%" stop-color="rgba(180,140,28,0.07)"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </radialGradient>
+            </defs>
+            <rect width="360" height="210" fill="#030807"/>
+            <rect width="360" height="210" fill="url(#g3)"/>
+
+            <!-- Perspective ground lines (converging to VP at ~180,55) -->
+            <line x1="180" y1="55" x2="8"   y2="198" stroke="rgba(180,140,28,0.1)"  stroke-width="0.7"/>
+            <line x1="180" y1="55" x2="60"  y2="198" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="180" y1="55" x2="300" y2="198" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="180" y1="55" x2="352" y2="198" stroke="rgba(180,140,28,0.1)"  stroke-width="0.7"/>
+            <!-- Horizontal distance marks -->
+            <line x1="52"  y1="140" x2="308" y2="140" stroke="rgba(180,140,28,0.07)" stroke-width="0.7"/>
+            <line x1="28"  y1="168" x2="332" y2="168" stroke="rgba(180,140,28,0.07)" stroke-width="0.7"/>
+
+            <!-- Ledge — perspective trapezoid (wider front, narrower back) -->
+            <!-- Top face -->
+            <path d="M 72 88 L 288 88 L 308 148 L 52 148 Z"
+                  fill="rgba(180,140,28,0.11)" stroke="rgba(210,168,40,0.58)" stroke-width="1.6"/>
+            <!-- Front face -->
+            <path d="M 52 148 L 308 148 L 318 180 L 42 180 Z"
+                  fill="rgba(180,140,28,0.09)" stroke="rgba(200,158,35,0.5)" stroke-width="1.3"/>
+            <!-- Ground shadow -->
+            <path d="M 42 180 L 318 180 L 332 196 L 28 196 Z"
+                  fill="rgba(0,0,0,0.35)" stroke="none"/>
+            <!-- Wax smears on top face -->
+            <line x1="98"  y1="105" x2="158" y2="108" stroke="rgba(255,255,255,0.09)" stroke-width="5" stroke-linecap="round"/>
+            <line x1="190" y1="115" x2="250" y2="119" stroke="rgba(255,255,255,0.08)" stroke-width="4" stroke-linecap="round"/>
+            <line x1="110" y1="130" x2="178" y2="133" stroke="rgba(255,255,255,0.06)" stroke-width="3.5" stroke-linecap="round"/>
+            <!-- Support legs -->
+            <line x1="80"  y1="180" x2="74"  y2="196" stroke="rgba(180,140,28,0.36)" stroke-width="1.5"/>
+            <line x1="180" y1="180" x2="180" y2="196" stroke="rgba(180,140,28,0.36)" stroke-width="1.5"/>
+            <line x1="278" y1="180" x2="286" y2="196" stroke="rgba(180,140,28,0.36)" stroke-width="1.5"/>
+            <!-- Zone label -->
+            <text x="82" y="80" font-family="Courier New" font-size="8"
+                  fill="rgba(200,160,32,0.44)" letter-spacing="0.07em">ZONE III · LONG FIFTY LEDGE</text>
+            <rect width="360" height="210" fill="url(#gl3)"/>
+          </svg>
+        </div>
+        <div class="fc-tx">
+          <p class="fc-eff">Select 1 <em>Ledge</em> or <em>Manual Pad</em>. Judged on Length + Control.
+            Each rider: <em>30 seconds</em> per attempt. Longest confirmed 50-50 wins the
+            <em>Cash Block</em>. Wax pre-applied — no tribute. Bail within first 3 tiles:
+            attempt does not count.</p>
+        </div>
+        <div class="fc-ft">
+          <div class="fc-stats">
+            <div class="fc-stat">ATK: <b>CONTROL</b></div>
+            <div class="fc-stat">DEF: <b>SLIDE LOCK</b></div>
+          </div>
+          <div class="fc-sid">ÜPARK-2026 · ZONE-III-001</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ── ZONE IV: Switch Drop-In Wall ── -->
+    <div class="fc-scene">
+      <div class="fc-wrap"><div class="fc">
+        <div class="fc-tb">
+          <div class="fc-name">Switch Drop-In Wall
+            <span>— Zone IV · Commitment Check</span>
+          </div>
+          <div class="fc-badge">FIELD<br>ZONE IV</div>
+        </div>
+        <div class="fc-type">[ Field Spell — Üpark Zone IV · Active While Card is Face-Up ]</div>
+        <div class="fc-art">
+          <svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="g4" width="16" height="16" patternUnits="userSpaceOnUse">
+                <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(80,130,60,0.055)" stroke-width="0.5"/>
+              </pattern>
+              <radialGradient id="gl4" cx="50%" cy="28%" r="48%">
+                <stop offset="0%" stop-color="rgba(180,140,28,0.09)"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </radialGradient>
+            </defs>
+            <rect width="360" height="210" fill="#030807"/>
+            <rect width="360" height="210" fill="url(#g4)"/>
+
+            <!-- Wall face (front elevation view) -->
+            <rect x="44" y="16" width="272" height="152"
+                  fill="rgba(180,140,28,0.07)" stroke="rgba(200,158,35,0.52)" stroke-width="1.5"/>
+            <!-- Brick courses (horizontal) -->
+            <line x1="44" y1="48"  x2="316" y2="48"  stroke="rgba(180,140,28,0.13)" stroke-width="0.7"/>
+            <line x1="44" y1="80"  x2="316" y2="80"  stroke="rgba(180,140,28,0.13)" stroke-width="0.7"/>
+            <line x1="44" y1="112" x2="316" y2="112" stroke="rgba(180,140,28,0.13)" stroke-width="0.7"/>
+            <line x1="44" y1="144" x2="316" y2="144" stroke="rgba(180,140,28,0.13)" stroke-width="0.7"/>
+            <!-- Brick verticals (staggered) -->
+            <line x1="88"  y1="16"  x2="88"  y2="48"  stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="132" y1="16"  x2="132" y2="48"  stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="176" y1="16"  x2="176" y2="48"  stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="220" y1="16"  x2="220" y2="48"  stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="264" y1="16"  x2="264" y2="48"  stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="66"  y1="48"  x2="66"  y2="80"  stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="110" y1="48"  x2="110" y2="80"  stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="154" y1="48"  x2="154" y2="80"  stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="198" y1="48"  x2="198" y2="80"  stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="242" y1="48"  x2="242" y2="80"  stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="286" y1="48"  x2="286" y2="80"  stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="88"  y1="80"  x2="88"  y2="112" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="132" y1="80"  x2="132" y2="112" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="176" y1="80"  x2="176" y2="112" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="220" y1="80"  x2="220" y2="112" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="264" y1="80"  x2="264" y2="112" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="66"  y1="112" x2="66"  y2="144" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="110" y1="112" x2="110" y2="144" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="154" y1="112" x2="154" y2="144" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="198" y1="112" x2="198" y2="144" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="242" y1="112" x2="242" y2="144" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <line x1="286" y1="112" x2="286" y2="144" stroke="rgba(180,140,28,0.08)" stroke-width="0.6"/>
+            <!-- Coping (drop-in lip) — heavy -->
+            <line x1="42" y1="16" x2="318" y2="16"
+                  stroke="rgba(210,168,40,0.78)" stroke-width="3.8"/>
+            <!-- Coping bolts -->
+            <circle cx="68"  cy="16" r="3.2" fill="rgba(210,168,40,0.65)"/>
+            <circle cx="113" cy="16" r="3.2" fill="rgba(210,168,40,0.65)"/>
+            <circle cx="158" cy="16" r="3.2" fill="rgba(210,168,40,0.65)"/>
+            <circle cx="203" cy="16" r="3.2" fill="rgba(210,168,40,0.65)"/>
+            <circle cx="248" cy="16" r="3.2" fill="rgba(210,168,40,0.65)"/>
+            <circle cx="293" cy="16" r="3.2" fill="rgba(210,168,40,0.65)"/>
+            <!-- Rider silhouette at top lip (switch stance, board at edge) -->
+            <circle cx="180" cy="7"  r="5.5" fill="none" stroke="rgba(210,168,40,0.5)" stroke-width="1.6"/>
+            <line x1="180" y1="12.5" x2="180" y2="16" stroke="rgba(210,168,40,0.45)" stroke-width="1.6"/>
+            <line x1="174" y1="14.5" x2="163" y2="10" stroke="rgba(210,168,40,0.4)"  stroke-width="1.3"/>
+            <line x1="186" y1="14.5" x2="197" y2="10" stroke="rgba(210,168,40,0.4)"  stroke-width="1.3"/>
+            <line x1="167" y1="16"   x2="193" y2="16" stroke="rgba(210,168,40,0.65)" stroke-width="3"/>
+            <!-- Wall base / ground -->
+            <line x1="10" y1="170" x2="350" y2="170"
+                  stroke="rgba(180,140,28,0.3)" stroke-width="1"/>
+            <path d="M 44 168 L 316 168 L 326 178 L 34 178 Z"
+                  fill="rgba(0,0,0,0.42)" stroke="rgba(180,140,28,0.2)" stroke-width="0.8"/>
+            <!-- Zone label -->
+            <text x="54" y="198" font-family="Courier New" font-size="8"
+                  fill="rgba(200,160,32,0.44)" letter-spacing="0.07em">ZONE IV · SWITCH DROP-IN WALL</text>
+            <rect width="360" height="210" fill="url(#gl4)"/>
+          </svg>
+        </div>
+        <div class="fc-tx">
+          <p class="fc-eff">Each rider receives <em>3 attempts</em>. Switch stance only — cannot
+            tribute to change. Judged on Execution + Style. Best drop-in wins a
+            <em>Video Feature</em> + Sponsor Goodie Pack. If no rider lands it,
+            card is <em>destroyed</em> at End Phase.</p>
+        </div>
+        <div class="fc-ft">
+          <div class="fc-stats">
+            <div class="fc-stat">ATK: <b>COMMITMENT</b></div>
+            <div class="fc-stat">DEF: <b>STYLE LOCK</b></div>
+          </div>
+          <div class="fc-sid">ÜPARK-2026 · ZONE-IV-001</div>
+        </div>
+      </div></div>
+    </div>
+
+  </div><!-- /card-grid -->
+</section>
+
+<footer style="text-align:center;margin-top:52px;font-size:8px;
+               color:rgba(200,160,32,0.18);letter-spacing:0.15em;text-transform:uppercase;">
+  Üpark-Vol1 — Field Spell Cards · Obstacle Reference Sheet
+  · Üpark Payday 2026 · 11.07.2026 · Skatepark Bremen Überseestadt
+</footer>

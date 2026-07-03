@@ -253,6 +253,7 @@ body {
       <button class="action-btn" onclick="download()">↓ Download</button>
       <button class="action-btn" onclick="exportHiRes()" style="border-color:#8d61a6;color:#8d61a6;">↑ 5K×10K Export</button>
       <button class="action-btn" onclick="exportPDF()" style="border-color:#c04a4a;color:#c04a4a;">↑ PDF Export</button>
+      <button class="action-btn" onclick="exportTransparentPNG()" style="border-color:#3ab8a0;color:#3ab8a0;">↑ Transparent PNG</button>
     </div>
   </aside>
 
@@ -978,6 +979,45 @@ function exportHiRes() {
     const a = document.createElement('a');
     a.href = url;
     a.download = 'payday_deck_5000x10000.png';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+}
+
+// ═══════════════════════════════════════════════════════
+//  TRANSPARENT PNG EXPORT
+//  Background, illustrations, and the interior of the deck
+//  shape are all fully transparent — only the dieline stroke
+//  is rendered.  Use as a print-registration / die-cut layer.
+// ═══════════════════════════════════════════════════════
+function exportTransparentPNG() {
+  // Same canvas dimensions as exportHiRes so the dieline aligns
+  // exactly with the 5K×10K artwork export.
+  const EW = 5000, EH = 10000;
+  const scale = Math.min(EW / W, EH / H);
+  const dw = Math.round(W * scale);
+  const dh = Math.round(H * scale);
+  const ox = Math.round((EW - dw) / 2);
+  const oy = Math.round((EH - dh) / 2);
+
+  const out = document.createElement('canvas');
+  out.width = EW; out.height = EH;
+  const octx = out.getContext('2d');
+  // Canvas default = fully transparent — no fillRect, no camo, no logo.
+
+  const ePath = getExportDeckPath(scale, ox, oy);
+
+  // Dieline stroke only: a fine opaque line on the transparent field.
+  // lineWidth 6px at 5K resolution ≈ 0.09 mm at 300 DPI — hairline for cut registration.
+  octx.strokeStyle = 'rgba(255,255,255,1)';
+  octx.lineWidth = 6;
+  octx.stroke(ePath);
+
+  out.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `payday_${getExportStyleName()}_dieline.png`;
     a.click();
     URL.revokeObjectURL(url);
   }, 'image/png');

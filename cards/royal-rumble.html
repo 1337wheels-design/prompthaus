@@ -147,109 +147,6 @@ body {
   border-bottom: 1px solid rgba(150,110,8,0.3);
 }
 
-/* ── Art zone (mystery cutout) ───────────────────────── */
-.art-zone {
-  background: transparent;
-  padding: 0;
-  border-bottom: 2px solid rgba(100,80,8,0.55);
-  overflow: hidden;
-}
-
-.cutout-wrap {
-  position: relative;
-  height: 218px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Rider frame */
-.cutout {
-  position: relative;
-  width: 116px;
-  height: 152px;
-  border: 2px dashed #a88010;
-  border-radius: 3px;
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  overflow: hidden;
-}
-
-
-/* Scissors at inner corners */
-.sc {
-  position: absolute;
-  font-size: 11px;
-  color: #a88010;
-  line-height: 1;
-  padding: 0 1px;
-}
-.sc.tl { top: 2px; left: 2px; }
-.sc.tr { top: 2px; right: 2px; transform: scaleX(-1); }
-.sc.bl { bottom: 2px; left: 2px; transform: scaleY(-1); }
-.sc.br { bottom: 2px; right: 2px; transform: scale(-1); }
-
-.cut-label {
-  position: absolute;
-  font-family: 'Courier New', monospace;
-  font-size: 5.5px;
-  color: #9a7a10;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 0 4px;
-  white-space: nowrap;
-}
-.cut-label.top { top: 4px; left: 50%; transform: translateX(-50%); }
-.cut-label.bot { bottom: 4px; left: 50%; transform: translateX(-50%); }
-
-/* Photo placeholder frame */
-.photo-frame {
-  width: 76px;
-  height: 92px;
-  border: 1px solid rgba(201,160,32,0.45);
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  border-radius: 2px;
-  position: relative;
-  z-index: 1;
-}
-.photo-frame::before, .photo-frame::after {
-  content: "";
-  position: absolute;
-  width: 10px; height: 10px;
-  border-color: rgba(201,160,32,0.45);
-  border-style: solid;
-}
-.photo-frame::before { top: 3px; left: 3px; border-width: 1.5px 0 0 1.5px; }
-.photo-frame::after  { bottom: 3px; right: 3px; border-width: 0 1.5px 1.5px 0; }
-
-.photo-icon { font-size: 26px; opacity: 0.25; line-height: 1; filter: invert(1) sepia(1) saturate(0.3); }
-.photo-text {
-  font-family: 'Courier New', monospace;
-  font-size: 6px;
-  color: rgba(201,160,32,0.55);
-  text-align: center;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  line-height: 1.5;
-}
-
-.reveal-tag {
-  font-family: 'Courier New', monospace;
-  font-size: 6px;
-  color: rgba(201,160,32,0.55);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  z-index: 1;
-}
 
 /* ── Text / effect box ───────────────────────────────── */
 .text-box {
@@ -415,25 +312,6 @@ body {
         [ Challenge Card &mdash; ÜBER Sponsored Rider Event &middot; One-Time Activation ]
       </div>
 
-      <!-- Art zone: mystery rider cutout -->
-      <div class="art-zone">
-        <div class="cutout-wrap">
-
-          <div class="cutout">
-            <span class="sc tl">✂</span>
-            <span class="sc tr">✂</span>
-            <span class="sc bl">✂</span>
-            <span class="sc br">✂</span>
-            <span class="cut-label top">· cut line ·</span>
-            <span class="cut-label bot">· cut line ·</span>
-            <div class="photo-frame">
-              <span class="photo-icon">📷</span>
-              <div class="photo-text">Rider<br>Snapshot</div>
-            </div>
-            <div class="reveal-tag">Mystery · Reveal at Event</div>
-          </div>
-        </div>
-      </div>
 
       <!-- Effect / text box -->
       <div class="text-box">

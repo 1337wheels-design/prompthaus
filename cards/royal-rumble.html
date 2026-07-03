@@ -1,0 +1,514 @@
+<title>ROYAL RUMBLE — Bring the Champ! | Üpark Payday 2026</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 28px;
+  background: #090f0c;
+  background-image:
+    radial-gradient(ellipse 65% 55% at 38% 32%, rgba(28,72,40,0.32) 0%, transparent 100%),
+    radial-gradient(ellipse 55% 65% at 72% 72%, rgba(0,0,0,0.55) 0%, transparent 100%);
+  padding: 40px 20px;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.page-label {
+  font-family: 'Courier New', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  color: rgba(201,160,32,0.3);
+  text-transform: uppercase;
+}
+
+/* ── Card scene ──────────────────────────────────────── */
+.card-scene {
+  transform: rotate(-1.5deg);
+  filter:
+    drop-shadow(0 22px 44px rgba(0,0,0,0.88))
+    drop-shadow(0 2px 5px rgba(201,160,32,0.12));
+}
+
+/* ── Gold border ring ────────────────────────────────── */
+.card-wrap {
+  position: relative;
+  border-radius: 15px;
+  padding: 7px;
+  background: linear-gradient(145deg,
+    #9a7a10 0%, #e8c040 18%, #c9a020 40%, #a07808 58%, #e0b830 80%, #9a7a10 100%);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
+}
+
+/* Corner ornaments */
+.card-wrap::before,
+.card-wrap::after {
+  content: "◈";
+  position: absolute;
+  font-size: 11px;
+  color: rgba(248,240,200,0.6);
+  line-height: 1;
+  z-index: 2;
+}
+.card-wrap::before { top: 4px; left: 6px; }
+.card-wrap::after  { bottom: 4px; right: 6px; }
+.corner-extra { position: absolute; z-index: 2; font-size: 11px; color: rgba(248,240,200,0.6); line-height: 1; }
+.corner-extra.tr { top: 4px; right: 6px; }
+.corner-extra.bl { bottom: 4px; left: 6px; }
+
+/* ── Card body ───────────────────────────────────────── */
+.card {
+  width: 378px;
+  border-radius: 9px;
+  border: 1.5px solid rgba(150,110,8,0.65);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, #214a2a 0%, #1a3e22 50%, #122a18 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* ── Title bar ───────────────────────────────────────── */
+.title-bar {
+  background: linear-gradient(to bottom, #0c2010 0%, #172e1c 100%);
+  padding: 9px 10px 8px;
+  border-bottom: 2px solid;
+  border-image: linear-gradient(to right, #806010, #d4a818, #c09018, #806010) 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-name {
+  flex: 1;
+  font-family: Impact, 'Arial Narrow', Arial, sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.03em;
+  color: #f0d060;
+  text-transform: uppercase;
+  line-height: 1.05;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 14px rgba(201,160,32,0.2);
+}
+.card-name .sub {
+  display: block;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: #b89020;
+  font-weight: normal;
+  margin-top: 2px;
+}
+
+/* ÜBER badge — purple circle, Spell type replacement */
+.uber-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #8050b8 0%, #3a1860 100%);
+  border: 2.5px solid #c9a020;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(112,64,160,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
+}
+.uber-badge .ub-main {
+  font-family: Impact, sans-serif;
+  font-size: 15px;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.uber-badge .ub-sub {
+  font-family: 'Courier New', monospace;
+  font-size: 4px;
+  color: #e8c040;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  margin-top: 1px;
+  text-transform: uppercase;
+}
+
+/* ── Type line ───────────────────────────────────────── */
+.type-line {
+  background: linear-gradient(to right, #162a1c, #1c3a22, #162a1c);
+  padding: 4px 11px;
+  font-size: 8.5px;
+  color: #9a8020;
+  letter-spacing: 0.09em;
+  font-style: italic;
+  border-bottom: 1px solid rgba(150,110,8,0.3);
+}
+
+/* ── Art zone (mystery cutout) ───────────────────────── */
+.art-zone {
+  background: #0a1a0e;
+  padding: 8px 9px;
+  border-bottom: 2px solid rgba(100,80,8,0.55);
+}
+
+.cutout-wrap {
+  position: relative;
+  height: 170px;
+}
+
+.cutout {
+  position: absolute;
+  inset: 0;
+  border: 2px dashed #a88010;
+  border-radius: 3px;
+  background: linear-gradient(145deg, #f6f0e2 0%, #ecddc4 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  overflow: hidden;
+}
+
+/* Crown watermark */
+.cutout-wm {
+  position: absolute;
+  font-size: 88px;
+  color: rgba(150,110,8,0.055);
+  user-select: none;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+}
+
+/* Scissors at corners */
+.sc {
+  position: absolute;
+  font-size: 13px;
+  color: #a88010;
+  line-height: 1;
+  background: #f6f0e2;
+  padding: 0 2px;
+}
+.sc.tl { top: -9px; left: -5px; }
+.sc.tr { top: -9px; right: -5px; transform: scaleX(-1); }
+.sc.bl { bottom: -9px; left: -5px; transform: scaleY(-1); }
+.sc.br { bottom: -9px; right: -5px; transform: scale(-1); }
+
+.cut-label {
+  position: absolute;
+  font-family: 'Courier New', monospace;
+  font-size: 6px;
+  color: #9a7a10;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: #f6f0e2;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+.cut-label.top { top: -8px; left: 50%; transform: translateX(-50%); }
+.cut-label.bot { bottom: -8px; left: 50%; transform: translateX(-50%); }
+
+/* Photo placeholder frame */
+.photo-frame {
+  width: 82px;
+  height: 98px;
+  border: 1px solid rgba(150,110,8,0.3);
+  background: linear-gradient(160deg, #ede4cf 0%, #dccfb0 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+  position: relative;
+  z-index: 1;
+}
+.photo-frame::before, .photo-frame::after {
+  content: "";
+  position: absolute;
+  width: 10px; height: 10px;
+  border-color: rgba(150,110,8,0.35);
+  border-style: solid;
+}
+.photo-frame::before { top: 3px; left: 3px; border-width: 1.5px 0 0 1.5px; }
+.photo-frame::after  { bottom: 3px; right: 3px; border-width: 0 1.5px 1.5px 0; }
+
+.photo-icon { font-size: 26px; opacity: 0.16; line-height: 1; }
+.photo-text {
+  font-family: 'Courier New', monospace;
+  font-size: 6px;
+  color: rgba(80,55,0,0.42);
+  text-align: center;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.reveal-tag {
+  font-family: 'Courier New', monospace;
+  font-size: 6px;
+  color: rgba(110,80,0,0.4);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+/* ── Text / effect box ───────────────────────────────── */
+.text-box {
+  background: linear-gradient(to bottom, #f5eddb 0%, #ecdec0 100%);
+  padding: 8px 11px 8px;
+  border-bottom: 2px solid rgba(100,80,8,0.55);
+}
+
+.intro {
+  font-size: 8.5px;
+  color: #1a1000;
+  line-height: 1.52;
+  font-style: italic;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(90,60,0,0.16);
+  margin-bottom: 7px;
+}
+.intro em { font-style: normal; font-weight: bold; color: #3a1860; }
+
+/* ── Items heading ───────────────────────────────────── */
+.items-head {
+  font-family: 'Courier New', monospace;
+  font-size: 7.5px;
+  color: #44200a;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* ── Items list ──────────────────────────────────────── */
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 7px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-family: 'Courier New', monospace;
+  font-size: 7.5px;
+  line-height: 1.2;
+}
+
+.item-l {
+  width: 14px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #5a28a0;
+  flex-shrink: 0;
+}
+
+.item-arrow {
+  color: #9a7a10;
+  margin: 0 4px 0 2px;
+  flex-shrink: 0;
+}
+
+/* Mini deck swatch */
+.deck-swatch {
+  width: 11px;
+  height: 18px;
+  border-radius: 6px 6px 5px 5px;
+  flex-shrink: 0;
+  margin-right: 5px;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.35), 0 1px 2px rgba(0,0,0,0.4);
+}
+.deck-gold    { background: linear-gradient(160deg, #e8c030 0%, #b89010 60%, #daa820 100%); }
+.deck-red     { background: linear-gradient(160deg, #e83020 0%, #a01010 60%, #cc2818 100%); }
+.deck-blue    { background: linear-gradient(160deg, #2848e8 0%, #1030b0 60%, #2040cc 100%); }
+.deck-mystery {
+  background: repeating-linear-gradient(
+    45deg,
+    #1a1a1a 0px, #1a1a1a 2px,
+    #2e2e2e 2px, #2e2e2e 4px
+  );
+  border: 1px dashed rgba(201,160,32,0.45);
+}
+.mystery-desc { color: #6a5010; font-style: italic; }
+
+.item-desc {
+  color: #2a1800;
+  font-size: 7.5px;
+  line-height: 1.3;
+}
+.item-desc em {
+  font-style: normal;
+  color: #5a28a0;
+  font-size: 7px;
+}
+
+/* ── Closing rule ────────────────────────────────────── */
+.effect-close {
+  font-size: 8px;
+  color: #1a1000;
+  font-style: italic;
+  line-height: 1.48;
+  padding-top: 6px;
+  border-top: 1px solid rgba(90,60,0,0.16);
+}
+.effect-close strong { color: #5a28a0; font-style: normal; letter-spacing: 0.04em; }
+
+/* ── Card footer ─────────────────────────────────────── */
+.card-footer {
+  background: linear-gradient(to bottom, #172e1c 0%, #0c2010 100%);
+  padding: 5px 11px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-stats { display: flex; gap: 14px; }
+.stat {
+  font-family: 'Courier New', monospace;
+  font-size: 7px;
+  color: #c9a020;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.stat b { color: #f0d060; }
+.set-id {
+  font-family: 'Courier New', monospace;
+  font-size: 6.5px;
+  color: rgba(201,160,32,0.4);
+  letter-spacing: 0.05em;
+}
+
+/* ── Bottom note ─────────────────────────────────────── */
+.page-note {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(201,160,32,0.25);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+</style>
+
+<p class="page-label">Üpark Payday 2026 · Challenge Card · One-Time Activation</p>
+
+<div class="card-scene">
+  <div class="card-wrap">
+    <span class="corner-extra tr">◈</span>
+    <span class="corner-extra bl">◈</span>
+
+    <div class="card">
+
+      <!-- Title bar -->
+      <div class="title-bar">
+        <div class="card-name">
+          Royal Rumble
+          <span class="sub">— Bring the Champ!</span>
+        </div>
+        <div class="uber-badge">
+          <span class="ub-main">Ü</span>
+          <span class="ub-sub">Skateboards</span>
+        </div>
+      </div>
+
+      <!-- Type line — clearly NOT a Field Spell -->
+      <div class="type-line">
+        [ Challenge Card &mdash; ÜBER Sponsored Rider Event &middot; One-Time Activation ]
+      </div>
+
+      <!-- Art zone: mystery rider cutout -->
+      <div class="art-zone">
+        <div class="cutout-wrap">
+          <div class="cutout">
+            <div class="cutout-wm">♛</div>
+            <span class="sc tl">✂</span>
+            <span class="sc tr">✂</span>
+            <span class="sc bl">✂</span>
+            <span class="sc br">✂</span>
+            <span class="cut-label top">· cut line ·</span>
+            <span class="cut-label bot">· cut line ·</span>
+            <div class="photo-frame">
+              <span class="photo-icon">📷</span>
+              <div class="photo-text">Rider<br>Snapshot</div>
+            </div>
+            <div class="reveal-tag">Mystery · Reveal at Event</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Effect / text box -->
+      <div class="text-box">
+
+        <p class="intro">
+          Activate when an <em>ÜBER Skateboards</em> Sponsored Rider is present.
+          Select 1 Challenger from the pool — they face the reigning Champ in a
+          Game&nbsp;of&nbsp;<em>Ü · P · A · R · K.</em>
+          For each letter dealt to the Champ, collect 1 Item Drop:
+        </p>
+
+        <div class="items-head">Item Drop — per letter dealt :</div>
+
+        <div class="items">
+
+          <div class="item">
+            <span class="item-l">Ü</span>
+            <span class="item-arrow">→</span>
+            <span class="deck-swatch deck-gold"></span>
+            <span class="item-desc">ÜBER Gold Foil Deck <em>(Champion Colorway)</em></span>
+          </div>
+
+          <div class="item">
+            <span class="item-l">P</span>
+            <span class="item-arrow">→</span>
+            <span class="deck-swatch deck-red"></span>
+            <span class="item-desc">ÜBER Red Foil Deck <em>(Heat Colorway)</em></span>
+          </div>
+
+          <div class="item">
+            <span class="item-l">A</span>
+            <span class="item-arrow">→</span>
+            <span class="deck-swatch deck-blue"></span>
+            <span class="item-desc">ÜBER Blue Foil Deck <em>(Lightning Colorway)</em></span>
+          </div>
+
+          <div class="item">
+            <span class="item-l">R</span>
+            <span class="item-arrow">→</span>
+            <span class="deck-swatch deck-mystery"></span>
+            <span class="item-desc mystery-desc">??? <em>(Mystery Drop · Revealed at Event)</em></span>
+          </div>
+
+          <div class="item">
+            <span class="item-l">K</span>
+            <span class="item-arrow">→</span>
+            <span class="deck-swatch deck-mystery"></span>
+            <span class="item-desc mystery-desc">??? <em>(Mystery Drop · Revealed at Event)</em></span>
+          </div>
+
+        </div>
+
+        <p class="effect-close">
+          If Champ spells <strong>Ü·P·A·R·K</strong> in full — Challenger
+          becomes new Champ &amp; claims the Champion Colorway. Mystery Drops
+          <strong>[R]</strong> &amp; <strong>[K]</strong> are sealed until Event Day.
+        </p>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="card-footer">
+        <div class="footer-stats">
+          <div class="stat">ATK: <b>STOKE LEVEL</b></div>
+          <div class="stat">DEF: <b>CROWD HYPE</b></div>
+        </div>
+        <div class="set-id">ÜPARK-2026 · ÜBER-RR-001</div>
+      </div>
+
+    </div><!-- /card -->
+  </div><!-- /card-wrap -->
+</div><!-- /card-scene -->
+
+<p class="page-note">63 × 88 mm · 300 gsm · Challenge Card · Not a Field Spell</p>

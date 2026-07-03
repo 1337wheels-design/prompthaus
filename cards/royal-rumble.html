@@ -178,7 +178,7 @@ body {
   height: 152px;
   border: 2px dashed #a88010;
   border-radius: 3px;
-  background: linear-gradient(145deg, #f6f0e2 0%, #ecddc4 100%);
+  background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -187,9 +187,8 @@ body {
   overflow: hidden;
   z-index: 2;
   box-shadow:
-    0 0 0 6px rgba(6,14,8,0.75),
-    0 6px 24px rgba(0,0,0,0.8),
-    0 0 32px rgba(80,40,120,0.18);
+    0 6px 24px rgba(0,0,0,0.5),
+    0 0 32px rgba(80,40,120,0.12);
 }
 
 /* Crown watermark */
@@ -233,15 +232,14 @@ body {
 .photo-frame {
   width: 76px;
   height: 92px;
-  border: 1px solid rgba(150,110,8,0.3);
-  background: linear-gradient(160deg, #ede4cf 0%, #dccfb0 100%);
+  border: 1px solid rgba(201,160,32,0.45);
+  background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 5px;
   border-radius: 2px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
   position: relative;
   z-index: 1;
 }
@@ -249,17 +247,17 @@ body {
   content: "";
   position: absolute;
   width: 10px; height: 10px;
-  border-color: rgba(150,110,8,0.35);
+  border-color: rgba(201,160,32,0.45);
   border-style: solid;
 }
 .photo-frame::before { top: 3px; left: 3px; border-width: 1.5px 0 0 1.5px; }
 .photo-frame::after  { bottom: 3px; right: 3px; border-width: 0 1.5px 1.5px 0; }
 
-.photo-icon { font-size: 26px; opacity: 0.16; line-height: 1; }
+.photo-icon { font-size: 26px; opacity: 0.25; line-height: 1; filter: invert(1) sepia(1) saturate(0.3); }
 .photo-text {
   font-family: 'Courier New', monospace;
   font-size: 6px;
-  color: rgba(80,55,0,0.42);
+  color: rgba(201,160,32,0.55);
   text-align: center;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -269,7 +267,7 @@ body {
 .reveal-tag {
   font-family: 'Courier New', monospace;
   font-size: 6px;
-  color: rgba(110,80,0,0.4);
+  color: rgba(201,160,32,0.55);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   z-index: 1;

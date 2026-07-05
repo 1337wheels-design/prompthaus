@@ -1,0 +1,387 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SEND A CHAMP — Üpark Payday 2026 Brand Invitation</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #07100a;
+  background-image:
+    radial-gradient(ellipse 70% 50% at 20% 20%, rgba(20,60,30,0.28) 0%, transparent 100%),
+    radial-gradient(ellipse 50% 70% at 80% 80%, rgba(0,0,0,0.6) 0%, transparent 100%);
+  font-family: 'Courier New', monospace;
+  color: #c8c0a8;
+  min-height: 100vh;
+  padding: 48px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Wrapper ── */
+.doc {
+  width: 100%;
+  max-width: 680px;
+  border: 1px solid rgba(201,160,32,0.22);
+  background: rgba(8,16,10,0.88);
+  position: relative;
+}
+
+/* Corner ornaments */
+.doc::before, .doc::after,
+.doc-corner-bl, .doc-corner-br {
+  content: "◈";
+  position: absolute;
+  font-size: 10px;
+  color: rgba(201,160,32,0.5);
+  line-height: 1;
+}
+.doc::before { top: 6px; left: 8px; }
+.doc::after  { top: 6px; right: 8px; }
+.doc-corner-bl { bottom: 6px; left: 8px; }
+.doc-corner-br { bottom: 6px; right: 8px; }
+
+/* ── Header ── */
+.doc-header {
+  padding: 32px 40px 24px;
+  border-bottom: 1px solid rgba(201,160,32,0.18);
+  text-align: center;
+}
+
+.eyebrow {
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  color: rgba(201,160,32,0.45);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.title {
+  font-family: Impact, 'Arial Narrow', Arial, sans-serif;
+  font-size: 38px;
+  letter-spacing: 0.06em;
+  color: #f0d060;
+  text-transform: uppercase;
+  line-height: 1;
+  text-shadow: 0 0 28px rgba(201,160,32,0.18);
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: rgba(201,160,32,0.5);
+  text-transform: uppercase;
+}
+
+/* ── Divider rule ── */
+.rule {
+  width: 100%;
+  border: none;
+  border-top: 1px solid rgba(201,160,32,0.14);
+  margin: 0;
+}
+
+/* ── Sections ── */
+.section {
+  padding: 24px 40px;
+  border-bottom: 1px solid rgba(201,160,32,0.10);
+}
+.section:last-child { border-bottom: none; }
+
+.section-label {
+  font-size: 7.5px;
+  letter-spacing: 0.2em;
+  color: rgba(201,160,32,0.45);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.section-body {
+  font-size: 10.5px;
+  line-height: 1.7;
+  color: #b8b0a0;
+}
+
+.section-body p + p { margin-top: 10px; }
+
+.section-body em {
+  font-style: normal;
+  color: #e8c848;
+}
+
+/* ── Mechanic grid ── */
+.mechanic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.mechanic-block {
+  border: 1px solid rgba(201,160,32,0.18);
+  padding: 12px 14px;
+  background: rgba(201,160,32,0.03);
+}
+
+.mechanic-block .mb-label {
+  font-size: 7px;
+  letter-spacing: 0.18em;
+  color: rgba(201,160,32,0.5);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.mechanic-block .mb-body {
+  font-size: 9.5px;
+  line-height: 1.6;
+  color: #a8a090;
+}
+
+/* ── Letter table ── */
+.letter-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-size: 9.5px;
+}
+
+.letter-table th {
+  font-size: 7px;
+  letter-spacing: 0.16em;
+  color: rgba(201,160,32,0.45);
+  text-transform: uppercase;
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(201,160,32,0.18);
+  font-weight: normal;
+}
+
+.letter-table td {
+  padding: 7px 10px;
+  color: #a8a090;
+  border-bottom: 1px solid rgba(201,160,32,0.07);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.letter-table tr:last-child td { border-bottom: none; }
+
+.letter-glyph {
+  font-family: Impact, sans-serif;
+  font-size: 13px;
+  color: #e8c848;
+  letter-spacing: 0;
+}
+
+.brand-slot {
+  color: rgba(201,160,32,0.35);
+  font-style: italic;
+}
+
+/* ── Presence block ── */
+.presence-list {
+  list-style: none;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.presence-list li {
+  font-size: 9.5px;
+  line-height: 1.5;
+  color: #a8a090;
+  display: flex;
+  gap: 10px;
+}
+
+.presence-list li::before {
+  content: "→";
+  color: rgba(201,160,32,0.45);
+  flex-shrink: 0;
+}
+
+/* ── Note box ── */
+.note-box {
+  background: rgba(201,160,32,0.04);
+  border-left: 2px solid rgba(201,160,32,0.35);
+  padding: 12px 16px;
+  margin-top: 14px;
+  font-size: 9px;
+  line-height: 1.65;
+  color: rgba(201,160,32,0.6);
+}
+
+/* ── Footer ── */
+.doc-footer {
+  padding: 18px 40px;
+  border-top: 1px solid rgba(201,160,32,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-id {
+  font-size: 7.5px;
+  letter-spacing: 0.1em;
+  color: rgba(201,160,32,0.3);
+  text-transform: uppercase;
+}
+</style>
+
+<div class="doc">
+  <span class="doc-corner-bl">◈</span>
+  <span class="doc-corner-br">◈</span>
+
+  <div class="doc-header">
+    <p class="eyebrow">Üpark Payday 2026 &nbsp;·&nbsp; Brand Activation Brief &nbsp;·&nbsp; Confidential</p>
+    <h1 class="title">Send a Champ</h1>
+    <p class="subtitle">Royal Rumble — Brand Hosted Challenge Format</p>
+  </div>
+
+  <!-- What it is -->
+  <div class="section">
+    <p class="section-label">The Concept</p>
+    <div class="section-body">
+      <p>
+        Your brand nominates a <em>Champ</em> — a rider of your choice — to hold court at Üpark Payday 2026.
+        A pool of attending riders steps up and skates against them in a live Game of <em>Ü·P·A·R·K</em>.
+      </p>
+      <p>
+        Your brand defines the reward structure. Your Champ represents your brand on the board.
+        Your team is present to run the challenge and hand out drops as letters land.
+      </p>
+      <p>
+        The <em>Champ stays the Champ</em>. Champion status is granted — it cannot be won or lost
+        through a single game. The pool plays to collect drops and to earn a title: the rider who
+        deals the <em>final letter</em> to the Champ leaves the event as <em>Skater of the Night</em>.
+      </p>
+    </div>
+  </div>
+
+  <!-- Game mechanics -->
+  <div class="section">
+    <p class="section-label">Game Format — Ü·P·A·R·K</p>
+    <div class="section-body">
+      <p>Letters are dealt to the <em>Champ</em>. The pool plays as a collective.</p>
+    </div>
+
+    <div class="mechanic-grid">
+      <div class="mechanic-block">
+        <div class="mb-label">Pool Setup</div>
+        <div class="mb-body">
+          Order is set before play begins — rock paper scissors or board throw elimination. Open entry. More riders in the pool widens the collective trick selection and raises survival odds.
+        </div>
+      </div>
+      <div class="mechanic-block">
+        <div class="mb-label">Pool's Turn</div>
+        <div class="mb-body">
+          The active pool member throws any trick any pool member can land. The Champ must match it. Failure deals a letter to the Champ.
+        </div>
+      </div>
+      <div class="mechanic-block">
+        <div class="mb-label">Champ's Turn</div>
+        <div class="mb-body">
+          The Champ sets a trick. Any one pool member landing it is enough to survive. The pool's size is its shield.
+        </div>
+      </div>
+      <div class="mechanic-block">
+        <div class="mb-label">End State</div>
+        <div class="mb-body">
+          Five letters — Ü·P·A·R·K — and the pool claims all drops. The Champ stays the Champ regardless. One activation per event.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reward structure -->
+  <div class="section">
+    <p class="section-label">Reward Structure — Your Brand Defines the Drops</p>
+    <div class="section-body">
+      <p>One drop per letter dealt to the Champ. You set what each letter unlocks — sealed at registration, revealed as it lands.</p>
+    </div>
+
+    <table class="letter-table">
+      <thead>
+        <tr>
+          <th>Letter</th>
+          <th>Drop Slot</th>
+          <th>Example — ÜBER Royal Rumble</th>
+          <th>Example — PAYDAY Royal Rumble</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="letter-glyph">Ü</span></td>
+          <td><span class="brand-slot">Brand Drop 1</span></td>
+          <td>Red Foil Deck</td>
+          <td>10× Monster Energy</td>
+        </tr>
+        <tr>
+          <td><span class="letter-glyph">P</span></td>
+          <td><span class="brand-slot">Brand Drop 2</span></td>
+          <td>Blue Foil Deck</td>
+          <td>10× Monster Energy</td>
+        </tr>
+        <tr>
+          <td><span class="letter-glyph">A</span></td>
+          <td><span class="brand-slot">Brand Drop 3</span></td>
+          <td>Mystery Item</td>
+          <td>10× Monster Energy</td>
+        </tr>
+        <tr>
+          <td><span class="letter-glyph">R</span></td>
+          <td><span class="brand-slot">Brand Drop 4</span></td>
+          <td>Mystery Item</td>
+          <td>10× Monster Energy</td>
+        </tr>
+        <tr>
+          <td><span class="letter-glyph">K</span></td>
+          <td><span class="brand-slot">Brand Drop 5</span></td>
+          <td>Mystery Item</td>
+          <td>10× Monster Energy</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note-box">
+      Mystery drops are sealed at registration — physical or digital format, brand's choice.
+      Drops are handed out by brand representatives as each letter lands, live in front of the crowd.
+      Unclaimed drops (if the pool does not reach that letter) remain with the brand.
+    </div>
+  </div>
+
+  <!-- Brand presence -->
+  <div class="section">
+    <p class="section-label">Brand Presence at the Event</p>
+    <ul class="presence-list">
+      <li>Your team runs your Royal Rumble window — you own the zone for the duration of the challenge.</li>
+      <li>Your Champ is introduced by name and brand affiliation before play begins.</li>
+      <li>Brand can set the scene: music, presentation, signage within the challenge zone.</li>
+      <li>Brand representatives hand drops directly to the pool as letters land — no intermediary.</li>
+      <li>Mystery drop reveal is your moment — format, timing, and theatre are yours to design.</li>
+      <li>One Royal Rumble slot per brand per event. Slot timing confirmed at registration.</li>
+    </ul>
+  </div>
+
+  <!-- Hyperparameters summary -->
+  <div class="section">
+    <p class="section-label">Hyperparameters at a Glance</p>
+    <div class="section-body">
+      <p><em>Format:</em> Pool vs. Champ · Game of Ü·P·A·R·K · 5 letters maximum</p>
+      <p><em>Pool:</em> Open entry · Order by rock paper scissors or board throw · No minimum size</p>
+      <p><em>Champ:</em> Brand-nominated · Stays Champ regardless of outcome · One per brand slot</p>
+      <p><em>Drops:</em> 1 per letter dealt to Champ · Brand-defined · Sealed until letter lands</p>
+      <p><em>Activations:</em> 1 per event · Timing confirmed at brand registration</p>
+      <p><em>Presence:</em> Brand team required on-site during their Royal Rumble window</p>
+      <p><em>Skater of the Night:</em> The pool member who deals the final letter (K) to the Champ</p>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <span class="footer-id">ÜPARK-2026 · ROYAL-RUMBLE-BRAND-BRIEF · V1</span>
+    <span class="footer-id">11.07.2026 · Überseestadt Bremen</span>
+  </div>
+</div>

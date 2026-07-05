@@ -383,7 +383,7 @@ const SPONSOR_CARDS = [
   { id:'CHX-03', name:'CASH FOR TRICKS',    sponsor:'ALL SPONSORS',      type:'Quick-Play Spell — Zone Bounty',      effect:'Activate on Blöcke (Zone VIII). Draw from the bounty pool: 5€ standard, up to 20€ for high-difficulty. Speed is the entry condition. Pool depletes per clean landing.',                                                                                                                                                                                                          atk:'5–20€ CASH',       def:'BLÖCKE ONLY'        },
   { id:'CHX-04', name:'LONDON GAP S.K.A.T.E.', sponsor:'FIRST SKATESHOP', type:'Normal Spell — Elimination',         effect:'Elimination format at London Gap (Zone I). First Skateshop funds a full prize pool. One rider sets the trick — opponent must match stance, contact, and style. Failure adds a letter. Spell S.K.A.T.E. and you are eliminated. Last rider standing wins the prize pool.',                                                                                                          atk:'FIRST PRIZE POOL', def:'MATCH OR LETTER'   },
   { id:'CHX-05', name:'STUFF FOR TRICKS',   sponsor:'TITUS',             type:'Continuous Spell — Youth Bounty',     effect:'Active on all Field Cards during Cash for Tricks events. Valid for riders born 2010 or later — declare age at entry. Youngins receive elevated Titus payout for every clean landing on any active zone. Cannot be activated retroactively.',                                                                                                                                       atk:'TITUS GEAR',       def:'UNDER 16 ONLY'     },
-  { id:'CHX-06', name:'ROYAL RUMBLE',       sponsor:'ÜBER SKATEBOARDS',  type:'Normal Spell — Royal Rumble',         effect:'Activate when an ÜBER Skateboards sponsored rider is present. One challenger is drawn. Red deck faces Blue deck head-to-head. Winner claims the Champ title and all three mystery items — sealed until the event opens. One activation per event.',                                                                                                                                atk:'RED + BLUE DECK',  def:'3 MYSTERY ITEMS'   },
+  { id:'CHX-06', name:'ROYAL RUMBLE',       sponsor:'ÜBER SKATEBOARDS',  type:'Normal Spell — Ü·P·A·R·K',           effect:'Activate when an ÜBER Skateboards sponsored rider is present. One Challenger faces the reigning Champ in a Game of Ü·P·A·R·K. One rider sets a trick — opponent must match exactly. Failure earns a letter. Collect 1 ÜBER Item Drop per letter dealt: Ü→Gold Foil Deck, P→Red Foil Deck, A→Blue Foil Deck, R+K→Mystery Drop. Spell Ü·P·A·R·K in full — Challenger becomes the new Champ.',  atk:'ÜBER DECK/LETTER', def:'5 LETTERS'         },
   { id:'CHX-07', name:'ROYAL RUMBLE',       sponsor:'PAY DAY',           type:'Normal Spell — Ü·P·A·R·K',           effect:'SKATE-game format using the letters Ü·P·A·R·K. One rider sets a trick — opponent must match exactly. Failure earns a letter. Spell Ü·P·A·R·K and you are eliminated. Pay Day funds 10 Monster Energy cans per letter round won against an opponent. Five letters, five rounds, five chances to claim Monster for the crowd.',                                                  atk:'10 MONSTER/LETTER', def:'5 LETTERS'         },
 ];
 
@@ -581,26 +581,34 @@ function drawTitusYouth(ctx, W, H) {
   grain(ctx, W, H);
 }
 function drawRoyalRumbleUber(ctx, W, H) {
-  const leftBg = ctx.createLinearGradient(0, 0, W * 0.5, H);
-  leftBg.addColorStop(0, '#0f040a'); leftBg.addColorStop(1, '#1a0608');
-  ctx.fillStyle = leftBg; ctx.fillRect(0, 0, W * 0.5, H);
-  const rightBg = ctx.createLinearGradient(W * 0.5, 0, W, H);
-  rightBg.addColorStop(0, '#04060f'); rightBg.addColorStop(1, '#060818');
-  ctx.fillStyle = rightBg; ctx.fillRect(W * 0.5, 0, W * 0.5, H);
-  ctx.beginPath(); ctx.moveTo(0, H * 0.1); ctx.lineTo(W * 0.52, H * 0.5); ctx.lineTo(0, H * 0.9);
-  ctx.fillStyle = 'rgba(200,40,40,0.18)'; ctx.fill();
-  ctx.strokeStyle = 'rgba(220,60,60,0.5)'; ctx.lineWidth = 2; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(W, H * 0.1); ctx.lineTo(W * 0.48, H * 0.5); ctx.lineTo(W, H * 0.9);
-  ctx.fillStyle = 'rgba(40,80,200,0.18)'; ctx.fill();
-  ctx.strokeStyle = 'rgba(60,100,220,0.5)'; ctx.lineWidth = 2; ctx.stroke();
-  const divG = ctx.createLinearGradient(W * 0.5, 0, W * 0.5, H);
-  divG.addColorStop(0, 'rgba(201,160,32,0)'); divG.addColorStop(0.5, 'rgba(201,160,32,0.75)'); divG.addColorStop(1, 'rgba(201,160,32,0)');
-  ctx.strokeStyle = divG; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(W * 0.5, 0); ctx.lineTo(W * 0.5, H); ctx.stroke();
-  const crown = ctx.createRadialGradient(W * 0.5, H * 0.5, 0, W * 0.5, H * 0.5, W * 0.2);
-  crown.addColorStop(0, 'rgba(201,160,32,0.45)'); crown.addColorStop(1, 'rgba(201,160,32,0)');
+  // Dark purple bg with gold glow — ÜBER Ü·P·A·R·K format
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#080410'); bg.addColorStop(1, '#0e0618');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  // Crown glow
+  const crown = ctx.createRadialGradient(W * 0.5, H * 0.36, 0, W * 0.5, H * 0.36, W * 0.38);
+  crown.addColorStop(0, 'rgba(201,160,32,0.28)'); crown.addColorStop(1, 'rgba(112,64,160,0)');
   ctx.fillStyle = crown; ctx.fillRect(0, 0, W, H);
-  ctx.font = `${W * 0.26}px Georgia`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillStyle = 'rgba(240,208,80,0.55)'; ctx.fillText('♛', W * 0.5, H * 0.46);
+  // Crown glyph
+  ctx.font = `${W * 0.22}px Georgia`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(240,208,80,0.65)'; ctx.fillText('♛', W * 0.5, H * 0.28);
+  // Ü·P·A·R·K letter tiles
+  const letters = ['\xDC','P','A','R','K'];
+  const tileW = W / letters.length;
+  const tileColors = [
+    'rgba(201,160,32,', 'rgba(200,40,40,', 'rgba(40,80,200,',
+    'rgba(112,64,160,', 'rgba(112,64,160,'
+  ];
+  letters.forEach((l, i) => {
+    const tx = tileW * i + tileW * 0.08;
+    const ty = H * 0.56;
+    ctx.fillStyle = tileColors[i] + '0.18)';
+    ctx.fillRect(tx, ty, tileW * 0.84, H * 0.22);
+    ctx.strokeStyle = tileColors[i] + '0.55)'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(tx, ty, tileW * 0.84, H * 0.22);
+    ctx.font = `bold ${W * 0.11}px Georgia`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = tileColors[i] + `${0.55 + i * 0.06})`; ctx.fillText(l, tx + tileW * 0.42, ty + H * 0.11);
+  });
   grain(ctx, W, H);
 }
 function drawRoyalRumblePayday(ctx, W, H) {

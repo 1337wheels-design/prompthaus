@@ -383,6 +383,7 @@ const SPONSOR_CARDS = [
   { id:'CHX-03', name:'CASH FOR TRICKS',    sponsor:'ALL SPONSORS',      type:'Quick-Play Spell — Zone Bounty',      effect:'Activate on Blöcke (Zone VIII). Draw from the bounty pool: 5€ standard, up to 20€ for high-difficulty. Speed is the entry condition. Pool depletes per clean landing.',                                                                                                                                                                                                          atk:'5–20€ CASH',       def:'BLÖCKE ONLY'        },
   { id:'CHX-04', name:'LONDON GAP S.K.A.T.E.', sponsor:'FIRST SKATESHOP', type:'Normal Spell — Elimination',         effect:'Elimination format at London Gap (Zone I). First Skateshop funds a full prize pool. One rider sets the trick — opponent must match stance, contact, and style. Failure adds a letter. Spell S.K.A.T.E. and you are eliminated. Last rider standing wins the prize pool.',                                                                                                          atk:'FIRST PRIZE POOL', def:'MATCH OR LETTER'   },
   { id:'CHX-05', name:'STUFF FOR TRICKS',   sponsor:'TITUS',             type:'Continuous Spell — Youth Bounty',     effect:'Active on all Field Cards during Cash for Tricks events. Valid for riders born 2010 or later — declare age at entry. Youngins receive elevated Titus payout for every clean landing on any active zone. Cannot be activated retroactively.',                                                                                                                                       atk:'TITUS GEAR',       def:'UNDER 16 ONLY'     },
+  { id:'CHX-08', name:'FLINTA BOUNTY',     sponsor:'ALL SPONSORS',      type:'Continuous Spell — FLINTA Bounty',    effect:'Active across all CASH FOR TRICKS zones throughout the event. When 3 or more FLINTA skaters are registered in any section — the prize pool for that section escalates automatically. No activation required. Judges announce the bonus at section start. One escalation per section. Cannot be negated.',                                                                                     atk:'+BONUS CASH',      def:'≥3 FLINTA'         },
   { id:'CHX-06', name:'ROYAL RUMBLE',       sponsor:'ÜBER SKATEBOARDS',  type:'Normal Spell — Ü·P·A·R·K',           effect:'You and your crew skate against the ÜBER Champ. Set pool order before play — rock paper scissors or board throw. The pool throws any trick any member can land in their turn order — the Champ must match. Miss: letter dealt. When the Champ sets, any one pool member landing it is enough to survive. Collect 1 ÜBER drop per letter dealt: Ü→Red Foil Deck, P→Blue Foil Deck, A+R+K→Mystery. The pool member who deals the final letter earns Skater of the Night.',  atk:'RED + BLUE DECK',  def:'3 MYSTERY ITEMS'   },
   { id:'CHX-07', name:'ROYAL RUMBLE',       sponsor:'PAYDAY',            type:'Normal Spell — Ü·P·A·R·K',           effect:'You and your crew skate against the PAYDAY Skateboards Champ — identity sealed until Event Day. Set pool order before play — rock paper scissors or board throw. The pool throws any trick any member can land in their turn order — the Champ must match. Miss: letter dealt. When the Champ sets, any one pool member landing it is enough to survive. Monster Energy funds 10 cans per letter dealt to the PAYDAY Champ. The pool member who deals the final letter earns Skater of the Night.', atk:'10 MONSTER/LETTER', def:'PAYDAY CHAMP'       },
 ];
@@ -1052,7 +1053,71 @@ function drawDarkHorse(ctx, W, H) {
 }
 
 const FIELD_DRAW = [drawFieldI, drawFieldII, drawFieldIII, drawFieldIV, drawFieldV];
-const SPONSOR_DRAW = [drawCashHipLedge, drawCashDoubleHubba, drawCashBlocke, drawLondonSkate, drawTitusYouth, drawRoyalRumbleUber, drawRoyalRumblePayday];
+function drawFlintaBounty(ctx, W, H) {
+  // Deep violet/indigo bg — visually distinct from all other cards
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0b0418'); bg.addColorStop(1, '#160928');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  // Magenta/gold radial burst from trigger centre
+  const cx = W * 0.50, cy = H * 0.40;
+  const burst = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.46);
+  burst.addColorStop(0,   'rgba(220,70,160,0.38)');
+  burst.addColorStop(0.5, 'rgba(160,40,200,0.14)');
+  burst.addColorStop(1,   'rgba(60,10,100,0)');
+  ctx.fillStyle = burst; ctx.fillRect(0, 0, W, H);
+
+  // Ray lines
+  for (let i = 0; i < 18; i++) {
+    const angle = (i / 18) * Math.PI * 2;
+    const len   = W * (i % 3 === 0 ? 0.44 : 0.26);
+    const alpha = i % 3 === 0 ? 0.28 : 0.10;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(angle) * len, cy + Math.sin(angle) * len);
+    ctx.strokeStyle = `rgba(220,100,200,${alpha})`;
+    ctx.lineWidth   = i % 3 === 0 ? 1.5 : 0.8;
+    ctx.stroke();
+  }
+
+  // Large "≥3" trigger glyph — gold glow
+  ctx.save();
+  ctx.shadowColor = 'rgba(240,200,60,0.70)';
+  ctx.shadowBlur  = 18;
+  ctx.font = `bold ${W * 0.36}px Georgia`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(240,200,60,0.90)';
+  ctx.fillText('≥3', cx, cy - H * 0.01);
+  ctx.restore();
+
+  // "FLINTA" label
+  ctx.font = `bold ${W * 0.090}px Georgia`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(225,100,200,0.85)';
+  ctx.fillText('FLINTA', cx, H * 0.60);
+
+  // Floating € coins
+  const coins = [
+    {x:0.13,y:0.18,s:0.085,a:0.52},{x:0.84,y:0.22,s:0.075,a:0.46},
+    {x:0.10,y:0.66,s:0.068,a:0.38},{x:0.87,y:0.70,s:0.075,a:0.42},
+    {x:0.50,y:0.12,s:0.072,a:0.44},{x:0.28,y:0.80,s:0.060,a:0.32},
+    {x:0.72,y:0.80,s:0.060,a:0.32},
+  ];
+  coins.forEach(({x,y,s,a}) => {
+    ctx.font = `${W*s}px Georgia`;
+    ctx.fillStyle = `rgba(240,200,60,${a})`;
+    ctx.fillText('€', W*x, H*y);
+  });
+
+  // Bottom sub-label
+  ctx.font = `${W * 0.056}px Georgia`;
+  ctx.fillStyle = 'rgba(240,200,60,0.48)';
+  ctx.fillText('CASH BOUNTY BONUS', cx, H * 0.70);
+
+  grain(ctx, W, H);
+}
+
+const SPONSOR_DRAW = [drawCashHipLedge, drawCashDoubleHubba, drawCashBlocke, drawLondonSkate, drawTitusYouth, drawFlintaBounty, drawRoyalRumbleUber, drawRoyalRumblePayday];
 
 /* ── Card builder ── */
 const PAYDAY_LOGO = 'data:image/png;base64,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';

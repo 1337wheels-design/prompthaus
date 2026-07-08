@@ -691,36 +691,64 @@ function drawRoyalRumbleUber(ctx, W, H) {
   logo.src = UBER_LOGO_URI;
 }
 function drawRoyalRumblePayday(ctx, W, H) {
+  // Near-black bg with faint green tint — Monster Energy atmosphere
   const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#040804'); bg.addColorStop(1, '#080e06');
+  bg.addColorStop(0, '#03080a'); bg.addColorStop(1, '#070e08');
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-  for (let i = 0; i < 7; i++) {
-    const x = W * (0.08 + i * 0.13);
-    const topY = H * (0.04 + (i % 3) * 0.06);
-    const alpha = 0.12 + 0.22 * (i % 2 === 0 ? 1 : 0.4);
-    ctx.beginPath();
-    ctx.moveTo(x, topY);
-    ctx.lineTo(x - W * 0.04, topY + H * 0.3);
-    ctx.lineTo(x + W * 0.02, topY + H * 0.3);
-    ctx.lineTo(x - W * 0.04, topY + H * 0.62);
-    ctx.strokeStyle = `rgba(57,255,20,${alpha})`; ctx.lineWidth = (i % 2 === 0) ? 2.5 : 1.5; ctx.stroke();
-  }
-  const mGlow = ctx.createRadialGradient(W * 0.5, H * 0.48, 0, W * 0.5, H * 0.48, W * 0.55);
-  mGlow.addColorStop(0, 'rgba(57,255,20,0.10)'); mGlow.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = mGlow; ctx.fillRect(0, 0, W, H);
+
+  // Subtle green ambient glow — Monster halo behind everything
+  const glow = ctx.createRadialGradient(W*0.50, H*0.38, 0, W*0.50, H*0.38, W*0.58);
+  glow.addColorStop(0, 'rgba(57,255,20,0.12)'); glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+
+  // Ü·P·A·R·K tile strip — stays visible at bottom
   const letters = ['\xDC','P','A','R','K'];
   const tileW = W / letters.length;
   letters.forEach((l, i) => {
     const tx = tileW * i + tileW * 0.1;
-    const ty = H * 0.74;
-    ctx.fillStyle = 'rgba(57,255,20,0.10)';
-    ctx.fillRect(tx, ty, tileW * 0.8, H * 0.2);
-    ctx.strokeStyle = 'rgba(57,255,20,0.35)'; ctx.lineWidth = 1;
-    ctx.strokeRect(tx, ty, tileW * 0.8, H * 0.2);
-    ctx.font = `bold ${W * 0.11}px Georgia`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = `rgba(57,255,20,${0.5 + i * 0.08})`; ctx.fillText(l, tx + tileW * 0.4, ty + H * 0.1);
+    const ty = H * 0.80;
+    ctx.fillStyle = 'rgba(57,255,20,0.08)';
+    ctx.fillRect(tx, ty, tileW * 0.8, H * 0.17);
+    ctx.strokeStyle = 'rgba(57,255,20,0.28)'; ctx.lineWidth = 1;
+    ctx.strokeRect(tx, ty, tileW * 0.8, H * 0.17);
+    ctx.font = `bold ${W * 0.095}px Georgia`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = `rgba(57,255,20,${0.42 + i*0.06})`;
+    ctx.fillText(l, tx + tileW * 0.4, ty + H * 0.085);
   });
-  grain(ctx, W, H);
+
+  // Sequential load: Monster behind → PAYDAY on top → grain
+  const monster = new Image();
+  monster.onload = () => {
+    // Monster claw — looms large from the top, screen blend keeps green, kills black
+    const mH = H * 0.86;
+    const mW = mH * (480 / 581);
+    const mx = (W - mW) / 2;
+    const my = H * 0.01;
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.globalAlpha = 0.62;
+    ctx.drawImage(monster, mx, my, mW, mH);
+    ctx.restore();
+
+    const payday = new Image();
+    payday.onload = () => {
+      // PAYDAY logo — slapped across the centre, above the tile strip
+      const pW = W * 0.90;
+      const pH = pW * (394 / 700);
+      const px = (W - pW) / 2;
+      const py = (H * 0.76 - pH) / 2 + H * 0.04;
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = 0.92;
+      ctx.drawImage(payday, px, py, pW, pH);
+      ctx.restore();
+
+      grain(ctx, W, H);
+    };
+    payday.src = PAYDAY_LOGO_URI;
+  };
+  monster.src = MONSTER_GREEN_URI;
 }
 function _unused_drawStreetPass(ctx, W, H) {
   const bg = ctx.createLinearGradient(0, 0, 0, H);

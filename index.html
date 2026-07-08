@@ -775,11 +775,11 @@ function drawRoyalRumblePayday(ctx, W, H) {
   const tileW = W / letters.length;
   letters.forEach((l, i) => {
     const tx = tileW*i + tileW*0.10, ty = H*0.82;
-    ctx.fillStyle = 'rgba(57,255,20,0.07)'; ctx.fillRect(tx, ty, tileW*0.80, H*0.16);
-    ctx.strokeStyle = 'rgba(57,255,20,0.26)'; ctx.lineWidth = 1;
+    ctx.fillStyle = 'rgba(57,255,20,0.18)'; ctx.fillRect(tx, ty, tileW*0.80, H*0.16);
+    ctx.strokeStyle = 'rgba(57,255,20,1.0)'; ctx.lineWidth = 1;
     ctx.strokeRect(tx, ty, tileW*0.80, H*0.16);
     ctx.font = `bold ${W*0.088}px Georgia`; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillStyle = `rgba(57,255,20,${0.40+i*0.06})`;
+    ctx.fillStyle = 'rgba(57,255,20,1.0)';
     ctx.fillText(l, tx+tileW*0.40, ty+H*0.08);
   });
 
@@ -796,7 +796,7 @@ function drawRoyalRumblePayday(ctx, W, H) {
     payday.onload = () => {
       const pW = W*0.88, pH = pW*(394/700);
       ctx.save();
-      ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.90;
+      ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 1.0;
       ctx.drawImage(payday, (W-pW)/2, (H*0.76-pH)/2 + H*0.04, pW, pH);
       ctx.restore();
       grain(ctx, W, H);

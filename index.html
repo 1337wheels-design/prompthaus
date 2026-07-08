@@ -755,7 +755,7 @@ function drawRoyalRumblePayday(ctx, W, H) {
 
   // Hex-pack grid — 14 cans across 4 staggered rows
   ctx.save();
-  ctx.globalAlpha = 0.50;
+  ctx.globalAlpha = 0.30;
   const R = 36;
   [
     {y: 32,  xs: [32, 104, 176, 248]},
@@ -788,7 +788,7 @@ function drawRoyalRumblePayday(ctx, W, H) {
   monster.onload = () => {
     const mH = H*0.80, mW = mH*(480/581);
     ctx.save();
-    ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.60;
+    ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.70;
     ctx.drawImage(monster, (W-mW)/2, H*0.02, mW, mH);
     ctx.restore();
 
@@ -796,7 +796,7 @@ function drawRoyalRumblePayday(ctx, W, H) {
     payday.onload = () => {
       const pW = W*0.88, pH = pW*(394/700);
       ctx.save();
-      ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.92;
+      ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.90;
       ctx.drawImage(payday, (W-pW)/2, (H*0.76-pH)/2 + H*0.04, pW, pH);
       ctx.restore();
       grain(ctx, W, H);

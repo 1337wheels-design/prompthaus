@@ -691,59 +691,114 @@ function drawRoyalRumbleUber(ctx, W, H) {
   logo.src = UBER_LOGO_URI;
 }
 function drawRoyalRumblePayday(ctx, W, H) {
-  // Near-black bg with faint green tint — Monster Energy atmosphere
-  const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#03080a'); bg.addColorStop(1, '#070e08');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  // Near-black bg
+  ctx.fillStyle = '#030809'; ctx.fillRect(0, 0, W, H);
 
-  // Subtle green ambient glow — Monster halo behind everything
-  const glow = ctx.createRadialGradient(W*0.50, H*0.38, 0, W*0.50, H*0.38, W*0.58);
-  glow.addColorStop(0, 'rgba(57,255,20,0.12)'); glow.addColorStop(1, 'rgba(0,0,0,0)');
+  // Can top viewed from above — drawn with canvas arcs mimicking SVG vector shapes
+  function drawCanTop(cx, cy, R) {
+    // Outer seam ring — pressed edge, darker
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+    const og = ctx.createRadialGradient(cx-R*0.28, cy-R*0.28, 0, cx, cy, R);
+    og.addColorStop(0, '#c4c4c4'); og.addColorStop(1, '#525252');
+    ctx.fillStyle = og; ctx.fill();
+
+    // Main lid surface — brushed aluminium radial shine
+    ctx.beginPath(); ctx.arc(cx, cy, R*0.86, 0, Math.PI*2);
+    const lg = ctx.createRadialGradient(cx-R*0.22, cy-R*0.22, 0, cx, cy, R*0.86);
+    lg.addColorStop(0, '#e4e4e4'); lg.addColorStop(0.6, '#a8a8a8'); lg.addColorStop(1, '#808080');
+    ctx.fillStyle = lg; ctx.fill();
+
+    // Pressure / score rings (concentric, like a real can lid)
+    [0.72, 0.54].forEach((rf, j) => {
+      ctx.beginPath(); ctx.arc(cx, cy, R*rf, 0, Math.PI*2);
+      ctx.strokeStyle = j===0 ? '#626262' : '#747474';
+      ctx.lineWidth = j===0 ? 1.0 : 0.6; ctx.stroke();
+    });
+
+    // Opening score panel — D-shaped tab zone (top portion of lid)
+    ctx.beginPath();
+    ctx.arc(cx, cy, R*0.40, Math.PI+0.35, -0.35, false);
+    ctx.arc(cx, cy-R*0.32, R*0.26, -0.18, Math.PI+0.18, true);
+    ctx.closePath();
+    ctx.fillStyle = '#b2b2b2'; ctx.fill();
+    ctx.strokeStyle = '#646464'; ctx.lineWidth = 0.7; ctx.stroke();
+
+    // Score line highlight inside panel
+    ctx.beginPath();
+    ctx.arc(cx, cy-R*0.22, R*0.14, Math.PI+0.5, -0.5, false);
+    ctx.strokeStyle = '#999'; ctx.lineWidth = 0.5; ctx.stroke();
+
+    // Rivet (connects tab to lid)
+    ctx.beginPath(); ctx.arc(cx, cy-R*0.16, R*0.058, 0, Math.PI*2);
+    ctx.fillStyle = '#787878'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy-R*0.16, R*0.030, 0, Math.PI*2);
+    ctx.fillStyle = '#aaa'; ctx.fill();
+
+    // Pull tab body — flat elongated oval
+    ctx.beginPath();
+    ctx.ellipse(cx, cy+R*0.06, R*0.18, R*0.08, 0, 0, Math.PI*2);
+    ctx.fillStyle = '#d0d0d0'; ctx.fill();
+    ctx.strokeStyle = '#888'; ctx.lineWidth = 0.7; ctx.stroke();
+
+    // Tab spine line
+    ctx.beginPath();
+    ctx.moveTo(cx, cy-R*0.14); ctx.lineTo(cx, cy+R*0.14);
+    ctx.strokeStyle = '#888'; ctx.lineWidth = 0.6; ctx.stroke();
+
+    // Finger ring — D-ring pull loop
+    ctx.beginPath(); ctx.arc(cx, cy+R*0.30, R*0.11, 0, Math.PI*2);
+    ctx.strokeStyle = '#b8b8b8'; ctx.lineWidth = R*0.065; ctx.stroke();
+    // Ring shadow/inner edge
+    ctx.beginPath(); ctx.arc(cx, cy+R*0.30, R*0.044, 0, Math.PI*2);
+    ctx.fillStyle = '#888'; ctx.fill();
+  }
+
+  // Hex-pack grid — 14 cans across 4 staggered rows
+  ctx.save();
+  ctx.globalAlpha = 0.50;
+  const R = 36;
+  [
+    {y: 32,  xs: [32, 104, 176, 248]},
+    {y: 96,  xs: [68, 140, 212]},
+    {y: 160, xs: [32, 104, 176, 248]},
+    {y: 224, xs: [68, 140, 212]},
+  ].forEach(({y, xs}) => xs.forEach(x => drawCanTop(x, y, R)));
+  ctx.restore();
+
+  // Ambient Monster green glow
+  const glow = ctx.createRadialGradient(W*0.5, H*0.42, 0, W*0.5, H*0.42, W*0.62);
+  glow.addColorStop(0, 'rgba(57,255,20,0.11)'); glow.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
 
-  // Ü·P·A·R·K tile strip — stays visible at bottom
+  // Ü·P·A·R·K tile strip at bottom
   const letters = ['\xDC','P','A','R','K'];
   const tileW = W / letters.length;
   letters.forEach((l, i) => {
-    const tx = tileW * i + tileW * 0.1;
-    const ty = H * 0.80;
-    ctx.fillStyle = 'rgba(57,255,20,0.08)';
-    ctx.fillRect(tx, ty, tileW * 0.8, H * 0.17);
-    ctx.strokeStyle = 'rgba(57,255,20,0.28)'; ctx.lineWidth = 1;
-    ctx.strokeRect(tx, ty, tileW * 0.8, H * 0.17);
-    ctx.font = `bold ${W * 0.095}px Georgia`;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = `rgba(57,255,20,${0.42 + i*0.06})`;
-    ctx.fillText(l, tx + tileW * 0.4, ty + H * 0.085);
+    const tx = tileW*i + tileW*0.10, ty = H*0.82;
+    ctx.fillStyle = 'rgba(57,255,20,0.07)'; ctx.fillRect(tx, ty, tileW*0.80, H*0.16);
+    ctx.strokeStyle = 'rgba(57,255,20,0.26)'; ctx.lineWidth = 1;
+    ctx.strokeRect(tx, ty, tileW*0.80, H*0.16);
+    ctx.font = `bold ${W*0.088}px Georgia`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle = `rgba(57,255,20,${0.40+i*0.06})`;
+    ctx.fillText(l, tx+tileW*0.40, ty+H*0.08);
   });
 
-  // Sequential load: Monster behind → PAYDAY on top → grain
+  // Sequential: Monster claw behind → PAYDAY on top → grain
   const monster = new Image();
   monster.onload = () => {
-    // Monster claw — looms large from the top, screen blend keeps green, kills black
-    const mH = H * 0.86;
-    const mW = mH * (480 / 581);
-    const mx = (W - mW) / 2;
-    const my = H * 0.01;
+    const mH = H*0.80, mW = mH*(480/581);
     ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-    ctx.globalAlpha = 0.62;
-    ctx.drawImage(monster, mx, my, mW, mH);
+    ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.60;
+    ctx.drawImage(monster, (W-mW)/2, H*0.02, mW, mH);
     ctx.restore();
 
     const payday = new Image();
     payday.onload = () => {
-      // PAYDAY logo — slapped across the centre, above the tile strip
-      const pW = W * 0.90;
-      const pH = pW * (394 / 700);
-      const px = (W - pW) / 2;
-      const py = (H * 0.76 - pH) / 2 + H * 0.04;
+      const pW = W*0.88, pH = pW*(394/700);
       ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-      ctx.globalAlpha = 0.92;
-      ctx.drawImage(payday, px, py, pW, pH);
+      ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = 0.92;
+      ctx.drawImage(payday, (W-pW)/2, (H*0.76-pH)/2 + H*0.04, pW, pH);
       ctx.restore();
-
       grain(ctx, W, H);
     };
     payday.src = PAYDAY_LOGO_URI;

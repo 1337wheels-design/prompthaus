@@ -1227,54 +1227,29 @@ function drawSkateDeluxeFlinta(ctx, W, H) {
   }
   ctx.restore();
 
-  // Skate Deluxe logo — screen blend
+  // Skate Deluxe logo — centred, screen blend
   const logo = new Image();
   logo.onload = () => {
-    const logoW = W * 0.84, logoH = logoW;
-    const lx = (W - logoW) / 2, ly = cy - logoH * 0.55;
+    const logoSz = Math.min(W, H) * 0.90;
+    const lx = (W - logoSz) / 2, ly = (H - logoSz) / 2;
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
-    ctx.globalAlpha = 0.90;
-    ctx.drawImage(logo, lx, ly, logoW, logoH);
+    ctx.globalAlpha = 0.92;
+    ctx.drawImage(logo, lx, ly, logoSz, logoSz);
     ctx.restore();
 
-    // "FLINTA" glyph
-    ctx.save();
-    ctx.font = `bold ${W * 0.10}px Impact, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.shadowColor = '#e00018'; ctx.shadowBlur = 22;
-    ctx.fillStyle = '#e00018';
-    ctx.fillText('FLINTA', cx, H * 0.68);
-    ctx.shadowBlur = 0; ctx.restore();
-
-    // "STUFF FOR TRICKS" label
-    ctx.save();
-    ctx.font = `bold ${W * 0.056}px Impact, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(240,200,60,0.70)';
-    ctx.fillText('STUFF FOR TRICKS', cx, H * 0.76);
-    ctx.restore();
-
-    // Floating gear icons (€ replaced by ★)
-    const gears = [
-      [W*0.18, H*0.56], [W*0.82, H*0.56],
-      [W*0.12, H*0.72], [W*0.88, H*0.72],
-      [W*0.22, H*0.84], [W*0.78, H*0.84],
-      [W*0.50, H*0.88],
+    // Floating ★ stars scattered around the logo
+    const stars = [
+      [W*0.08, H*0.12], [W*0.92, H*0.12],
+      [W*0.06, H*0.50], [W*0.94, H*0.50],
+      [W*0.10, H*0.88], [W*0.90, H*0.88],
+      [W*0.50, H*0.05], [W*0.50, H*0.95],
     ];
     ctx.save();
-    ctx.font = `${W * 0.055}px sans-serif`;
+    ctx.font = `${W * 0.052}px sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(240,200,60,0.38)';
-    gears.forEach(([gx, gy]) => ctx.fillText('★', gx, gy));
-    ctx.restore();
-
-    // "BOUNTY" sub-label
-    ctx.save();
-    ctx.font = `${W * 0.048}px Georgia`;
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(220,40,50,0.50)';
-    ctx.fillText('BOUNTY', cx, H * 0.93);
+    ctx.fillStyle = 'rgba(240,200,60,0.42)';
+    stars.forEach(([sx, sy]) => ctx.fillText('★', sx, sy));
     ctx.restore();
 
     grain(ctx, W, H);

@@ -102,6 +102,59 @@
   .status.active { color: var(--accent); }
   .status.error { color: var(--danger); }
 
+  /* Fortschrittsbalken für den Modell-Download (Whisper/MiniLM) */
+  .progress-wrap {
+    display: none;
+    margin: 6px 0 12px;
+  }
+  .progress-track {
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: var(--border);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 0.15s ease-out;
+  }
+  .progress-label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Schritt-Anzeige für den Verarbeitungs-Ablauf (Eingabe -> Transkription -> Embedding -> Ergebnis) */
+  .steps {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .step {
+    font-size: 0.78rem;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--bg);
+    transition: all 0.15s ease-out;
+  }
+  .step.active {
+    color: white;
+    background: var(--accent);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .step.done {
+    color: var(--accent-2);
+    border-color: var(--accent-2);
+  }
+  .step.done::before { content: "✓ "; }
+  .step.skipped { opacity: 0.4; }
+
   .result-header {
     display: flex;
     justify-content: space-between;
@@ -144,11 +197,22 @@
   </div>
 
   <div class="card">
+    <div class="steps" id="steps">
+      <span class="step" id="step-input">1. Eingabe</span>
+      <span class="step" id="step-transcribe">2. Transkription</span>
+      <span class="step" id="step-embed">3. Embedding &amp; Vergleich</span>
+      <span class="step" id="step-result">4. Ergebnis</span>
+    </div>
     <div class="row">
       <button id="recordBtn">🎙️ Aufnahme starten</button>
       <button id="loadModelsBtn" class="secondary">Modelle jetzt vorladen</button>
     </div>
     <p class="status" id="status">Bereit. Modelle werden bei Bedarf automatisch geladen.</p>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel"></div>
+    </div>
 
     <label for="transcriptBox"><strong>Transkribierter / eingegebener Text</strong> (editierbar):</label>
     <textarea id="transcriptBox" placeholder="Hier erscheint die Transkription – oder tippe direkt einen Beispieltext ein, z. B. 'Wir brauchen dringend mehr Kunden und wissen nicht, welcher Vertriebskanal sich lohnt.'"></textarea>
@@ -170,12 +234,22 @@
 </main>
 
 <script type="module">
-  // Transformers.js per CDN als ES-Modul – lädt die Bibliothek selbst client-seitig nach.
-  // "+esm" lässt jsDelivr ein browserfähiges ESM-Bundle ausliefern.
-  import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/+esm";
-
-  // Modell-Cache im Browser belassen (IndexedDB), kein eigenes Backend nötig.
-  env.allowLocalModels = false;
+  // Transformers.js wird bewusst per dynamischem import() nachgeladen statt als
+  // statischer Top-Level-Import: Schlägt der CDN-Zugriff fehl (kein Internet,
+  // Firewall), bleibt so die restliche Seite (Buttons, Schritt-Anzeige, Texteingabe)
+  // trotzdem funktionsfähig und der Fehler wird sauber im Status angezeigt,
+  // statt das gesamte Skript stillschweigend abzubrechen.
+  let transformersLibPromise = null;
+  function loadTransformersLib() {
+    if (!transformersLibPromise) {
+      transformersLibPromise = import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/+esm")
+        .then(mod => {
+          mod.env.allowLocalModels = false; // Modell-Cache bleibt im Browser (IndexedDB), kein eigenes Backend nötig.
+          return mod;
+        });
+    }
+    return transformersLibPromise;
+  }
 
   // ---------------------------------------------------------------------
   // Fester Fragen-Katalog (Platzhalter-Daten, im Code leicht austauschbar).
@@ -240,11 +314,60 @@
   const resultScore = document.getElementById("resultScore");
   const resultQuestions = document.getElementById("resultQuestions");
   const allScoresEl = document.getElementById("allScores");
+  const progressWrap = document.getElementById("progressWrap");
+  const progressFill = document.getElementById("progressFill");
+  const progressLabel = document.getElementById("progressLabel");
 
   function setStatus(text, mode) {
     statusEl.textContent = text;
     statusEl.className = "status" + (mode ? " " + mode : "");
   }
+
+  // -----------------------------------------------------------------------
+  // Fortschrittsanzeige 1: Download-Fortschritt der KI-Modelle.
+  // Transformers.js meldet pro Modell-Datei laufend { loaded, total } über
+  // den progress_callback – daraus wird ein aggregierter Prozentwert gebildet,
+  // da ein Modell aus mehreren Dateien (Gewichte, Tokenizer, Config) besteht.
+  // -----------------------------------------------------------------------
+  function showProgressBar() { progressWrap.style.display = "block"; }
+  function hideProgressBar() {
+    progressWrap.style.display = "none";
+    progressFill.style.width = "0%";
+    progressLabel.textContent = "";
+  }
+
+  function makeProgressHandler(modelLabel) {
+    const files = new Map(); // Dateiname -> { loaded, total } in Bytes
+    return (data) => {
+      if (data.status !== "progress" || !data.total) return;
+      files.set(data.file, { loaded: data.loaded, total: data.total });
+      let loaded = 0, total = 0;
+      for (const f of files.values()) { loaded += f.loaded; total += f.total; }
+      const pct = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
+      showProgressBar();
+      progressFill.style.width = pct + "%";
+      progressLabel.textContent =
+        `${modelLabel}: ${pct}% (${(loaded / 1e6).toFixed(1)} / ${(total / 1e6).toFixed(1)} MB)`;
+    };
+  }
+
+  // -----------------------------------------------------------------------
+  // Fortschrittsanzeige 2: Ablauf-Schritte (Eingabe -> Transkription ->
+  // Embedding -> Ergebnis), damit während der Verarbeitung sichtbar ist,
+  // in welcher Phase sich der Prototyp gerade befindet.
+  // -----------------------------------------------------------------------
+  const STEP_KEYS = ["input", "transcribe", "embed", "result"];
+  function setStep(activeKey, skippedKeys = []) {
+    const activeIdx = STEP_KEYS.indexOf(activeKey);
+    STEP_KEYS.forEach((key, idx) => {
+      const el = document.getElementById("step-" + key);
+      el.classList.remove("active", "done", "skipped");
+      if (skippedKeys.includes(key)) el.classList.add("skipped");
+      else if (idx < activeIdx) el.classList.add("done");
+      else if (idx === activeIdx) el.classList.add("active");
+    });
+  }
+  setStep("input");
 
   // Pipelines werden lazy (erst bei Bedarf) geladen und danach wiederverwendet,
   // damit der ~70 MB-Download nur einmal pro Sitzung passiert.
@@ -253,16 +376,36 @@
 
   function getTranscriber() {
     if (!transcriberPromise) {
-      setStatus("Lade Spracherkennungs-Modell (Whisper-tiny, ~40 MB) …", "active");
-      transcriberPromise = pipeline("automatic-speech-recognition", "Xenova/whisper-tiny");
+      transcriberPromise = (async () => {
+        setStatus("Lade Transformers.js-Bibliothek …", "active");
+        const { pipeline } = await loadTransformersLib();
+        setStatus("Lade Spracherkennungs-Modell (Whisper-tiny, ~40 MB) …", "active");
+        const p = await pipeline("automatic-speech-recognition", "Xenova/whisper-tiny", {
+          progress_callback: makeProgressHandler("Whisper-tiny")
+        });
+        hideProgressBar();
+        return p;
+      })();
+      // Bei Fehlschlag (z. B. kein Internet) Promise zurücksetzen, damit ein
+      // erneuter Klick es noch einmal versucht, statt dauerhaft fehlzuschlagen.
+      transcriberPromise.catch(() => { transcriberPromise = null; });
     }
     return transcriberPromise;
   }
 
   function getEmbedder() {
     if (!embedderPromise) {
-      setStatus("Lade Embedding-Modell (MiniLM, ~30 MB) …", "active");
-      embedderPromise = pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
+      embedderPromise = (async () => {
+        setStatus("Lade Transformers.js-Bibliothek …", "active");
+        const { pipeline } = await loadTransformersLib();
+        setStatus("Lade Embedding-Modell (MiniLM, ~30 MB) …", "active");
+        const p = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2", {
+          progress_callback: makeProgressHandler("MiniLM")
+        });
+        hideProgressBar();
+        return p;
+      })();
+      embedderPromise.catch(() => { embedderPromise = null; });
     }
     return embedderPromise;
   }
@@ -272,11 +415,14 @@
   async function getFachbereichEmbeddings() {
     if (fachbereichEmbeddings) return fachbereichEmbeddings;
     const embedder = await getEmbedder();
-    fachbereichEmbeddings = [];
+    // Erst in eine lokale Liste schreiben und nur bei vollständigem Erfolg cachen,
+    // sonst würde ein Abbruch mitten in der Schleife eine unvollständige Liste cachen.
+    const computed = [];
     for (const fb of FACHBEREICHE) {
       const output = await embedder(fb.prototype, { pooling: "mean", normalize: true });
-      fachbereichEmbeddings.push({ name: fb.name, fragen: fb.fragen, vector: output.data });
+      computed.push({ name: fb.name, fragen: fb.fragen, vector: output.data });
     }
+    fachbereichEmbeddings = computed;
     return fachbereichEmbeddings;
   }
 
@@ -309,6 +455,7 @@
     }
     classifyBtn.disabled = true;
     try {
+      setStep("embed");
       setStatus("Berechne Embedding und vergleiche mit Fachbereichen …", "active");
       const embedder = await getEmbedder();
       const fbEmbeddings = await getFachbereichEmbeddings();
@@ -319,6 +466,7 @@
         .sort((a, b) => b.score - a.score);
 
       renderResult(scored);
+      setStep("result");
       setStatus("Fertig.");
     } catch (err) {
       console.error(err);
@@ -388,6 +536,7 @@
         isRecording = true;
         recordBtn.textContent = "⏹️ Aufnahme stoppen";
         recordBtn.classList.add("recording");
+        setStep("input");
         setStatus("Aufnahme läuft … sprich jetzt.", "active");
       } catch (err) {
         console.error(err);
@@ -403,12 +552,14 @@
 
   async function transcribeBlob(blob) {
     try {
+      setStep("transcribe");
       setStatus("Bereite Audio auf (Resampling 16 kHz) …", "active");
       const pcm = await resampleTo16kMono(blob);
       const transcriber = await getTranscriber();
       setStatus("Transkribiere …", "active");
       const result = await transcriber(pcm, { language: "german", task: "transcribe" });
       transcriptBox.value = (result.text || "").trim();
+      setStep("input"); // zurück zu "Eingabe", da Text vor der Klassifikation noch korrigiert werden kann
       setStatus("Transkription abgeschlossen. Text ggf. korrigieren und 'Fragen ermitteln' klicken.");
     } catch (err) {
       console.error(err);

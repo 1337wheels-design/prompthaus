@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Proof of Concept: Sprachnachricht → Fragen-Empfehlung</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f5f7;
+    --card-bg: #ffffff;
+    --text: #1c1c1e;
+    --muted: #6e6e73;
+    --accent: #5b5bd6;
+    --accent-2: #2fae60;
+    --border: #e1e1e6;
+    --danger: #d64545;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16161a;
+      --card-bg: #202024;
+      --text: #f0f0f2;
+      --muted: #a0a0a8;
+      --border: #33333a;
+      --accent: #8f8fff;
+      --accent-2: #45c884;
+      --danger: #ff6b6b;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 24px 16px 64px;
+  }
+  main { max-width: 720px; margin: 0 auto; }
+
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 0.95rem; margin-bottom: 20px; }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .notice {
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+  }
+  .notice strong { color: var(--text); }
+
+  button {
+    font: inherit;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    cursor: pointer;
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+  }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  button.secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  button.recording { background: var(--danger); }
+
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  textarea {
+    width: 100%;
+    min-height: 90px;
+    font: inherit;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    resize: vertical;
+  }
+
+  .status {
+    font-size: 0.9rem;
+    color: var(--muted);
+    min-height: 1.4em;
+  }
+  .status.active { color: var(--accent); }
+  .status.error { color: var(--danger); }
+
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .result-header h2 { font-size: 1.1rem; margin: 0; }
+  .score { font-size: 0.85rem; color: var(--muted); }
+
+  ul.questions { list-style: none; padding: 0; margin: 0; }
+  ul.questions li {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: var(--bg);
+  }
+
+  .all-scores { font-size: 0.8rem; color: var(--muted); margin-top: 14px; }
+  .all-scores div { display: flex; justify-content: space-between; padding: 2px 0; }
+
+  footer { text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 30px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Proof of Concept: Sprachnachricht → fixierte Fragen-Empfehlung</h1>
+  <p class="subtitle">
+    Demonstriert das im Chat entwickelte Konzept: Sprachnachricht → client-seitige Transkription →
+    client-seitige Klassifikation gegen feste Fachbereiche → Ausgabe vordefinierter Fragen (kein LLM generiert Text).
+  </p>
+
+  <div class="notice">
+    <strong>Hinweis zu Datenschutz &amp; Offline-Verhalten:</strong>
+    Beim ersten Aufruf lädt die Seite zwei kleine KI-Modelle (Spracherkennung „Whisper-tiny“ und
+    Embedding-Modell „MiniLM“, zusammen ca. 70&nbsp;MB) von einem öffentlichen CDN herunter und
+    speichert sie im Browser-Cache. Danach läuft die gesamte Verarbeitung <strong>lokal im Browser</strong> –
+    weder Audio noch Text werden an einen Server gesendet. Mikrofonzugriff erfordert eine
+    Browser-Erlaubnis, die du im Popup bestätigen musst.
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <button id="recordBtn">🎙️ Aufnahme starten</button>
+      <button id="loadModelsBtn" class="secondary">Modelle jetzt vorladen</button>
+    </div>
+    <p class="status" id="status">Bereit. Modelle werden bei Bedarf automatisch geladen.</p>
+
+    <label for="transcriptBox"><strong>Transkribierter / eingegebener Text</strong> (editierbar):</label>
+    <textarea id="transcriptBox" placeholder="Hier erscheint die Transkription – oder tippe direkt einen Beispieltext ein, z. B. 'Wir brauchen dringend mehr Kunden und wissen nicht, welcher Vertriebskanal sich lohnt.'"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button id="classifyBtn" class="secondary">Fragen ermitteln</button>
+    </div>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <div class="result-header">
+      <h2 id="resultTitle">Fachbereich</h2>
+      <span class="score" id="resultScore"></span>
+    </div>
+    <ul class="questions" id="resultQuestions"></ul>
+    <div class="all-scores" id="allScores"></div>
+  </div>
+
+  <footer>Reiner Frontend-Prototyp · kein Backend · Platzhalter-Fragenkatalog</footer>
+</main>
+
+<script type="module">
+  // Transformers.js per CDN als ES-Modul – lädt die Bibliothek selbst client-seitig nach.
+  // "+esm" lässt jsDelivr ein browserfähiges ESM-Bundle ausliefern.
+  import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/+esm";
+
+  // Modell-Cache im Browser belassen (IndexedDB), kein eigenes Backend nötig.
+  env.allowLocalModels = false;
+
+  // ---------------------------------------------------------------------
+  // Fester Fragen-Katalog (Platzhalter-Daten, im Code leicht austauschbar).
+  // Jeder Fachbereich hat einen kurzen Prototyp-Text (Basis fürs Embedding)
+  // und eine feste Liste an Fragen, die NICHT generiert, sondern nur
+  // ausgewählt/ausgespielt werden ("fixierter Ausspielmechanismus").
+  // ---------------------------------------------------------------------
+  const FACHBEREICHE = [
+    {
+      name: "Finanzierung & Kapital",
+      prototype: "Wir suchen nach Investoren, Fördermitteln oder einem Kredit, um unser Wachstum zu finanzieren und die Liquidität zu sichern.",
+      fragen: [
+        "Wie hoch ist der aktuelle Kapitalbedarf und für welchen Zeitraum?",
+        "Habt ihr bereits Eigenkapital oder Fördermittel eingeplant?",
+        "Welche Meilensteine sollen mit der Finanzierung erreicht werden?",
+        "Gibt es bereits Gespräche mit Investoren oder Banken?",
+        "Wie sieht der aktuelle Cashflow bzw. die Runway aus?"
+      ]
+    },
+    {
+      name: "Marketing & Vertrieb",
+      prototype: "Wir wollen mehr Kunden gewinnen, unsere Zielgruppe besser erreichen und den Vertrieb bzw. unsere Marketingkanäle ausbauen.",
+      fragen: [
+        "Wer genau ist eure Zielgruppe und wie sprecht ihr sie aktuell an?",
+        "Welche Vertriebskanäle nutzt ihr bereits?",
+        "Wie hoch ist eure aktuelle Conversion-Rate vom Lead zum Kunden?",
+        "Welches Budget steht für Marketing-Maßnahmen zur Verfügung?",
+        "Was unterscheidet euch von der Konkurrenz aus Kundensicht?"
+      ]
+    },
+    {
+      name: "Produkt & Technik",
+      prototype: "Wir entwickeln ein neues Produkt oder eine Software und brauchen technische Unterstützung bei Architektur, Entwicklung oder Skalierung.",
+      fragen: [
+        "In welcher Entwicklungsphase befindet sich das Produkt aktuell?",
+        "Welche technischen Herausforderungen bestehen aktuell?",
+        "Wie ist das Entwicklerteam aktuell aufgestellt?",
+        "Welche Skalierungsanforderungen erwartet ihr in den nächsten 12 Monaten?",
+        "Gibt es bereits eine technische Roadmap?"
+      ]
+    },
+    {
+      name: "Team & Organisation",
+      prototype: "Wir wollen unser Team vergrößern, Rollen klären oder die interne Organisation und Zusammenarbeit verbessern.",
+      fragen: [
+        "Wie viele Mitarbeitende hat das Team aktuell und welche Rollen fehlen?",
+        "Gibt es klar definierte Verantwortlichkeiten?",
+        "Wie läuft aktuell die interne Kommunikation ab?",
+        "Welche Herausforderungen gibt es beim Recruiting?",
+        "Wie sieht die aktuelle Führungsstruktur aus?"
+      ]
+    }
+  ];
+
+  const statusEl = document.getElementById("status");
+  const recordBtn = document.getElementById("recordBtn");
+  const loadModelsBtn = document.getElementById("loadModelsBtn");
+  const classifyBtn = document.getElementById("classifyBtn");
+  const transcriptBox = document.getElementById("transcriptBox");
+  const resultCard = document.getElementById("resultCard");
+  const resultTitle = document.getElementById("resultTitle");
+  const resultScore = document.getElementById("resultScore");
+  const resultQuestions = document.getElementById("resultQuestions");
+  const allScoresEl = document.getElementById("allScores");
+
+  function setStatus(text, mode) {
+    statusEl.textContent = text;
+    statusEl.className = "status" + (mode ? " " + mode : "");
+  }
+
+  // Pipelines werden lazy (erst bei Bedarf) geladen und danach wiederverwendet,
+  // damit der ~70 MB-Download nur einmal pro Sitzung passiert.
+  let transcriberPromise = null;
+  let embedderPromise = null;
+
+  function getTranscriber() {
+    if (!transcriberPromise) {
+      setStatus("Lade Spracherkennungs-Modell (Whisper-tiny, ~40 MB) …", "active");
+      transcriberPromise = pipeline("automatic-speech-recognition", "Xenova/whisper-tiny");
+    }
+    return transcriberPromise;
+  }
+
+  function getEmbedder() {
+    if (!embedderPromise) {
+      setStatus("Lade Embedding-Modell (MiniLM, ~30 MB) …", "active");
+      embedderPromise = pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
+    }
+    return embedderPromise;
+  }
+
+  // Vorab-Embeddings der Fachbereichs-Prototypen (einmalig berechnet, dann gecacht).
+  let fachbereichEmbeddings = null;
+  async function getFachbereichEmbeddings() {
+    if (fachbereichEmbeddings) return fachbereichEmbeddings;
+    const embedder = await getEmbedder();
+    fachbereichEmbeddings = [];
+    for (const fb of FACHBEREICHE) {
+      const output = await embedder(fb.prototype, { pooling: "mean", normalize: true });
+      fachbereichEmbeddings.push({ name: fb.name, fragen: fb.fragen, vector: output.data });
+    }
+    return fachbereichEmbeddings;
+  }
+
+  function cosineSimilarity(a, b) {
+    // Beide Vektoren sind bereits normalisiert (normalize: true), daher genügt das Skalarprodukt.
+    let sum = 0;
+    for (let i = 0; i < a.length; i++) sum += a[i] * b[i];
+    return sum;
+  }
+
+  loadModelsBtn.addEventListener("click", async () => {
+    loadModelsBtn.disabled = true;
+    try {
+      await getTranscriber();
+      await getFachbereichEmbeddings();
+      setStatus("Modelle geladen und bereit.");
+    } catch (err) {
+      console.error(err);
+      setStatus("Fehler beim Laden der Modelle: " + err.message, "error");
+    } finally {
+      loadModelsBtn.disabled = false;
+    }
+  });
+
+  classifyBtn.addEventListener("click", async () => {
+    const text = transcriptBox.value.trim();
+    if (!text) {
+      setStatus("Bitte zuerst einen Text eingeben oder eine Sprachnachricht aufnehmen.", "error");
+      return;
+    }
+    classifyBtn.disabled = true;
+    try {
+      setStatus("Berechne Embedding und vergleiche mit Fachbereichen …", "active");
+      const embedder = await getEmbedder();
+      const fbEmbeddings = await getFachbereichEmbeddings();
+      const queryEmbedding = await embedder(text, { pooling: "mean", normalize: true });
+
+      const scored = fbEmbeddings
+        .map(fb => ({ name: fb.name, fragen: fb.fragen, score: cosineSimilarity(queryEmbedding.data, fb.vector) }))
+        .sort((a, b) => b.score - a.score);
+
+      renderResult(scored);
+      setStatus("Fertig.");
+    } catch (err) {
+      console.error(err);
+      setStatus("Fehler bei der Klassifikation: " + err.message, "error");
+    } finally {
+      classifyBtn.disabled = false;
+    }
+  });
+
+  function renderResult(scored) {
+    const top = scored[0];
+    resultCard.style.display = "block";
+    resultTitle.textContent = "Erkannter Fachbereich: " + top.name;
+    resultScore.textContent = "Similarity: " + top.score.toFixed(3);
+
+    resultQuestions.innerHTML = "";
+    for (const frage of top.fragen) {
+      const li = document.createElement("li");
+      li.textContent = frage;
+      resultQuestions.appendChild(li);
+    }
+
+    allScoresEl.innerHTML = "<strong>Alle Fachbereiche (zur Transparenz):</strong>";
+    for (const s of scored) {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>${s.name}</span><span>${s.score.toFixed(3)}</span>`;
+      allScoresEl.appendChild(div);
+    }
+  }
+
+  // ---------------------------------------------------------------------
+  // Mikrofonaufnahme + Resampling auf 16 kHz Mono-PCM (vom Whisper-Modell erwartet).
+  // Sicherheitshinweis: getUserMedia löst einen Browser-Permission-Prompt aus;
+  // das Audio verlässt den Browser zu keinem Zeitpunkt.
+  // ---------------------------------------------------------------------
+  let mediaRecorder = null;
+  let recordedChunks = [];
+  let isRecording = false;
+
+  async function resampleTo16kMono(blob) {
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const decoded = await audioCtx.decodeAudioData(arrayBuffer);
+    const targetLength = Math.ceil(decoded.duration * 16000);
+    const offlineCtx = new OfflineAudioContext(1, targetLength, 16000);
+    const source = offlineCtx.createBufferSource();
+    source.buffer = decoded;
+    source.connect(offlineCtx.destination);
+    source.start(0);
+    const rendered = await offlineCtx.startRendering();
+    return rendered.getChannelData(0);
+  }
+
+  recordBtn.addEventListener("click", async () => {
+    if (!isRecording) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+        mediaRecorder.onstop = async () => {
+          stream.getTracks().forEach(t => t.stop());
+          const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
+          await transcribeBlob(blob);
+        };
+        mediaRecorder.start();
+        isRecording = true;
+        recordBtn.textContent = "⏹️ Aufnahme stoppen";
+        recordBtn.classList.add("recording");
+        setStatus("Aufnahme läuft … sprich jetzt.", "active");
+      } catch (err) {
+        console.error(err);
+        setStatus("Mikrofonzugriff nicht möglich: " + err.message, "error");
+      }
+    } else {
+      mediaRecorder.stop();
+      isRecording = false;
+      recordBtn.textContent = "🎙️ Aufnahme starten";
+      recordBtn.classList.remove("recording");
+    }
+  });
+
+  async function transcribeBlob(blob) {
+    try {
+      setStatus("Bereite Audio auf (Resampling 16 kHz) …", "active");
+      const pcm = await resampleTo16kMono(blob);
+      const transcriber = await getTranscriber();
+      setStatus("Transkribiere …", "active");
+      const result = await transcriber(pcm, { language: "german", task: "transcribe" });
+      transcriptBox.value = (result.text || "").trim();
+      setStatus("Transkription abgeschlossen. Text ggf. korrigieren und 'Fragen ermitteln' klicken.");
+    } catch (err) {
+      console.error(err);
+      setStatus("Fehler bei der Transkription: " + err.message, "error");
+    }
+  }
+</script>
+</body>
+</html>

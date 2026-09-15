@@ -67,8 +67,9 @@
   const DESIGNS = [
     { id: 'chrome', name: 'CHROME', manifestKey: 'payday_CHROME', driveId: '1-sd4Vy8id4IaTDD0arnv6gKhYImCF5sM', camoIndex: 15, camoStyle: 'blob', patternLabel: 'Camo' },
     { id: 'neon', name: 'NEON', manifestKey: 'payday_NEON', driveId: '150wocQj8Pp6YYADu4aj_zyjUXmnz-q-H', camoIndex: 4, camoStyle: 'blob', patternLabel: 'Camo' },
-    { id: 'payday-linear', name: 'PAYDAY Linear', manifestKey: 'payday_ARCTIC', driveId: '1e4ux5YIHkDg9qrYyNR4Z7xXxeCY4gYH7', camoIndex: 0, camoStyle: 'linear', patternLabel: 'Linear' },
-    { id: 'arctic', name: 'ARCTIC', manifestKey: 'payday_PAYDAY_Linear', driveId: '1l5LnU9eAI6ft9ZpEdh8-KeXRC2vDdIwb', camoIndex: 3, camoStyle: 'linear', patternLabel: 'Linear' },
+    // manifestKey = Druck-PDF/Shop-Thumb; camoIndex = Generator-Palette (getrennt, da PDFs vertauscht)
+    { id: 'payday-linear', name: 'PAYDAY Linear', manifestKey: 'payday_ARCTIC', driveId: '1e4ux5YIHkDg9qrYyNR4Z7xXxeCY4gYH7', camoIndex: 3, camoStyle: 'linear', patternLabel: 'Linear' },
+    { id: 'arctic', name: 'ARCTIC', manifestKey: 'payday_PAYDAY_Linear', driveId: '1l5LnU9eAI6ft9ZpEdh8-KeXRC2vDdIwb', camoIndex: 0, camoStyle: 'linear', patternLabel: 'Linear' },
     { id: 'night', name: 'NIGHT', manifestKey: 'payday_NIGHT', driveId: '1qrlZZqr1X204vqp2_PuOuHEcyM2ZmaEq', camoIndex: 5, camoStyle: 'blob', patternLabel: 'Camo' },
     { id: 'payday-camo', name: 'PAYDAY Camo', manifestKey: 'payday_PAYDAY', driveId: '1iuEOWM_ovSGEKXFdshXnaGnFROXG2X9s', camoIndex: 0, camoStyle: 'blob', patternLabel: 'Camo' },
   ];

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payday Deck Shop — Multikonfigurator</title>
+  <meta name="description" content="Custom Payday Decks — Camo Generator, Deckgröße wählen, freie Auswahl aus 133 finalen Designs.">
+  <style>
+    :root {
+      --gold: #f0d060;
+      --gold-dim: rgba(201,160,32,0.45);
+      --aqua: #00c8b0;
+      --bg: #040e0c;
+      --panel: #071210;
+      --border: rgba(240,208,80,0.18);
+      --text: #d0d0d2;
+      --text-muted: #a8a090;
+      --font-mono: 'Courier New', monospace;
+      --font-display: Impact, 'Arial Narrow', Arial, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 60% 40% at 30% 10%, rgba(95,58,114,0.15) 0%, transparent 100%),
+        radial-gradient(ellipse 50% 50% at 80% 90%, rgba(0,0,0,0.5) 0%, transparent 100%);
+      font-family: var(--font-mono);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      background: rgba(4,14,12,0.92); position: sticky; top: 0; z-index: 50;
+    }
+    .nav__logo { font-family: var(--font-display); font-size: 16px; letter-spacing: 0.08em; color: var(--gold); text-decoration: none; text-transform: uppercase; }
+    .nav__links a { font-size: 9px; letter-spacing: 0.14em; color: var(--gold-dim); text-decoration: none; text-transform: uppercase; margin-left: 16px; }
+    .nav__links a:hover { color: var(--gold); }
+    .cart-btn { font-size: 9px; letter-spacing: 0.12em; color: var(--gold); border: 1px solid var(--border); padding: 6px 12px; background: transparent; cursor: pointer; font-family: inherit; text-transform: uppercase; }
+
+    /* ── Configurator ── */
+    .configurator {
+      max-width: 520px; margin: 0 auto; padding: 40px 20px 32px; text-align: center;
+    }
+    .configurator.locked-out { opacity: 0.35; pointer-events: none; }
+    .phase-badge {
+      display: inline-block; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--aqua); border: 1px solid rgba(0,200,176,0.3); padding: 5px 12px; margin-bottom: 12px;
+    }
+    .phase-title {
+      font-family: var(--font-display); font-size: 22px; letter-spacing: 0.06em;
+      color: var(--gold); text-transform: uppercase; margin-bottom: 6px;
+    }
+    .phase-hint { font-size: 11px; color: var(--text-muted); line-height: 1.6; margin-bottom: 8px; }
+    .click-progress {
+      font-size: 10px; letter-spacing: 0.14em; color: var(--gold-dim);
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .click-progress span { color: var(--gold); }
+
+    .preview-wrap {
+      position: relative; display: inline-block; margin-bottom: 20px;
+    }
+    .preview-wrap canvas {
+      width: 180px; height: 630px; display: block;
+      filter: drop-shadow(0 8px 32px rgba(0,0,0,0.85)) drop-shadow(0 2px 8px rgba(95,58,114,0.35));
+    }
+    .preview-label {
+      margin-top: 10px; font-size: 10px; letter-spacing: 0.12em;
+      color: var(--gold); text-transform: uppercase;
+    }
+    .preview-sublabel { font-size: 9px; color: var(--text-muted); letter-spacing: 0.1em; margin-top: 4px; }
+
+    .gen-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      min-width: 220px; padding: 14px 28px;
+      font-family: inherit; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+      border: 1px solid var(--gold); background: rgba(240,208,80,0.1); color: var(--gold);
+      cursor: pointer; transition: background 0.15s, transform 0.1s;
+    }
+    .gen-btn:hover { background: rgba(240,208,80,0.22); }
+    .gen-btn:active { transform: scale(0.97); }
+    .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .gen-btn .pulse {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--aqua);
+      animation: pulse 1.2s ease infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+
+    .round-dots {
+      display: flex; gap: 8px; justify-content: center; margin-top: 24px;
+    }
+    .round-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      border: 1px solid var(--border); background: transparent;
+    }
+    .round-dot.done { background: var(--aqua); border-color: var(--aqua); }
+    .round-dot.active { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px rgba(240,208,80,0.4); }
+
+    /* ── Unlock overlay ── */
+    .unlock-banner {
+      display: none; text-align: center; padding: 20px;
+      background: rgba(0,200,176,0.08); border: 1px solid rgba(0,200,176,0.25);
+      margin: 0 20px 24px; font-size: 11px; letter-spacing: 0.1em; color: var(--aqua);
+      animation: fadeIn 0.5s ease;
+    }
+    .unlock-banner.visible { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
+    /* ── Shop grid ── */
+    .shop-section {
+      max-width: 1100px; margin: 0 auto; padding: 0 20px 64px;
+      opacity: 0.25; pointer-events: none; filter: blur(2px);
+      transition: opacity 0.6s, filter 0.6s;
+    }
+    .shop-section.unlocked { opacity: 1; pointer-events: auto; filter: none; }
+    .shop-header { text-align: center; margin-bottom: 28px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .shop-header h2 { font-family: var(--font-display); font-size: 24px; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; }
+    .shop-header p { font-size: 10px; color: var(--gold-dim); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 6px; }
+
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 24px;
+    }
+    .filter-chip {
+      font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 6px 12px; border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); cursor: pointer; font-family: inherit; transition: all 0.12s;
+    }
+    .filter-chip:hover, .filter-chip.active { border-color: var(--gold); color: var(--gold); background: rgba(240,208,80,0.06); }
+    .filter-chip.highlight { border-color: var(--aqua); color: var(--aqua); }
+
+    .deck-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px;
+    }
+    .deck-card {
+      border: 1px solid var(--border); background: var(--panel);
+      padding: 12px 10px; text-align: center; cursor: pointer;
+      transition: border-color 0.15s, transform 0.1s;
+    }
+    .deck-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+    .deck-card.selected { border-color: var(--aqua); box-shadow: 0 0 12px rgba(0,200,176,0.15); }
+    .deck-card canvas { width: 70px; height: 245px; margin: 0 auto 8px; display: block; }
+    .deck-card__title { font-size: 9px; letter-spacing: 0.08em; color: var(--gold); text-transform: uppercase; margin-bottom: 2px; }
+    .deck-card__size { font-size: 8px; color: var(--text-muted); margin-bottom: 4px; }
+    .deck-card__price { font-size: 12px; color: #e8c848; }
+    .deck-card__add {
+      margin-top: 8px; width: 100%; padding: 6px; font-size: 8px; letter-spacing: 0.12em;
+      text-transform: uppercase; border: 1px solid var(--border); background: transparent;
+      color: var(--gold); cursor: pointer; font-family: inherit;
+    }
+    .deck-card__add:hover { background: rgba(240,208,80,0.12); }
+
+    .cart-panel {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
+      background: rgba(4,14,12,0.96); border-top: 1px solid var(--border);
+      padding: 12px 20px; display: none; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .cart-panel.visible { display: flex; }
+    .cart-panel__info { font-size: 10px; color: var(--text-muted); }
+    .cart-panel__info strong { color: var(--gold); }
+    .checkout-btn {
+      padding: 10px 20px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      border: 1px solid var(--gold); background: rgba(240,208,80,0.15); color: var(--gold);
+      cursor: pointer; font-family: inherit; white-space: nowrap;
+    }
+
+    @media (max-width: 480px) {
+      .preview-wrap canvas { width: 140px; height: 490px; }
+      .deck-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav__logo">Ü·Payday Decks</a>
+    <div class="nav__links">
+      <a href="index.html">Event</a>
+      <a href="../decks/editor.html">Editor</a>
+    </div>
+    <button class="cart-btn" id="cart-toggle">Warenkorb (0)</button>
+  </nav>
+
+  <section class="configurator" id="configurator">
+    <div class="phase-badge" id="phase-badge">Runde 1 von 2</div>
+    <h1 class="phase-title" id="phase-title">Camo Generator</h1>
+    <p class="phase-hint" id="phase-hint">Drücke den Button, um durch die Camo-Patterns zu wechseln. Mindestens 1–2 Durchläufe, dann geht es zur Deckgröße.</p>
+    <p class="click-progress" id="click-progress">Klick <span>0</span> / <span>2</span></p>
+
+    <div class="preview-wrap">
+      <canvas id="preview-canvas" width="400" height="1400"></canvas>
+      <p class="preview-label" id="preview-label">PAYDAY</p>
+      <p class="preview-sublabel" id="preview-sublabel">KICKER · 8.25"</p>
+    </div>
+
+    <button class="gen-btn" id="gen-btn" type="button">
+      <span class="pulse"></span>
+      <span id="gen-btn-text">Camo generieren</span>
+    </button>
+
+    <div class="round-dots">
+      <div class="round-dot active" id="dot-camo" title="Camo"></div>
+      <div class="round-dot" id="dot-size" title="Größe"></div>
+      <div class="round-dot" id="dot-shop" title="Shop"></div>
+    </div>
+  </section>
+
+  <div class="unlock-banner" id="unlock-banner">
+    ◈ Shop freigeschaltet — wähle frei zwischen allen finalen Deck-Designs
+  </div>
+
+  <section class="shop-section" id="shop-section">
+    <header class="shop-header">
+      <h2>Verfügbare Decks</h2>
+      <p id="shop-subtitle">133 Designs · 4 Größen · Pay Day Skateboards</p>
+    </header>
+
+    <div class="filter-bar" id="filter-size"></div>
+    <div class="filter-bar" id="filter-camo"></div>
+    <div class="filter-bar" id="filter-illus"></div>
+
+    <div class="deck-grid" id="deck-grid"></div>
+  </section>
+
+  <div class="cart-panel" id="cart-panel">
+    <div class="cart-panel__info" id="cart-info">Kein Deck im Warenkorb</div>
+    <button class="checkout-btn" id="checkout-btn" type="button">Zur Kasse</button>
+  </div>
+
+  <script src="deck-renderer.js"></script>
+  <script>
+    const R = window.PaydayDeckRenderer;
+    const previewCanvas = document.getElementById('preview-canvas');
+
+    const state = {
+      phase: 'camo',
+      camoRequired: 1 + Math.floor(Math.random() * 2),
+      sizeRequired: 1 + Math.floor(Math.random() * 2),
+      camoClicks: 0,
+      sizeClicks: 0,
+      camoIndex: 0,
+      sizeIndex: 2,
+      illusIndex: 0,
+      unlocked: false,
+      cart: [],
+      filterCamo: null,
+      filterIllus: null,
+      filterSize: null,
+    };
+
+    function renderPreview() {
+      R.renderDeck(previewCanvas, {
+        camoIndex: state.camoIndex,
+        illusIndex: state.illusIndex,
+      });
+      document.getElementById('preview-label').textContent = R.CAMO_PATTERNS[state.camoIndex].name;
+      const size = R.DECK_SIZES[state.sizeIndex];
+      document.getElementById('preview-sublabel').textContent =
+        `${R.ILLUSTRATIONS[state.illusIndex].name} · ${size.label}`;
+    }
+
+    function updateUI() {
+      const prog = document.getElementById('click-progress');
+      const badge = document.getElementById('phase-badge');
+      const title = document.getElementById('phase-title');
+      const hint = document.getElementById('phase-hint');
+      const btnText = document.getElementById('gen-btn-text');
+      const dotCamo = document.getElementById('dot-camo');
+      const dotSize = document.getElementById('dot-size');
+      const dotShop = document.getElementById('dot-shop');
+
+      dotCamo.className = 'round-dot' + (state.phase === 'camo' ? ' active' : ' done');
+      dotSize.className = 'round-dot' + (state.phase === 'size' ? ' active' : state.phase === 'shop' || state.unlocked ? ' done' : '');
+      dotShop.className = 'round-dot' + (state.unlocked ? ' done active' : '');
+
+      if (state.phase === 'camo') {
+        badge.textContent = 'Runde 1 von 2';
+        title.textContent = 'Camo Generator';
+        hint.textContent = 'Jeder Klick mischt ein neues Camo-Pattern. Du musst mindestens ' + state.camoRequired + '× durchklicken.';
+        prog.innerHTML = `Klick <span>${state.camoClicks}</span> / <span>${state.camoRequired}</span>`;
+        btnText.textContent = 'Camo generieren';
+      } else if (state.phase === 'size') {
+        badge.textContent = 'Runde 2 von 2';
+        title.textContent = 'Deckgröße';
+        hint.textContent = 'Wähle deine Breite — mindestens ' + state.sizeRequired + '× durchklicken, dann öffnet sich der Shop.';
+        prog.innerHTML = `Klick <span>${state.sizeClicks}</span> / <span>${state.sizeRequired}</span>`;
+        btnText.textContent = 'Größe wechseln';
+      } else {
+        badge.textContent = 'Freigeschaltet';
+        title.textContent = 'Shop offen';
+        hint.textContent = 'Dein Camo: ' + R.CAMO_PATTERNS[state.camoIndex].name + ' · Größe: ' + R.DECK_SIZES[state.sizeIndex].label;
+        prog.innerHTML = 'Alle Designs verfügbar';
+        document.getElementById('gen-btn').disabled = true;
+      }
+      renderPreview();
+    }
+
+    function advanceCamo() {
+      state.camoIndex = (state.camoIndex + 1) % R.CAMO_PATTERNS.length;
+      state.camoClicks++;
+      if (state.camoClicks >= state.camoRequired) {
+        state.phase = 'size';
+      }
+      updateUI();
+    }
+
+    function advanceSize() {
+      state.sizeIndex = (state.sizeIndex + 1) % R.DECK_SIZES.length;
+      state.sizeClicks++;
+      if (state.sizeClicks >= state.sizeRequired) {
+        unlockShop();
+      }
+      updateUI();
+    }
+
+    function unlockShop() {
+      state.phase = 'shop';
+      state.unlocked = true;
+      state.filterCamo = null;
+      state.filterIllus = null;
+      state.filterSize = R.DECK_SIZES[state.sizeIndex].id;
+
+      document.getElementById('configurator').classList.add('locked-out');
+      document.getElementById('unlock-banner').classList.add('visible');
+      document.getElementById('shop-section').classList.add('unlocked');
+
+      const size = R.DECK_SIZES[state.sizeIndex];
+      document.getElementById('shop-subtitle').textContent =
+        `Deine Wahl: ${R.CAMO_PATTERNS[state.camoIndex].name} · ${size.label} — oder frei wählen`;
+
+      buildFilters();
+      renderShopGrid();
+      setTimeout(() => document.getElementById('shop-section').scrollIntoView({ behavior: 'smooth' }), 400);
+    }
+
+    document.getElementById('gen-btn').addEventListener('click', () => {
+      if (state.phase === 'camo') advanceCamo();
+      else if (state.phase === 'size') advanceSize();
+    });
+
+    let catalog = [];
+
+    function buildFilters() {
+      const sizeBar = document.getElementById('filter-size');
+      const camoBar = document.getElementById('filter-camo');
+      const illBar = document.getElementById('filter-illus');
+
+      sizeBar.innerHTML = '';
+      R.DECK_SIZES.forEach(s => {
+        const btn = document.createElement('button');
+        const isPick = state.filterSize === s.id;
+        const isRitual = s.id === R.DECK_SIZES[state.sizeIndex].id;
+        btn.className = 'filter-chip' + (isPick ? ' active' : '') + (isRitual && isPick ? ' highlight' : '');
+        btn.dataset.size = s.id;
+        btn.textContent = s.label;
+        sizeBar.appendChild(btn);
+      });
+
+      camoBar.innerHTML = '<button class="filter-chip' + (state.filterCamo === null ? ' active' : '') + '" data-camo="all">Alle Camos</button>';
+      R.CAMO_PATTERNS.forEach((c, i) => {
+        const btn = document.createElement('button');
+        const ritual = i === state.camoIndex;
+        btn.className = 'filter-chip' + (state.filterCamo === i ? ' active' : '') + (ritual && state.filterCamo === i ? ' highlight' : '');
+        btn.dataset.camo = i;
+        btn.textContent = c.name;
+        camoBar.appendChild(btn);
+      });
+
+      illBar.innerHTML = '<button class="filter-chip' + (state.filterIllus === null ? ' active' : '') + '" data-illus="all">Alle Illustrationen</button>';
+      R.ILLUSTRATIONS.forEach((ill, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-chip' + (state.filterIllus === i ? ' active' : '');
+        btn.dataset.illus = i;
+        btn.textContent = ill.name;
+        illBar.appendChild(btn);
+      });
+    }
+
+    document.getElementById('shop-section').addEventListener('click', e => {
+      const chip = e.target.closest('.filter-chip');
+      if (!chip) return;
+      if (chip.dataset.size) {
+        state.filterSize = chip.dataset.size;
+        buildFilters();
+        renderShopGrid();
+      } else if (chip.dataset.camo !== undefined) {
+        state.filterCamo = chip.dataset.camo === 'all' ? null : +chip.dataset.camo;
+        buildFilters();
+        renderShopGrid();
+      } else if (chip.dataset.illus !== undefined) {
+        state.filterIllus = chip.dataset.illus === 'all' ? null : +chip.dataset.illus;
+        buildFilters();
+        renderShopGrid();
+      }
+    });
+
+    function renderShopGrid() {
+      const grid = document.getElementById('deck-grid');
+      grid.innerHTML = '';
+
+      const filtered = catalog.filter(item => {
+        if (state.filterSize && item.sizeId !== state.filterSize) return false;
+        if (state.filterCamo !== null && item.camoIndex !== state.filterCamo) return false;
+        if (state.filterIllus !== null && item.illusIndex !== state.filterIllus) return false;
+        return true;
+      });
+
+      filtered.forEach(item => {
+        const card = document.createElement('article');
+        card.className = 'deck-card';
+        if (item.camoIndex === state.camoIndex && item.illusIndex === state.illusIndex) {
+          card.classList.add('selected');
+        }
+
+        const cv = document.createElement('canvas');
+        cv.width = 120; cv.height = 420;
+        R.renderDeck(cv, { camoIndex: item.camoIndex, illusIndex: item.illusIndex });
+
+        const title = document.createElement('div');
+        title.className = 'deck-card__title';
+        title.textContent = item.title;
+
+        const sizeEl = document.createElement('div');
+        sizeEl.className = 'deck-card__size';
+        sizeEl.textContent = item.sizeLabel;
+
+        const price = document.createElement('div');
+        price.className = 'deck-card__price';
+        price.textContent = item.price + ',00 €';
+
+        const addBtn = document.createElement('button');
+        addBtn.className = 'deck-card__add';
+        addBtn.type = 'button';
+        addBtn.textContent = 'In den Warenkorb';
+        addBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          addToCart(item);
+        });
+
+        card.appendChild(cv);
+        card.appendChild(title);
+        card.appendChild(sizeEl);
+        card.appendChild(price);
+        card.appendChild(addBtn);
+        grid.appendChild(card);
+      });
+    }
+
+    function addToCart(item) {
+      state.cart.push(item);
+      updateCart();
+    }
+
+    function updateCart() {
+      const n = state.cart.length;
+      document.getElementById('cart-toggle').textContent = `Warenkorb (${n})`;
+      const panel = document.getElementById('cart-panel');
+      const info = document.getElementById('cart-info');
+      if (n === 0) {
+        panel.classList.remove('visible');
+        return;
+      }
+      panel.classList.add('visible');
+      const last = state.cart[state.cart.length - 1];
+      const total = state.cart.reduce((s, i) => s + i.price, 0);
+      info.innerHTML = `<strong>${n}</strong> Deck${n > 1 ? 's' : ''} · zuletzt: ${last.title} ${last.sizeLabel} · <strong>${total},00 €</strong>`;
+      localStorage.setItem('payday_deck_cart', JSON.stringify(state.cart));
+    }
+
+    document.getElementById('checkout-btn').addEventListener('click', () => {
+      const cfg = window.PAYDAY_SHOP || {};
+      const domain = cfg.shopDomain;
+      if (domain && !domain.includes('YOUR-STORE')) {
+        window.location.href = `https://${domain}/products/payday-deck`;
+      } else {
+        alert('Shopify noch nicht verbunden.\n\nDeine Auswahl wurde gespeichert.\nKonfiguration: shop/config.js');
+      }
+    });
+
+    document.getElementById('cart-toggle').addEventListener('click', () => {
+      document.getElementById('cart-panel').classList.toggle('visible');
+    });
+
+    R.loadAssets().then(() => {
+      catalog = R.buildCatalog();
+      state.camoIndex = Math.floor(Math.random() * R.CAMO_PATTERNS.length);
+      updateUI();
+    });
+  </script>
+  <script src="config.js"></script>
+</body>
+</html>

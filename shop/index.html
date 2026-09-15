@@ -321,6 +321,7 @@
       <li><a href="#schedule">Zeitplan</a></li>
       <li><a href="#cards">Karten</a></li>
       <li><a href="#shop">Shop</a></li>
+      <li><a href="decks.html">Decks</a></li>
       <li><a href="#sponsors">Sponsoren</a></li>
     </ul>
     <a href="#" class="site-nav__cart" id="cart-link">Warenkorb</a>
@@ -336,7 +337,8 @@
     </p>
     <div class="hero__cta">
       <a href="#shop" class="btn btn--primary">Tickets &amp; Packs</a>
-      <a href="#cards" class="btn btn--ghost">Karten-Galerie</a>
+      <a href="decks.html" class="btn btn--ghost">Deck Shop</a>
+      <a href="#cards" class="btn btn--ghost">Karten</a>
     </div>
     <dl class="hero__stats">
       <div><dt>Cash Prize</dt><dd>500€</dd></div>
@@ -450,6 +452,7 @@
       document.querySelectorAll('.product-card button').forEach(btn => {
         btn.addEventListener('click', () => {
           const handle = btn.dataset.handle;
+          if (handle === 'payday-deck') { window.location.href = 'decks.html'; return; }
           const product = products.find(p => p.handle === handle);
           if (product?.variantId) {
             window.location.href = `https://${shopDomain}/cart/${product.variantId}:1`;
@@ -464,7 +467,10 @@
         shopNotice.scrollIntoView({ behavior: 'smooth' });
       });
       document.querySelectorAll('.product-card button').forEach(btn => {
-        btn.addEventListener('click', () => shopNotice.scrollIntoView({ behavior: 'smooth' }));
+        btn.addEventListener('click', () => {
+          if (btn.dataset.handle === 'payday-deck') { window.location.href = 'decks.html'; return; }
+          shopNotice.scrollIntoView({ behavior: 'smooth' });
+        });
       });
     }
 

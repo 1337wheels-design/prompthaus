@@ -53,10 +53,11 @@ window.PAYDAY_SHOP = {
     {
       handle: 'payday-deck',
       title: 'Payday Deck',
-      price: '89,00 €',
-      description: 'Custom Camo Deck',
+      price: 'ab 79,00 €',
+      description: 'Multikonfigurator: Camo → Größe → freie Auswahl',
       tombola: 0,
       variantId: null,
+      configuratorUrl: 'decks.html',
     },
     {
       handle: 'art-print-attitude',

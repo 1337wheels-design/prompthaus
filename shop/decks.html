@@ -144,14 +144,15 @@
           <span class="pattern-pill pattern-pill--linear" id="pill-linear" style="display:none">Linear</span>
         </div>
         <p class="phase-hint" id="phase-hint">Starte den Generator — jedes Klicken rendert das nächste Board live.</p>
-        <p class="click-progress" id="click-progress">Klick <span>0</span> / <span>2</span></p>
+        <p class="click-progress" id="click-progress">1× Wischen · 2× Tippen</p>
+        <div class="size-pick" id="size-pick" hidden>
+          <button type="button" class="size-pick__btn active" data-size="838">8.38″</button>
+          <button type="button" class="size-pick__btn" data-size="850">8.5″</button>
+        </div>
         <div class="size-display" id="size-display" style="display:none"></div>
-        <button class="gen-btn gen-btn--hidden" id="gen-btn" type="button" hidden aria-hidden="true" tabindex="-1">
-          <span class="pulse"></span>
-          <span id="gen-btn-text">Generieren</span>
-        </button>
         <div class="round-dots">
-          <div class="round-dot active" id="dot-camo" title="Design"></div>
+          <div class="round-dot active" id="dot-browse" title="Wischen"></div>
+          <div class="round-dot" id="dot-color" title="Farbe"></div>
           <div class="round-dot" id="dot-size" title="Größe"></div>
           <div class="round-dot" id="dot-shop" title="Shop"></div>
         </div>
@@ -201,11 +202,7 @@
     const previewFrame = document.getElementById('preview-frame');
 
     const state = {
-      phase: 'camo',
-      camoRequired: 1 + Math.floor(Math.random() * 2),
-      sizeRequired: 1 + Math.floor(Math.random() * 2),
-      camoClicks: 0,
-      sizeClicks: 0,
+      phase: 'browse',
       designIndex: 0,
       sizeIndex: 0,
       unlocked: false,
@@ -216,6 +213,12 @@
       visitedDesigns: new Set(),
       rendererReady: false,
     };
+
+    const SWIPE_MIN = 48;
+    let pointerStartX = 0;
+    let pointerStartY = 0;
+    let pointerActive = false;
+    let suppressTapUntil = 0;
 
     function currentDesign() { return INV.DESIGNS[state.designIndex]; }
     function currentSize() { return INV.SIZES[state.sizeIndex]; }
@@ -251,14 +254,14 @@
           + (i === state.designIndex ? ' active' : '')
           + (state.visitedDesigns.has(d.id) ? ' visited' : '');
         btn.title = d.name;
-        btn.disabled = state.phase === 'camo' && !state.unlocked;
+        btn.disabled = !state.unlocked && state.phase !== 'color';
         const img = document.createElement('img');
         img.src = INV.thumbUrl(d);
         img.alt = d.name;
         img.loading = 'lazy';
         btn.appendChild(img);
         btn.addEventListener('click', () => {
-          if (state.phase === 'camo' && !state.unlocked) return;
+          if (!state.unlocked && state.phase !== 'color') return;
           state.designIndex = i;
           renderCanvasPreview();
           updateDesignStrip();
@@ -299,6 +302,41 @@
       document.getElementById('pdf-modal-board').src = '';
     });
 
+    function shiftDesign(delta) {
+      const n = INV.DESIGNS.length;
+      state.designIndex = (state.designIndex + delta + n) % n;
+      state.visitedDesigns.add(currentDesign().id);
+      renderCanvasPreview();
+      updateDesignStrip();
+      document.getElementById('preview-label').textContent =
+        currentDesign().name + ' · ' + currentDesign().patternLabel;
+    }
+
+    function flashSwipe(dir) {
+      previewFrame.classList.remove('preview-frame--swipe-left', 'preview-frame--swipe-right');
+      void previewFrame.offsetWidth;
+      previewFrame.classList.add(dir < 0 ? 'preview-frame--swipe-left' : 'preview-frame--swipe-right');
+    }
+
+    function handleSwipe(dir) {
+      if (state.unlocked) return;
+      suppressTapUntil = Date.now() + 400;
+      shiftDesign(dir < 0 ? 1 : -1);
+      flashSwipe(dir);
+
+      if (state.phase === 'browse') {
+        state.phase = 'color';
+        updateUI();
+      }
+    }
+
+    function updateSizePick() {
+      const pick = document.getElementById('size-pick');
+      pick.querySelectorAll('.size-pick__btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.size === INV.SIZES[state.sizeIndex].id);
+      });
+    }
+
     function updateUI() {
       const design = currentDesign();
       const size = currentSize();
@@ -306,43 +344,54 @@
       const badge = document.getElementById('phase-badge');
       const title = document.getElementById('phase-title');
       const hint = document.getElementById('phase-hint');
-      const btnText = document.getElementById('gen-btn-text');
       const sizeDisplay = document.getElementById('size-display');
-      const dotCamo = document.getElementById('dot-camo');
+      const sizePick = document.getElementById('size-pick');
+      const dotBrowse = document.getElementById('dot-browse');
+      const dotColor = document.getElementById('dot-color');
       const dotSize = document.getElementById('dot-size');
       const dotShop = document.getElementById('dot-shop');
+      const phaseOrder = ['browse', 'color', 'size', 'shop'];
+      const phaseIdx = phaseOrder.indexOf(state.phase);
 
-      dotCamo.className = 'round-dot' + (state.phase === 'camo' ? ' active' : ' done');
-      dotSize.className = 'round-dot' + (state.phase === 'size' ? ' active' : (state.phase === 'shop' || state.unlocked ? ' done' : ''));
+      dotBrowse.className = 'round-dot' + (phaseIdx > 0 ? ' done' : '') + (state.phase === 'browse' ? ' active' : '');
+      dotColor.className = 'round-dot' + (phaseIdx > 1 ? ' done' : '') + (state.phase === 'color' ? ' active' : '');
+      dotSize.className = 'round-dot' + (phaseIdx > 2 ? ' done' : '') + (state.phase === 'size' ? ' active' : '');
       dotShop.className = 'round-dot' + (state.unlocked ? ' done active' : '');
 
       document.getElementById('preview-label').textContent = design.name + ' · ' + design.patternLabel;
+      previewFrame.classList.toggle('preview-frame--swipeable', !state.unlocked && state.phase !== 'size');
 
-      if (state.phase === 'camo') {
-        badge.textContent = 'Runde 1 von 2 · Design';
-        title.textContent = design.camoStyle === 'linear' ? 'Linear Generator' : 'Camo Generator';
-        hint.textContent = 'Board antippen — mindestens ' + state.camoRequired + '× generieren, dann Größe wählen.';
-        prog.innerHTML = `Klick <span>${state.camoClicks}</span> / <span>${state.camoRequired}</span>`;
-        btnText.textContent = design.camoStyle === 'linear' ? 'Nächstes Linear' : 'Camo generieren';
+      if (state.phase === 'browse') {
+        badge.textContent = 'Schritt 1 von 3 · Designs';
+        title.textContent = 'Board-Auswahl';
+        hint.textContent = 'Horizontal wischen — einmal durch die Designs scrollen.';
+        prog.textContent = '← Wischen →';
         sizeDisplay.style.display = 'none';
-        document.getElementById('gen-btn').disabled = false;
+        sizePick.hidden = true;
+      } else if (state.phase === 'color') {
+        badge.textContent = 'Schritt 2 von 3 · Farbe';
+        title.textContent = design.camoStyle === 'linear' ? 'Linear' : 'Camo';
+        hint.textContent = 'Farbe bestätigen — Board antippen. Optional nochmal wischen.';
+        prog.textContent = 'Tippen · Farbe';
+        sizeDisplay.style.display = 'none';
+        sizePick.hidden = true;
       } else if (state.phase === 'size') {
-        badge.textContent = 'Runde 2 von 2 · Größe';
+        badge.textContent = 'Schritt 3 von 3 · Größe';
         title.textContent = 'Deckbreite';
-        hint.textContent = 'Board antippen — 8.38″ oder 8.5″, mindestens ' + sizeRequiredText() + '× wählen.';
-        prog.innerHTML = `Klick <span>${state.sizeClicks}</span> / <span>${state.sizeRequired}</span>`;
-        btnText.textContent = 'Größe wechseln';
+        hint.textContent = 'Größe wählen, dann Board antippen zum Freischalten.';
+        prog.textContent = 'Tippen · Größe';
         sizeDisplay.style.display = 'block';
         sizeDisplay.textContent = size.label;
-        document.getElementById('gen-btn').disabled = false;
+        sizePick.hidden = false;
+        updateSizePick();
       } else {
         badge.textContent = 'Freigeschaltet';
         title.textContent = 'Shop offen';
         hint.textContent = design.name + ' · ' + size.label + ' · Druck-PDF bereit';
-        prog.innerHTML = 'Alle Designs verfügbar';
+        prog.textContent = 'Shop offen';
         sizeDisplay.style.display = 'block';
         sizeDisplay.textContent = size.label;
-        document.getElementById('gen-btn').disabled = true;
+        sizePick.hidden = true;
       }
 
       const tapHint = document.getElementById('preview-tap-hint');
@@ -351,8 +400,16 @@
         tapHint.textContent = 'Tippen für Druck-PDF';
         tapHint.classList.add('preview-tap-hint--pdf');
         pdfHint.hidden = false;
-      } else {
-        tapHint.textContent = state.phase === 'size' ? 'Tippen — Größe wählen' : 'Tippen zum Generieren';
+      } else if (state.phase === 'browse') {
+        tapHint.textContent = '← Wischen →';
+        tapHint.classList.remove('preview-tap-hint--pdf');
+        pdfHint.hidden = true;
+      } else if (state.phase === 'color') {
+        tapHint.textContent = 'Tippen — Farbe';
+        tapHint.classList.remove('preview-tap-hint--pdf');
+        pdfHint.hidden = true;
+      } else if (state.phase === 'size') {
+        tapHint.textContent = 'Tippen — Shop öffnen';
         tapHint.classList.remove('preview-tap-hint--pdf');
         pdfHint.hidden = true;
       }
@@ -360,23 +417,6 @@
       updatePatternPills();
       updateDesignStrip();
       renderCanvasPreview();
-    }
-
-    function sizeRequiredText() { return state.sizeRequired; }
-
-    function advanceCamo() {
-      state.visitedDesigns.add(currentDesign().id);
-      state.designIndex = (state.designIndex + 1) % INV.DESIGNS.length;
-      state.camoClicks++;
-      if (state.camoClicks >= state.camoRequired) state.phase = 'size';
-      updateUI();
-    }
-
-    function advanceSize() {
-      state.sizeIndex = (state.sizeIndex + 1) % INV.SIZES.length;
-      state.sizeClicks++;
-      if (state.sizeClicks >= state.sizeRequired) unlockShop();
-      updateUI();
     }
 
     function unlockShop() {
@@ -396,21 +436,57 @@
     }
 
     function handleBoardTap() {
+      if (Date.now() < suppressTapUntil) return;
       if (state.unlocked) {
         openBoardPreview(currentDesign());
         return;
       }
-      if (state.phase === 'camo') advanceCamo();
-      else if (state.phase === 'size') advanceSize();
+      if (state.phase === 'browse') return;
+      if (state.phase === 'color') {
+        state.visitedDesigns.add(currentDesign().id);
+        state.phase = 'size';
+        updateUI();
+        return;
+      }
+      if (state.phase === 'size') unlockShop();
     }
 
-    document.getElementById('gen-btn').addEventListener('click', handleBoardTap);
-    previewCanvas.addEventListener('click', handleBoardTap);
+    function bindSwipe(el) {
+      el.addEventListener('pointerdown', (e) => {
+        if (state.unlocked || state.phase === 'size') return;
+        pointerActive = true;
+        pointerStartX = e.clientX;
+        pointerStartY = e.clientY;
+      });
+      el.addEventListener('pointerup', (e) => {
+        if (!pointerActive) return;
+        pointerActive = false;
+        const dx = e.clientX - pointerStartX;
+        const dy = e.clientY - pointerStartY;
+        if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy)) return;
+        handleSwipe(dx);
+      });
+      el.addEventListener('pointercancel', () => { pointerActive = false; });
+    }
+
+    bindSwipe(previewFrame);
+
     document.getElementById('preview-frame').addEventListener('click', (e) => {
       if (e.target.closest('#pdf-hint-btn')) return;
       handleBoardTap();
     });
     document.getElementById('pdf-hint-btn').addEventListener('click', () => openBoardPreview(currentDesign()));
+
+    document.getElementById('size-pick').addEventListener('click', (e) => {
+      const btn = e.target.closest('.size-pick__btn');
+      if (!btn || state.phase !== 'size') return;
+      const idx = INV.SIZES.findIndex((s) => s.id === btn.dataset.size);
+      if (idx >= 0) {
+        state.sizeIndex = idx;
+        updateSizePick();
+        document.getElementById('size-display').textContent = currentSize().label;
+      }
+    });
 
     let catalog = [];
 

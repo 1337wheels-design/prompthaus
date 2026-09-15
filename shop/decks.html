@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Payday Deck Shop — Multikonfigurator</title>
-  <meta name="description" content="Custom Payday Decks — Camo Generator, Deckgröße wählen, freie Auswahl aus 133 finalen Designs.">
+  <meta name="description" content="Payday Deck Shop — 6 Druck-PDF Designs aus SS26, Größen 8.38″ und 8.5″, 50 Stück verfügbar.">
   <style>
     :root {
       --gold: #f0d060;
@@ -62,10 +62,12 @@
     .preview-wrap {
       position: relative; display: inline-block; margin-bottom: 20px;
     }
-    .preview-wrap canvas {
-      width: 180px; height: 630px; display: block;
+    .board-img {
+      display: block; width: 180px; height: auto; max-height: 630px; object-fit: contain;
       filter: drop-shadow(0 8px 32px rgba(0,0,0,0.85)) drop-shadow(0 2px 8px rgba(95,58,114,0.35));
     }
+    .board-img--thumb { width: 70px; margin: 0 auto 8px; max-height: 245px; }
+    .board-img--modal { width: min(100%, 320px); max-height: 75vh; margin: 0 auto; }
     .preview-label {
       margin-top: 10px; font-size: 10px; letter-spacing: 0.12em;
       color: var(--gold); text-transform: uppercase;
@@ -140,7 +142,6 @@
     }
     .deck-card:hover { border-color: var(--gold); transform: translateY(-2px); }
     .deck-card.selected { border-color: var(--aqua); box-shadow: 0 0 12px rgba(0,200,176,0.15); }
-    .deck-card canvas { width: 70px; height: 245px; margin: 0 auto 8px; display: block; }
     .deck-card__title { font-size: 9px; letter-spacing: 0.08em; color: var(--gold); text-transform: uppercase; margin-bottom: 2px; }
     .deck-card__size { font-size: 8px; color: var(--text-muted); margin-bottom: 4px; }
     .deck-card__price { font-size: 12px; color: #e8c848; }
@@ -181,11 +182,12 @@
       justify-content: center;
     }
     .pdf-modal.open { display: flex; }
-    .pdf-modal__frame {
-      width: min(100%, 480px);
-      height: min(80vh, 720px);
-      border: 1px solid var(--border);
-      background: #111;
+    .pdf-modal__meta {
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      text-align: center;
     }
     .pdf-modal__bar {
       display: flex;
@@ -232,7 +234,7 @@
     }
 
     @media (max-width: 480px) {
-      .preview-wrap canvas { width: 140px; height: 490px; }
+      .board-img { width: 140px; max-height: 490px; }
       .deck-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
@@ -255,9 +257,9 @@
     <p class="click-progress" id="click-progress">Klick <span>0</span> / <span>2</span></p>
 
     <div class="preview-wrap">
-      <canvas id="preview-canvas" width="400" height="1400" title="Klicken für PDF-Druckvorschau" style="cursor:pointer"></canvas>
+      <img id="preview-board" class="board-img" src="" alt="Deck Vorschau" title="Klicken für Detailansicht" style="cursor:pointer">
       <p class="preview-label" id="preview-label">PAYDAY</p>
-      <p class="preview-sublabel" id="preview-sublabel">KICKER · 8.25"</p>
+      <p class="preview-sublabel" id="preview-sublabel">8.38″ · Druck-PDF</p>
     </div>
 
     <button class="gen-btn" id="gen-btn" type="button">
@@ -294,10 +296,11 @@
   <div class="pdf-modal" id="pdf-modal" aria-hidden="true">
     <div class="pdf-modal__bar">
       <span class="pdf-modal__btn" id="pdf-modal-title" style="border:none;color:var(--text);"></span>
-      <a class="pdf-modal__btn" id="pdf-modal-download" href="#" target="_blank" rel="noopener">PDF herunterladen</a>
+      <a class="pdf-modal__btn" id="pdf-modal-download" href="#" target="_blank" rel="noopener">Druck-PDF</a>
       <button class="pdf-modal__btn" type="button" id="pdf-modal-close">Schließen</button>
     </div>
-    <iframe class="pdf-modal__frame" id="pdf-modal-frame" title="Deck PDF Vorschau"></iframe>
+    <p class="pdf-modal__meta" id="pdf-modal-meta"></p>
+    <img class="board-img board-img--modal" id="pdf-modal-board" alt="Board aus Druck-PDF">
   </div>
 
   <div class="cart-panel" id="cart-panel">
@@ -306,11 +309,9 @@
   </div>
 
   <script src="deck-inventory.js"></script>
-  <script src="deck-renderer.js"></script>
   <script>
-    const R = window.PaydayDeckRenderer;
     const INV = window.PAYDAY_DECK_INVENTORY;
-    const previewCanvas = document.getElementById('preview-canvas');
+    const previewBoard = document.getElementById('preview-board');
 
     const state = {
       phase: 'camo',
@@ -338,18 +339,22 @@
     function renderPreview() {
       const design = currentDesign();
       const size = currentSize();
-      R.renderFromDesign(previewCanvas, design);
+      const meta = INV.getBoardMeta(design);
+      previewBoard.src = INV.previewUrl(design);
+      previewBoard.alt = design.name + ' Deck';
       document.getElementById('preview-label').textContent = design.name;
       document.getElementById('preview-sublabel').textContent =
-        size.label + ' · ' + design.pdf;
+        size.label + ' · ' + meta.pdf + ' · sha256:' + meta.sha256.slice(0, 8);
     }
 
-    function openPdfPreview(design) {
+    function openBoardPreview(design) {
+      const meta = INV.getBoardMeta(design);
       const modal = document.getElementById('pdf-modal');
-      const frame = document.getElementById('pdf-modal-frame');
-      document.getElementById('pdf-modal-title').textContent = design.name + ' — Druckvorschau';
-      document.getElementById('pdf-modal-download').href = INV.pdfLocalUrl(design.pdf);
-      frame.src = INV.pdfLocalUrl(design.pdf);
+      document.getElementById('pdf-modal-title').textContent = design.name;
+      document.getElementById('pdf-modal-download').href = INV.pdfLocalUrl(design);
+      document.getElementById('pdf-modal-meta').textContent =
+        meta.pdf + ' · ' + meta.width + '×' + meta.height + 'px · sha256:' + meta.sha256.slice(0, 16) + '…';
+      document.getElementById('pdf-modal-board').src = INV.previewUrl(design);
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
     }
@@ -358,7 +363,7 @@
       const modal = document.getElementById('pdf-modal');
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden', 'true');
-      document.getElementById('pdf-modal-frame').src = '';
+      document.getElementById('pdf-modal-board').src = '';
     });
 
     function updateUI() {
@@ -378,7 +383,7 @@
       if (state.phase === 'camo') {
         badge.textContent = 'Runde 1 von 2';
         title.textContent = 'Camo Generator';
-        hint.textContent = 'Jeder Klick zeigt das nächste Design (CHROME, NEON, PAYDAY …). Mindestens ' + state.camoRequired + '× durchklicken.';
+        hint.textContent = 'Jeder Klick zeigt das nächste Board aus den Druck-PDFs. Mindestens ' + state.camoRequired + '× durchklicken.';
         prog.innerHTML = `Klick <span>${state.camoClicks}</span> / <span>${state.camoRequired}</span>`;
         btnText.textContent = 'Camo generieren';
       } else if (state.phase === 'size') {
@@ -441,7 +446,7 @@
       else if (state.phase === 'size') advanceSize();
     });
 
-    previewCanvas.addEventListener('click', () => openPdfPreview(currentDesign()));
+    previewBoard.addEventListener('click', () => openBoardPreview(currentDesign()));
 
     let catalog = [];
 
@@ -503,13 +508,12 @@
           card.classList.add('selected');
         }
 
-        const cv = document.createElement('canvas');
-        cv.width = 120; cv.height = 420;
-        R.renderDeck(cv, {
-          camoIndex: item.camoIndex,
-          camoStyle: item.camoStyle,
-          camoOnly: true,
-        });
+        const design = INV.getDesignById(item.designId);
+        const img = document.createElement('img');
+        img.className = 'board-img board-img--thumb';
+        img.src = item.thumbUrl;
+        img.alt = item.title;
+        img.loading = 'lazy';
 
         const title = document.createElement('div');
         title.className = 'deck-card__title';
@@ -534,7 +538,7 @@
         pdfLink.addEventListener('click', e => {
           e.preventDefault();
           e.stopPropagation();
-          openPdfPreview(INV.getDesignById(item.designId));
+          openBoardPreview(design);
         });
 
         const addBtn = document.createElement('button');
@@ -547,9 +551,9 @@
           if (availableStock(item.id) > 0) addToCart(item);
         });
 
-        card.addEventListener('click', () => openPdfPreview(INV.getDesignById(item.designId)));
+        card.addEventListener('click', () => openBoardPreview(design));
 
-        card.appendChild(cv);
+        card.appendChild(img);
         card.appendChild(title);
         card.appendChild(sizeEl);
         card.appendChild(stockEl);
@@ -599,11 +603,9 @@
 
     document.getElementById('drive-folder-link').href = INV.DRIVE_FOLDER_URL;
 
-    R.loadAssets().then(() => {
-      catalog = INV.buildCatalog(state.stock);
-      state.designIndex = Math.floor(Math.random() * INV.DESIGNS.length);
-      updateUI();
-    });
+    catalog = INV.buildCatalog(state.stock);
+    state.designIndex = Math.floor(Math.random() * INV.DESIGNS.length);
+    updateUI();
   </script>
   <script src="config.js"></script>
 </body>

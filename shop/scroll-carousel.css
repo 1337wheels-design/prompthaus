@@ -1,0 +1,474 @@
+/* ── Scroll Deck Carousel ─────────────────────────────────────────── */
+
+.scroll-carousel {
+  position: relative;
+  background: #040a06;
+}
+
+.scroll-carousel__track {
+  position: relative;
+}
+
+.scroll-carousel__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(95, 58, 114, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(0, 200, 176, 0.06) 0%, transparent 60%),
+    #040a06;
+}
+
+.scroll-carousel__header {
+  position: absolute;
+  top: 72px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 20;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+.scroll-carousel__eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(201, 160, 32, 0.5);
+  margin-bottom: 6px;
+}
+
+.scroll-carousel__title {
+  font-family: Impact, 'Arial Narrow', Arial, sans-serif;
+  font-size: clamp(18px, 4vw, 28px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f0d060;
+}
+
+.scroll-carousel__progress {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.scroll-carousel__progress-bar {
+  width: min(200px, 50vw);
+  height: 2px;
+  background: rgba(201, 160, 32, 0.15);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.scroll-carousel__progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00c8b0, #f0d060);
+  transition: width 0.05s linear;
+}
+
+.scroll-carousel__progress-label {
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(201, 160, 32, 0.45);
+}
+
+.scroll-carousel__hint {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(0, 200, 176, 0.55);
+  animation: carousel-hint-pulse 2s ease infinite;
+}
+
+@keyframes carousel-hint-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* ── Card stack ── */
+.scroll-carousel__table {
+  position: relative;
+  width: min(92vw, 520px);
+  height: min(62vh, 480px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+}
+
+.carousel-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: center center;
+  will-change: transform, opacity, filter;
+  transition: box-shadow 0.3s;
+  cursor: default;
+  user-select: none;
+}
+
+.carousel-card--active {
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.85),
+    0 0 40px rgba(240, 208, 96, 0.12);
+}
+
+/* Yu-Gi-Oh style event cards */
+.carousel-card--field,
+.carousel-card--sponsor {
+  width: 148px;
+  margin-left: -74px;
+  margin-top: -103px;
+}
+
+.carousel-card__face {
+  width: 100%;
+  aspect-ratio: 63 / 88;
+  border-radius: 6px;
+  padding: 10px 9px 8px;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(165deg, #1a1410 0%, #0e0c0a 100%);
+  border: 2px solid;
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel-card--field .carousel-card__face {
+  border-color: rgba(201, 160, 32, 0.65);
+  box-shadow: inset 0 0 20px rgba(201, 160, 32, 0.06);
+}
+
+.carousel-card--sponsor .carousel-card__face {
+  border-color: rgba(0, 200, 176, 0.55);
+  box-shadow: inset 0 0 20px rgba(0, 200, 176, 0.05);
+}
+
+.carousel-card__face::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.carousel-card__kind {
+  font-size: 6px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.carousel-card--field .carousel-card__kind { color: rgba(201, 160, 32, 0.7); }
+.carousel-card--sponsor .carousel-card__kind { color: rgba(0, 200, 176, 0.75); }
+
+.carousel-card__name {
+  font-family: Impact, 'Arial Narrow', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: #f0d060;
+  margin-bottom: 6px;
+  min-height: 26px;
+}
+
+.carousel-card__art {
+  flex: 1;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  opacity: 0.85;
+}
+
+.carousel-card--field .carousel-card__art {
+  background: linear-gradient(160deg, #1e3018 0%, #0a1808 100%);
+  border: 1px solid rgba(201, 160, 32, 0.2);
+}
+
+.carousel-card--sponsor .carousel-card__art {
+  background: linear-gradient(160deg, #1a1030 0%, #0a0818 100%);
+  border: 1px solid rgba(0, 200, 176, 0.18);
+}
+
+.carousel-card__meta {
+  font-size: 6px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(200, 192, 168, 0.55);
+  line-height: 1.4;
+}
+
+/* Deck cards (skateboard shape) */
+.carousel-card--deck {
+  width: 72px;
+  margin-left: -36px;
+  margin-top: -126px;
+}
+
+.carousel-card__deck {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 36px / 8px;
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.75));
+  border: 1px solid rgba(240, 208, 96, 0.2);
+}
+
+.carousel-card__deck-label {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f0d060;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.carousel-card--deck.carousel-card--active .carousel-card__deck-label {
+  opacity: 1;
+}
+
+/* ── Info panel ── */
+.scroll-carousel__info {
+  position: absolute;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  max-width: 420px;
+  padding: 0 20px;
+  z-index: 25;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s, transform 0.35s;
+}
+
+.scroll-carousel__info.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.scroll-carousel__info-name {
+  font-family: Impact, 'Arial Narrow', Arial, sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f0d060;
+  margin-bottom: 4px;
+}
+
+.scroll-carousel__info-sub {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(0, 200, 176, 0.65);
+  margin-bottom: 6px;
+}
+
+.scroll-carousel__info-type {
+  font-size: 10px;
+  color: rgba(200, 192, 168, 0.65);
+  line-height: 1.5;
+}
+
+/* ── Portal ── */
+.scroll-carousel__portal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.scroll-carousel__portal.active {
+  pointer-events: auto;
+}
+
+.portal-vortex {
+  position: absolute;
+  width: min(90vmin, 520px);
+  height: min(90vmin, 520px);
+  border-radius: 50%;
+  transform: scale(0);
+  opacity: 0;
+  background:
+    radial-gradient(circle at center,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.3) 35%,
+      rgba(4, 10, 6, 0.85) 55%,
+      rgba(4, 10, 6, 0.98) 70%);
+  box-shadow:
+    0 0 0 2px rgba(240, 208, 96, 0.4),
+    0 0 60px rgba(0, 200, 176, 0.25),
+    0 0 120px rgba(95, 58, 114, 0.2),
+    inset 0 0 80px rgba(0, 200, 176, 0.08);
+}
+
+.portal-vortex::before,
+.portal-vortex::after {
+  content: '';
+  position: absolute;
+  inset: -8%;
+  border-radius: 50%;
+  border: 1px solid transparent;
+}
+
+.portal-vortex::before {
+  border-top-color: rgba(240, 208, 96, 0.6);
+  border-right-color: rgba(0, 200, 176, 0.3);
+  animation: portal-spin 4s linear infinite;
+}
+
+.portal-vortex::after {
+  inset: 6%;
+  border-bottom-color: rgba(95, 58, 114, 0.5);
+  border-left-color: rgba(240, 208, 96, 0.2);
+  animation: portal-spin 6s linear infinite reverse;
+}
+
+@keyframes portal-spin {
+  to { transform: rotate(360deg); }
+}
+
+.portal-cta {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  padding: 14px 32px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #f0d060;
+  border: 1px solid rgba(240, 208, 96, 0.5);
+  background: rgba(4, 14, 12, 0.85);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: background 0.2s;
+}
+
+.portal-cta:hover {
+  background: rgba(240, 208, 96, 0.12);
+}
+
+.portal-cta.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Shop portal reveal ── */
+#shop {
+  position: relative;
+  transition: opacity 0.6s;
+}
+
+#shop.portal-hidden {
+  opacity: 0.15;
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+#shop.portal-revealed {
+  opacity: 1;
+  filter: none;
+  pointer-events: auto;
+  animation: shop-emerge 0.8s ease forwards;
+}
+
+@keyframes shop-emerge {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-carousel__track {
+    height: auto !important;
+  }
+
+  .scroll-carousel__stage {
+    position: relative;
+    height: auto;
+    min-height: auto;
+    padding: 48px 16px 64px;
+  }
+
+  .scroll-carousel__table {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 24px 0;
+  }
+
+  .carousel-card {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    margin: 0 !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .scroll-carousel__portal,
+  .scroll-carousel__hint {
+    display: none;
+  }
+
+  #shop.portal-hidden {
+    opacity: 1;
+    filter: none;
+    pointer-events: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-card--field,
+  .carousel-card--sponsor {
+    width: 120px;
+    margin-left: -60px;
+    margin-top: -84px;
+  }
+
+  .carousel-card--deck {
+    width: 58px;
+    margin-left: -29px;
+    margin-top: -102px;
+  }
+}

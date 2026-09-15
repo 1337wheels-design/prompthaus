@@ -158,6 +158,64 @@
     }
     .deck-card__add:hover { background: rgba(240,208,80,0.12); }
     .deck-card__add:disabled { opacity: 0.35; cursor: not-allowed; }
+    .deck-card__pdf {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      color: var(--gold-dim);
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+    .deck-card__pdf:hover { color: var(--gold); }
+
+    .pdf-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.88);
+      padding: 24px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .pdf-modal.open { display: flex; }
+    .pdf-modal__frame {
+      width: min(100%, 480px);
+      height: min(80vh, 720px);
+      border: 1px solid var(--border);
+      background: #111;
+    }
+    .pdf-modal__bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .pdf-modal__btn {
+      font-family: inherit;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--gold);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .pdf-modal__btn:hover { background: rgba(240,208,80,0.1); }
+
+    .drive-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+    }
+    .drive-link a { color: var(--gold-dim); text-decoration: none; }
+    .drive-link a:hover { color: var(--gold); }
 
     .cart-panel {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
@@ -197,7 +255,7 @@
     <p class="click-progress" id="click-progress">Klick <span>0</span> / <span>2</span></p>
 
     <div class="preview-wrap">
-      <canvas id="preview-canvas" width="400" height="1400"></canvas>
+      <canvas id="preview-canvas" width="400" height="1400" title="Klicken für PDF-Druckvorschau" style="cursor:pointer"></canvas>
       <p class="preview-label" id="preview-label">PAYDAY</p>
       <p class="preview-sublabel" id="preview-sublabel">KICKER · 8.25"</p>
     </div>
@@ -228,7 +286,19 @@
     <div class="filter-bar" id="filter-design"></div>
 
     <div class="deck-grid" id="deck-grid"></div>
+    <p class="drive-link">
+      Druck-PDFs: <a href="#" id="drive-folder-link" target="_blank" rel="noopener">Google Drive — Payday SS26</a>
+    </p>
   </section>
+
+  <div class="pdf-modal" id="pdf-modal" aria-hidden="true">
+    <div class="pdf-modal__bar">
+      <span class="pdf-modal__btn" id="pdf-modal-title" style="border:none;color:var(--text);"></span>
+      <a class="pdf-modal__btn" id="pdf-modal-download" href="#" target="_blank" rel="noopener">PDF herunterladen</a>
+      <button class="pdf-modal__btn" type="button" id="pdf-modal-close">Schließen</button>
+    </div>
+    <iframe class="pdf-modal__frame" id="pdf-modal-frame" title="Deck PDF Vorschau"></iframe>
+  </div>
 
   <div class="cart-panel" id="cart-panel">
     <div class="cart-panel__info" id="cart-info">Kein Deck im Warenkorb</div>
@@ -270,8 +340,26 @@
       const size = currentSize();
       R.renderFromDesign(previewCanvas, design);
       document.getElementById('preview-label').textContent = design.name;
-      document.getElementById('preview-sublabel').textContent = size.label + ' · ' + design.pdf;
+      document.getElementById('preview-sublabel').textContent =
+        size.label + ' · ' + design.pdf;
     }
+
+    function openPdfPreview(design) {
+      const modal = document.getElementById('pdf-modal');
+      const frame = document.getElementById('pdf-modal-frame');
+      document.getElementById('pdf-modal-title').textContent = design.name + ' — Druckvorschau';
+      document.getElementById('pdf-modal-download').href = INV.pdfLocalUrl(design.pdf);
+      frame.src = INV.pdfLocalUrl(design.pdf);
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    document.getElementById('pdf-modal-close').addEventListener('click', () => {
+      const modal = document.getElementById('pdf-modal');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.getElementById('pdf-modal-frame').src = '';
+    });
 
     function updateUI() {
       const prog = document.getElementById('click-progress');
@@ -352,6 +440,8 @@
       if (state.phase === 'camo') advanceCamo();
       else if (state.phase === 'size') advanceSize();
     });
+
+    previewCanvas.addEventListener('click', () => openPdfPreview(currentDesign()));
 
     let catalog = [];
 
@@ -437,6 +527,16 @@
         price.className = 'deck-card__price';
         price.textContent = item.price + ',00 €';
 
+        const pdfLink = document.createElement('a');
+        pdfLink.className = 'deck-card__pdf';
+        pdfLink.href = item.pdfUrl;
+        pdfLink.textContent = 'PDF Vorschau';
+        pdfLink.addEventListener('click', e => {
+          e.preventDefault();
+          e.stopPropagation();
+          openPdfPreview(INV.getDesignById(item.designId));
+        });
+
         const addBtn = document.createElement('button');
         addBtn.className = 'deck-card__add';
         addBtn.type = 'button';
@@ -447,11 +547,14 @@
           if (availableStock(item.id) > 0) addToCart(item);
         });
 
+        card.addEventListener('click', () => openPdfPreview(INV.getDesignById(item.designId)));
+
         card.appendChild(cv);
         card.appendChild(title);
         card.appendChild(sizeEl);
         card.appendChild(stockEl);
         card.appendChild(price);
+        card.appendChild(pdfLink);
         card.appendChild(addBtn);
         grid.appendChild(card);
       });
@@ -493,6 +596,8 @@
     document.getElementById('cart-toggle').addEventListener('click', () => {
       document.getElementById('cart-panel').classList.toggle('visible');
     });
+
+    document.getElementById('drive-folder-link').href = INV.DRIVE_FOLDER_URL;
 
     R.loadAssets().then(() => {
       catalog = INV.buildCatalog(state.stock);

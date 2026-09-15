@@ -1,0 +1,80 @@
+{% comment %}
+  Üpark Payday — Karten-Galerie (iframe zu GitHub Pages oder eingebettete Assets)
+{% endcomment %}
+
+<section class="payday-gallery" id="cards">
+  <div class="page-width">
+    <h2 class="payday-gallery__title">{{ section.settings.heading }}</h2>
+    <p class="payday-gallery__sub">{{ section.settings.subheading }}</p>
+    {% if section.settings.gallery_url != blank %}
+      <iframe
+        class="payday-gallery__frame"
+        src="{{ section.settings.gallery_url }}"
+        title="Üpark Payday Card Gallery"
+        loading="lazy"
+        allowfullscreen
+      ></iframe>
+    {% else %}
+      <p class="payday-gallery__placeholder">
+        Galerie-URL in Theme-Einstellungen setzen (z. B. GitHub Pages cards/index.html)
+      </p>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  .payday-gallery {
+    background: #060e08;
+    padding: 64px 16px;
+    font-family: 'Courier New', monospace;
+  }
+  .payday-gallery__title {
+    font-family: Impact, sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.06em;
+    color: #f0d060;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .payday-gallery__sub {
+    text-align: center;
+    font-size: 11px;
+    color: rgba(201,160,32,0.5);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .payday-gallery__frame {
+    width: 100%;
+    height: min(90vh, 900px);
+    border: 1px solid rgba(201,160,32,0.22);
+    background: #07100a;
+    display: block;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .payday-gallery__placeholder {
+    text-align: center;
+    color: #a8a090;
+    padding: 48px;
+    border: 1px dashed rgba(201,160,32,0.3);
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Payday Card Gallery",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Überschrift", "default": "Complete Card Set" },
+    { "type": "text", "id": "subheading", "label": "Untertitel", "default": "Field Spells · Co-Host Challenges" },
+    {
+      "type": "url",
+      "id": "gallery_url",
+      "label": "Galerie-URL",
+      "info": "z. B. https://1337wheels-design.github.io/prompthaus/cards/"
+    }
+  ],
+  "presets": [{ "name": "Payday Card Gallery" }]
+}
+{% endschema %}

@@ -1,8 +1,8 @@
-/* ── Scroll Deck Carousel ─────────────────────────────────────────── */
+/* ── Scroll Deck Carousel (fullscreen below shop) ─────────────────── */
 
 .scroll-carousel {
   position: relative;
-  background: #040a06;
+  background: #020804;
 }
 
 .scroll-carousel__track {
@@ -12,6 +12,7 @@
 .scroll-carousel__stage {
   position: sticky;
   top: 0;
+  width: 100%;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
@@ -19,22 +20,52 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  perspective: 1400px;
+  perspective: 1800px;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(95, 58, 114, 0.12) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(0, 200, 176, 0.06) 0%, transparent 60%),
-    #040a06;
+    radial-gradient(ellipse 100% 80% at 50% 45%, rgba(95, 58, 114, 0.16) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0, 200, 176, 0.08) 0%, transparent 55%),
+    #020804;
+  transition: background 0.4s;
+}
+
+/* Full viewport takeover while scrolling through the effect */
+.scroll-carousel__stage--immersive {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 300;
+  background:
+    radial-gradient(ellipse 120% 90% at 50% 42%, rgba(95, 58, 114, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 90% 70% at 50% 100%, rgba(0, 200, 176, 0.1) 0%, transparent 50%),
+    #010603;
+}
+
+body.carousel-immersive {
+  overflow-x: hidden;
+}
+
+body.carousel-immersive .site-nav {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-100%);
+  transition: opacity 0.35s, transform 0.35s;
 }
 
 .scroll-carousel__header {
   position: absolute;
-  top: 72px;
+  top: max(24px, env(safe-area-inset-top));
   left: 0;
   right: 0;
   text-align: center;
   z-index: 20;
   pointer-events: none;
   transition: opacity 0.4s;
+}
+
+.scroll-carousel__stage--immersive .scroll-carousel__header {
+  top: max(32px, env(safe-area-inset-top));
 }
 
 .scroll-carousel__eyebrow {
@@ -47,7 +78,7 @@
 
 .scroll-carousel__title {
   font-family: Impact, 'Arial Narrow', Arial, sans-serif;
-  font-size: clamp(18px, 4vw, 28px);
+  font-size: clamp(20px, 5vw, 36px);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #f0d060;
@@ -104,12 +135,18 @@
 /* ── Card stack ── */
 .scroll-carousel__table {
   position: relative;
-  width: min(92vw, 520px);
-  height: min(62vh, 480px);
+  width: 100vw;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   transform-style: preserve-3d;
+}
+
+.scroll-carousel__stage--immersive .scroll-carousel__table {
+  height: calc(100dvh - 160px);
 }
 
 .carousel-card {
@@ -132,9 +169,16 @@
 /* Yu-Gi-Oh style event cards */
 .carousel-card--field,
 .carousel-card--sponsor {
-  width: 148px;
-  margin-left: -74px;
-  margin-top: -103px;
+  width: clamp(148px, 28vw, 240px);
+  margin-left: calc(clamp(148px, 28vw, 240px) / -2);
+  margin-top: calc(clamp(148px, 28vw, 240px) * 88 / 63 / -2);
+}
+
+.scroll-carousel__stage--immersive .carousel-card--field,
+.scroll-carousel__stage--immersive .carousel-card--sponsor {
+  width: clamp(180px, 34vw, 280px);
+  margin-left: calc(clamp(180px, 34vw, 280px) / -2);
+  margin-top: calc(clamp(180px, 34vw, 280px) * 88 / 63 / -2);
 }
 
 .carousel-card__face {
@@ -181,7 +225,7 @@
 
 .carousel-card__name {
   font-family: Impact, 'Arial Narrow', Arial, sans-serif;
-  font-size: 11px;
+  font-size: clamp(11px, 2.2vw, 16px);
   letter-spacing: 0.04em;
   line-height: 1.15;
   text-transform: uppercase;
@@ -221,9 +265,15 @@
 
 /* Deck cards (skateboard shape) */
 .carousel-card--deck {
-  width: 72px;
-  margin-left: -36px;
-  margin-top: -126px;
+  width: clamp(72px, 14vw, 120px);
+  margin-left: calc(clamp(72px, 14vw, 120px) / -2);
+  margin-top: calc(clamp(72px, 14vw, 120px) * 3.5 / -2);
+}
+
+.scroll-carousel__stage--immersive .carousel-card--deck {
+  width: clamp(88px, 16vw, 140px);
+  margin-left: calc(clamp(88px, 16vw, 140px) / -2);
+  margin-top: calc(clamp(88px, 16vw, 140px) * 3.5 / -2);
 }
 
 .carousel-card__deck {
@@ -256,11 +306,11 @@
 /* ── Info panel ── */
 .scroll-carousel__info {
   position: absolute;
-  bottom: 72px;
+  bottom: max(88px, calc(env(safe-area-inset-bottom) + 72px));
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  max-width: 420px;
+  max-width: min(90vw, 520px);
   padding: 0 20px;
   z-index: 25;
   pointer-events: none;
@@ -275,7 +325,7 @@
 
 .scroll-carousel__info-name {
   font-family: Impact, 'Arial Narrow', Arial, sans-serif;
-  font-size: 16px;
+  font-size: clamp(16px, 3.5vw, 24px);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #f0d060;
@@ -314,8 +364,8 @@
 
 .portal-vortex {
   position: absolute;
-  width: min(90vmin, 520px);
-  height: min(90vmin, 520px);
+  width: min(120vmin, 900px);
+  height: min(120vmin, 900px);
   border-radius: 50%;
   transform: scale(0);
   opacity: 0;
@@ -385,30 +435,30 @@
   transform: scale(1);
 }
 
-/* ── Shop portal reveal ── */
-#shop {
+/* ── Portal reveal target (sponsors below carousel) ── */
+.portal-target {
   position: relative;
-  transition: opacity 0.6s;
+  transition: opacity 0.6s, filter 0.6s;
 }
 
-#shop.portal-hidden {
-  opacity: 0.15;
-  filter: blur(4px);
+.portal-target.portal-hidden {
+  opacity: 0;
+  filter: blur(8px);
   pointer-events: none;
 }
 
-#shop.portal-revealed {
+.portal-target.portal-revealed {
   opacity: 1;
   filter: none;
   pointer-events: auto;
-  animation: shop-emerge 0.8s ease forwards;
+  animation: portal-emerge 0.9s ease forwards;
 }
 
-@keyframes shop-emerge {
+@keyframes portal-emerge {
   from {
     opacity: 0;
-    transform: translateY(24px) scale(0.98);
-    filter: blur(6px);
+    transform: translateY(32px) scale(0.97);
+    filter: blur(10px);
   }
   to {
     opacity: 1;
@@ -451,24 +501,9 @@
     display: none;
   }
 
-  #shop.portal-hidden {
+  .portal-target.portal-hidden {
     opacity: 1;
     filter: none;
     pointer-events: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .carousel-card--field,
-  .carousel-card--sponsor {
-    width: 120px;
-    margin-left: -60px;
-    margin-top: -84px;
-  }
-
-  .carousel-card--deck {
-    width: 58px;
-    margin-left: -29px;
-    margin-top: -102px;
   }
 }

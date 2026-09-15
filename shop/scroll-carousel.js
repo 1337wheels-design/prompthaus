@@ -113,7 +113,7 @@
     const count = items.length;
 
     const track = root.querySelector('.scroll-carousel__track');
-    const stage = root.querySelector('.scroll-carousel__stage');
+    const stage = document.getElementById('carousel-stage');
     const table = root.querySelector('.scroll-carousel__table');
     const info = document.getElementById('carousel-info');
     const infoName = document.getElementById('carousel-info-name');
@@ -124,7 +124,7 @@
     const portal = root.querySelector('.scroll-carousel__portal');
     const portalVortex = root.querySelector('.portal-vortex');
     const portalCta = root.querySelector('.portal-cta');
-    const shopSection = document.getElementById('shop');
+    const portalTarget = document.getElementById('sponsors');
     const header = root.querySelector('.scroll-carousel__header');
     const hint = root.querySelector('.scroll-carousel__hint');
 
@@ -142,10 +142,6 @@
       track.style.height = `${totalScrollVh * 100}vh`;
     }
 
-    if (shopSection && !reducedMotion) {
-      shopSection.classList.add('portal-hidden');
-    }
-
     let ticking = false;
     let lastActive = -1;
 
@@ -158,7 +154,11 @@
       return clamp(raw, 0, 1);
     }
 
-    function cardTransform(index, progress, activeFloat) {
+    function isImmersive(progress) {
+      return progress > 0.008 && progress < 0.995;
+    }
+
+    function cardTransform(index, progress, activeFloat, immersive) {
       const spreadStart = 0.04;
       const spreadEnd = 0.88;
       const spread = clamp((progress - spreadStart) / (spreadEnd - spreadStart), 0, 1);
@@ -169,7 +169,7 @@
 
       const dist = Math.abs(activeFloat - index);
       const isDeck = items[index].kind === 'deck';
-      const baseW = isDeck ? 72 : 148;
+      const fanSpread = immersive ? 1.55 : 1;
 
       // Stacked deck at start
       const stackT = 1 - easeOutCubic(clamp(spread / 0.12, 0, 1));
@@ -177,15 +177,17 @@
       const stackY = index * -1.2 * stackT;
       const stackX = (index - count / 2) * 0.4 * stackT;
 
-      // Fan spread
-      const fanAngle = (index - activeFloat) * (isDeck ? 5.5 : 7);
-      const fanX = Math.sin((fanAngle * Math.PI) / 180) * (120 + dist * 18);
+      // Fan spread — wider on fullscreen
+      const fanAngle = (index - activeFloat) * (isDeck ? 5.5 : 7) * fanSpread;
+      const fanRadius = (immersive ? 180 : 120) + dist * (immersive ? 28 : 18);
+      const fanX = Math.sin((fanAngle * Math.PI) / 180) * fanRadius;
       const fanY = Math.cos((fanAngle * Math.PI) / 180) * -8 + dist * 6;
       const fanRot = fanAngle * (1 - stackT * 0.6);
 
       const activeBoost = Math.max(0, 1 - dist * 0.55);
-      const scale = lerp(0.72 + cardReveal * 0.1, isDeck ? 1.15 : 1.08, activeBoost);
-      const lift = -activeBoost * (isDeck ? 36 : 28);
+      const maxScale = immersive ? (isDeck ? 1.28 : 1.18) : (isDeck ? 1.15 : 1.08);
+      const scale = lerp(0.72 + cardReveal * 0.1, maxScale, activeBoost);
+      const lift = -activeBoost * (immersive ? (isDeck ? 48 : 40) : (isDeck ? 36 : 28));
       const z = Math.round(100 - dist * 10 + activeBoost * 50);
 
       const portalT = clamp((progress - 0.82) / 0.18, 0, 1);
@@ -207,13 +209,17 @@
     function update() {
       ticking = false;
       const progress = getProgress();
+      const immersive = isImmersive(progress);
       const spreadEnd = 0.88;
       const browseProgress = clamp(progress / spreadEnd, 0, 1);
       const activeFloat = browseProgress * (count - 1);
       const activeIndex = Math.round(activeFloat);
 
+      if (stage) stage.classList.toggle('scroll-carousel__stage--immersive', immersive);
+      document.body.classList.toggle('carousel-immersive', immersive);
+
       cardEls.forEach((el, i) => {
-        const t = cardTransform(i, progress, activeFloat);
+        const t = cardTransform(i, progress, activeFloat, immersive);
         el.style.zIndex = String(t.z);
         el.style.opacity = String(t.opacity);
         el.style.transform = `translate(calc(-50% + ${t.x}px), calc(-50% + ${t.y}px)) rotate(${t.rot}deg) scale(${t.scale})`;
@@ -252,13 +258,17 @@
       if (hint) hint.style.opacity = String(Math.max(0, 1 - progress * 4));
       if (info) info.style.opacity = String(Math.max(0, 1 - portalT * 2));
 
-      if (shopSection) {
+      if (portalTarget) {
         if (portalT > 0.85) {
-          shopSection.classList.remove('portal-hidden');
-          shopSection.classList.add('portal-revealed');
-        } else if (progress > 0.02) {
-          shopSection.classList.add('portal-hidden');
-          shopSection.classList.remove('portal-revealed');
+          portalTarget.classList.remove('portal-hidden');
+          portalTarget.classList.add('portal-revealed');
+          document.body.classList.remove('carousel-immersive');
+          if (stage) stage.classList.remove('scroll-carousel__stage--immersive');
+        } else if (progress > 0.02 && progress < 0.995) {
+          portalTarget.classList.add('portal-hidden');
+          portalTarget.classList.remove('portal-revealed');
+        } else if (progress <= 0.02) {
+          portalTarget.classList.remove('portal-hidden', 'portal-revealed');
         }
       }
     }
@@ -282,18 +292,10 @@
       infoSub.textContent = 'Field Spells · Challenges · SS26 Decks';
       infoType.textContent = 'Scroll-Animation deaktiviert (Reduced Motion)';
       cardEls.forEach((el) => el.classList.add('carousel-card--active'));
-      if (shopSection) {
-        shopSection.classList.remove('portal-hidden');
-        shopSection.classList.add('portal-revealed');
+      if (portalTarget) {
+        portalTarget.classList.remove('portal-hidden');
+        portalTarget.classList.add('portal-revealed');
       }
-    }
-
-    // Portal CTA smooth scroll to shop
-    if (portalCta) {
-      portalCta.addEventListener('click', (e) => {
-        e.preventDefault();
-        shopSection?.scrollIntoView({ behavior: 'smooth' });
-      });
     }
   }
 

@@ -277,6 +277,19 @@
       color: #e8c848;
       font-size: 9px;
     }
+    .shop-scroll-cue {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .shop-scroll-cue a {
+      color: rgba(0, 200, 176, 0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .shop-scroll-cue a:hover { color: #00c8b0; }
 
     /* ── Sponsors ── */
     .sponsors {
@@ -321,8 +334,8 @@
       <li><a href="#event">Event</a></li>
       <li><a href="#schedule">Zeitplan</a></li>
       <li><a href="#cards">Karten</a></li>
-      <li><a href="#scroll-carousel">Aufdecken</a></li>
       <li><a href="#shop">Shop</a></li>
+      <li><a href="#scroll-carousel">Aufdecken</a></li>
       <li><a href="decks.html">Decks</a></li>
       <li><a href="#sponsors">Sponsoren</a></li>
     </ul>
@@ -338,8 +351,8 @@
       Field Spells für reale Obstacles, Challenge Cards für Sponsoren, Tombola am Abend.
     </p>
     <div class="hero__cta">
-      <a href="#scroll-carousel" class="btn btn--primary">Karten aufdecken</a>
-      <a href="#shop" class="btn btn--ghost">Tickets &amp; Packs</a>
+      <a href="#shop" class="btn btn--primary">Tickets &amp; Packs</a>
+      <a href="#scroll-carousel" class="btn btn--ghost">Karten aufdecken</a>
       <a href="decks.html" class="btn btn--ghost">Deck Shop</a>
       <a href="#cards" class="btn btn--ghost">Karten</a>
     </div>
@@ -366,9 +379,24 @@
     </div>
   </section>
 
+  <section class="section" id="shop">
+    <div class="section__inner">
+      <h2 class="section__title">Tickets &amp; Packs</h2>
+      <p class="section__sub">Tombola-Lose proportional zur Pack-Größe</p>
+      <div class="shop-grid" id="shop-grid"></div>
+      <div class="shop-notice" id="shop-notice">
+        Shopify-Shop noch nicht verbunden. Nach Store-Erstellung
+        <code>shop/config.js</code> anpassen — siehe <code>shopify/SETUP.md</code>.
+      </div>
+      <p class="shop-scroll-cue">
+        <a href="#scroll-carousel">↓ Weiter scrollen — Karten &amp; Decks aufdecken</a>
+      </p>
+    </div>
+  </section>
+
   <section class="scroll-carousel" id="scroll-carousel" aria-label="Karten und Decks aufdecken">
     <div class="scroll-carousel__track">
-      <div class="scroll-carousel__stage">
+      <div class="scroll-carousel__stage" id="carousel-stage">
         <header class="scroll-carousel__header">
           <p class="scroll-carousel__eyebrow">Üpark Payday · Complete Set</p>
           <h2 class="scroll-carousel__title">Karten &amp; Decks aufdecken</h2>
@@ -384,7 +412,7 @@
 
         <div class="scroll-carousel__portal" id="carousel-portal" aria-hidden="true">
           <div class="portal-vortex" aria-hidden="true"></div>
-          <a href="#shop" class="portal-cta" id="portal-cta">Portal öffnen — Zum Shop</a>
+          <a href="decks.html" class="portal-cta" id="portal-cta">Portal öffnen — Deck Shop</a>
         </div>
 
         <div class="scroll-carousel__progress">
@@ -398,19 +426,7 @@
     </div>
   </section>
 
-  <section class="section" id="shop">
-    <div class="section__inner">
-      <h2 class="section__title">Tickets &amp; Packs</h2>
-      <p class="section__sub">Tombola-Lose proportional zur Pack-Größe</p>
-      <div class="shop-grid" id="shop-grid"></div>
-      <div class="shop-notice" id="shop-notice">
-        Shopify-Shop noch nicht verbunden. Nach Store-Erstellung
-        <code>shop/config.js</code> anpassen — siehe <code>shopify/SETUP.md</code>.
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--mid" id="sponsors">
+  <section class="section section--mid portal-target" id="sponsors">
     <div class="section__inner">
       <h2 class="section__title">Sponsoren</h2>
       <p class="section__sub">Co-Hosts &amp; Partner</p>

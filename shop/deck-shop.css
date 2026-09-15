@@ -79,6 +79,35 @@
   cursor: pointer;
 }
 
+.preview-frame--swipeable {
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.preview-frame--swipeable:active {
+  cursor: grabbing;
+}
+
+.preview-frame--swipe-left {
+  animation: swipe-left 0.28s ease;
+}
+
+.preview-frame--swipe-right {
+  animation: swipe-right 0.28s ease;
+}
+
+@keyframes swipe-left {
+  0% { transform: translateX(0); opacity: 1; }
+  45% { transform: translateX(-14px); opacity: 0.7; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes swipe-right {
+  0% { transform: translateX(0); opacity: 1; }
+  45% { transform: translateX(14px); opacity: 0.7; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
 .preview-tap-hint {
   position: absolute;
   bottom: 12px;
@@ -245,6 +274,32 @@
   color: var(--gold);
   letter-spacing: 0.04em;
   margin: 8px 0 16px;
+}
+
+.size-pick {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.size-pick__btn {
+  font-family: inherit;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.size-pick__btn.active {
+  border-color: var(--aqua);
+  color: var(--aqua);
+  background: rgba(0, 200, 176, 0.08);
 }
 
 .deck-card__pattern {

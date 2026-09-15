@@ -318,11 +318,11 @@
       previewFrame.classList.add(dir < 0 ? 'preview-frame--swipe-left' : 'preview-frame--swipe-right');
     }
 
-    function handleSwipe(dir) {
-      if (state.unlocked) return;
+    function handleSwipe(dx) {
+      if (state.unlocked || state.phase === 'size') return;
       suppressTapUntil = Date.now() + 400;
-      shiftDesign(dir < 0 ? 1 : -1);
-      flashSwipe(dir);
+      shiftDesign(dx < 0 ? 1 : -1);
+      flashSwipe(dx);
 
       if (state.phase === 'browse') {
         state.phase = 'color';

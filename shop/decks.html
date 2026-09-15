@@ -126,10 +126,11 @@
     <div class="configurator__grid">
       <div class="preview-col">
         <div class="preview-frame" id="preview-frame">
-          <canvas id="preview-canvas" width="400" height="1400" title="Klicken für Druck-PDF Vorschau"></canvas>
+          <canvas id="preview-canvas" width="400" height="1400" title="Tippen zum Generieren"></canvas>
+          <p class="preview-tap-hint" id="preview-tap-hint">Tippen zum Generieren</p>
         </div>
         <p class="preview-label" id="preview-label" style="margin-top:12px;font-size:10px;letter-spacing:0.12em;color:var(--gold);text-transform:uppercase;text-align:center;">—</p>
-        <p class="preview-pdf-hint">
+        <p class="preview-pdf-hint" id="preview-pdf-hint" hidden>
           <button type="button" id="pdf-hint-btn">Druck-PDF ansehen</button>
         </p>
         <div class="design-strip" id="design-strip" aria-label="Design-Auswahl"></div>
@@ -145,7 +146,7 @@
         <p class="phase-hint" id="phase-hint">Starte den Generator — jedes Klicken rendert das nächste Board live.</p>
         <p class="click-progress" id="click-progress">Klick <span>0</span> / <span>2</span></p>
         <div class="size-display" id="size-display" style="display:none"></div>
-        <button class="gen-btn" id="gen-btn" type="button">
+        <button class="gen-btn gen-btn--hidden" id="gen-btn" type="button" hidden aria-hidden="true" tabindex="-1">
           <span class="pulse"></span>
           <span id="gen-btn-text">Generieren</span>
         </button>
@@ -320,7 +321,7 @@
       if (state.phase === 'camo') {
         badge.textContent = 'Runde 1 von 2 · Design';
         title.textContent = design.camoStyle === 'linear' ? 'Linear Generator' : 'Camo Generator';
-        hint.textContent = 'Live-Render aus dem Editor-Engine. Mindestens ' + state.camoRequired + '× generieren, dann Größe wählen.';
+        hint.textContent = 'Board antippen — mindestens ' + state.camoRequired + '× generieren, dann Größe wählen.';
         prog.innerHTML = `Klick <span>${state.camoClicks}</span> / <span>${state.camoRequired}</span>`;
         btnText.textContent = design.camoStyle === 'linear' ? 'Nächstes Linear' : 'Camo generieren';
         sizeDisplay.style.display = 'none';
@@ -328,7 +329,7 @@
       } else if (state.phase === 'size') {
         badge.textContent = 'Runde 2 von 2 · Größe';
         title.textContent = 'Deckbreite';
-        hint.textContent = '8.38″ oder 8.5″ — mindestens ' + sizeRequiredText() + '× wählen.';
+        hint.textContent = 'Board antippen — 8.38″ oder 8.5″, mindestens ' + sizeRequiredText() + '× wählen.';
         prog.innerHTML = `Klick <span>${state.sizeClicks}</span> / <span>${state.sizeRequired}</span>`;
         btnText.textContent = 'Größe wechseln';
         sizeDisplay.style.display = 'block';
@@ -342,6 +343,18 @@
         sizeDisplay.style.display = 'block';
         sizeDisplay.textContent = size.label;
         document.getElementById('gen-btn').disabled = true;
+      }
+
+      const tapHint = document.getElementById('preview-tap-hint');
+      const pdfHint = document.getElementById('preview-pdf-hint');
+      if (state.phase === 'shop') {
+        tapHint.textContent = 'Tippen für Druck-PDF';
+        tapHint.classList.add('preview-tap-hint--pdf');
+        pdfHint.hidden = false;
+      } else {
+        tapHint.textContent = state.phase === 'size' ? 'Tippen — Größe wählen' : 'Tippen zum Generieren';
+        tapHint.classList.remove('preview-tap-hint--pdf');
+        pdfHint.hidden = true;
       }
 
       updatePatternPills();
@@ -380,15 +393,23 @@
         INV.totalStock(state.stock) + ' Decks · Deine Wahl: ' + design.name + ' · ' + size.label;
       buildFilters();
       renderShopGrid();
-      setTimeout(() => document.getElementById('shop-section').scrollIntoView({ behavior: 'smooth' }), 400);
     }
 
-    document.getElementById('gen-btn').addEventListener('click', () => {
+    function handleBoardTap() {
+      if (state.unlocked) {
+        openBoardPreview(currentDesign());
+        return;
+      }
       if (state.phase === 'camo') advanceCamo();
       else if (state.phase === 'size') advanceSize();
-    });
+    }
 
-    previewCanvas.addEventListener('click', () => openBoardPreview(currentDesign()));
+    document.getElementById('gen-btn').addEventListener('click', handleBoardTap);
+    previewCanvas.addEventListener('click', handleBoardTap);
+    document.getElementById('preview-frame').addEventListener('click', (e) => {
+      if (e.target.closest('#pdf-hint-btn')) return;
+      handleBoardTap();
+    });
     document.getElementById('pdf-hint-btn').addEventListener('click', () => openBoardPreview(currentDesign()));
 
     let catalog = [];
@@ -533,9 +554,7 @@
 
     catalog = INV.buildCatalog(state.stock);
 
-    const designParam = new URLSearchParams(window.location.search).get('design');
-    const paramIndex = designParam ? INV.DESIGNS.findIndex((d) => d.id === designParam) : -1;
-    state.designIndex = paramIndex >= 0 ? paramIndex : Math.floor(Math.random() * INV.DESIGNS.length);
+    state.designIndex = Math.floor(Math.random() * INV.DESIGNS.length);
     state.visitedDesigns.add(currentDesign().id);
     updateStockLabels();
 

@@ -269,14 +269,21 @@ body.carousel-immersive .site-nav {
   margin-left: calc(clamp(72px, 14vw, 120px) / -2);
   margin-top: calc(clamp(72px, 14vw, 120px) * 3.5 / -2);
   pointer-events: auto;
+  cursor: pointer;
   z-index: 200;
 }
 
 .carousel-card__deck-link {
   display: block;
   position: relative;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
   text-decoration: none;
   color: inherit;
+  font: inherit;
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }

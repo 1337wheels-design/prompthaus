@@ -57,12 +57,10 @@
     DECK_CARDS.forEach((c) => {
       items.push({
         kind: 'deck',
-        designId: c.id,
         name: c.name,
         sub: c.pattern,
         type: 'Payday SS26 Deck',
         thumb: c.thumb,
-        shopHref: `decks.html?design=${encodeURIComponent(c.id)}`,
       });
     });
     return items;
@@ -92,11 +90,11 @@
 
     if (item.kind === 'deck') {
       el.innerHTML = `
-        <a class="carousel-card__deck-link" href="${item.shopHref}" aria-label="${item.name} — Deck Shop öffnen">
+        <button type="button" class="carousel-card__deck-link" aria-label="${item.name} — Deck Shop öffnen">
           <img class="carousel-card__deck" src="${item.thumb}" alt="" loading="lazy" width="72" height="252">
           <span class="carousel-card__deck-label">${item.name}</span>
-          <span class="carousel-card__deck-cta">Shop öffnen</span>
-        </a>`;
+          <span class="carousel-card__deck-cta">Deck Shop</span>
+        </button>`;
     } else {
       el.innerHTML = `
         <div class="carousel-card__face">
@@ -126,23 +124,27 @@
     const infoType = document.getElementById('carousel-info-type');
     const progressFill = document.getElementById('carousel-progress-fill');
     const progressLabel = document.getElementById('carousel-progress-label');
-    const portal = root.querySelector('.scroll-carousel__portal');
-    const portalVortex = root.querySelector('.portal-vortex');
-    const portalCta = root.querySelector('.portal-cta');
     const portalTarget = document.getElementById('sponsors');
+    const SHOP_URL = 'decks.html';
     const header = root.querySelector('.scroll-carousel__header');
     const hint = root.querySelector('.scroll-carousel__hint');
 
     const cardEls = items.map((item, i) => {
       const el = createCardEl(item, i);
+      const deckBtn = el.querySelector('.carousel-card__deck-link');
+      if (deckBtn) {
+        deckBtn.addEventListener('click', () => {
+          if (el.classList.contains('carousel-card--active')) {
+            window.location.href = SHOP_URL;
+          }
+        });
+      }
       table.appendChild(el);
       return el;
     });
 
-    // Scroll distance: ~45vh per card + portal phase
     const scrollPerCard = 0.42;
-    const portalPhase = 0.35;
-    const totalScrollVh = count * scrollPerCard + portalPhase;
+    const totalScrollVh = count * scrollPerCard;
     if (!reducedMotion) {
       track.style.height = `${totalScrollVh * 100}vh`;
     }
@@ -198,20 +200,17 @@
       const deckActiveBoost = isDeck && isActive ? 80 : 0;
       const z = Math.round(100 - dist * 10 + activeBoost * 50 + deckForeground + deckActiveBoost);
 
-      const portalT = clamp((progress - 0.82) / 0.18, 0, 1);
-      const portalPull = portalT * (1 + dist * 0.08);
-      const portalScale = 1 - portalPull * 0.65;
-      const portalOpacity = 1 - portalPull * 0.9;
+      const fadeOut = clamp((progress - 0.94) / 0.06, 0, 1);
 
       const x = stackX + fanX * (1 - stackT * 0.3);
       const y = stackY + fanY + lift;
       const rot = stackRot + fanRot;
 
-      let opacity = cardReveal * portalOpacity;
+      let opacity = cardReveal * (1 - fadeOut);
       if (deckFocus && !isDeck) opacity *= 0.28;
 
       return {
-        x, y, rot, scale: scale * portalScale,
+        x, y, rot, scale: scale * (1 - fadeOut * 0.2),
         opacity,
         z,
         isDeck,
@@ -256,7 +255,7 @@
         infoName.textContent = item.name;
         infoSub.textContent = item.sub;
         infoType.textContent = item.kind === 'deck'
-          ? `${item.type} · Tippen für Shop`
+          ? `${item.type} · Tippen → Deck Shop`
           : item.type;
         info.classList.add('visible');
         progressLabel.textContent = `${activeIndex + 1} / ${count}`;
@@ -264,34 +263,20 @@
 
       if (progressFill) progressFill.style.width = `${progress * 100}%`;
 
-      // Portal phase
-      const portalT = easeInOutCubic(clamp((progress - 0.78) / 0.22, 0, 1));
-      if (portal) {
-        portal.style.opacity = String(portalT);
-        portal.classList.toggle('active', portalT > 0.6);
-      }
-      if (portalVortex) {
-        const scale = lerp(0.05, 1.15, portalT);
-        portalVortex.style.transform = `scale(${scale})`;
-        portalVortex.style.opacity = String(portalT);
-      }
-      if (portalCta) {
-        portalCta.classList.toggle('visible', portalT > 0.55);
-      }
-      if (header) header.style.opacity = String(1 - portalT * 1.2);
+      if (header) header.style.opacity = String(Math.max(0, 1 - progress * 0.5));
       if (hint) hint.style.opacity = String(Math.max(0, 1 - progress * 4));
-      if (info) info.style.opacity = String(Math.max(0, 1 - portalT * 2));
+      if (info) info.style.opacity = String(Math.max(0, 1 - clamp((progress - 0.9) / 0.1, 0, 1)));
 
       if (portalTarget) {
-        if (portalT > 0.85) {
+        if (progress > 0.94) {
           portalTarget.classList.remove('portal-hidden');
           portalTarget.classList.add('portal-revealed');
           document.body.classList.remove('carousel-immersive');
           if (stage) stage.classList.remove('scroll-carousel__stage--immersive');
-        } else if (progress > 0.02 && progress < 0.995) {
+        } else if (progress > 0.02) {
           portalTarget.classList.add('portal-hidden');
           portalTarget.classList.remove('portal-revealed');
-        } else if (progress <= 0.02) {
+        } else {
           portalTarget.classList.remove('portal-hidden', 'portal-revealed');
         }
       }

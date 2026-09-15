@@ -1,0 +1,40 @@
+{
+  "sections": {
+    "hero": {
+      "type": "payday-hero",
+      "settings": {
+        "eyebrow": "Üpark Payday Vol. 2",
+        "title": "Ü-Park Payday 2026",
+        "date": "11.07.2026",
+        "location": "Skatepark Bremen Überseestadt",
+        "tagline": "Skateboarding-Contest mit Yu-Gi-Oh!-Style Spielkarten. Challenges, Tombola, 500€ Cash Prize.",
+        "cash_prize": "500€",
+        "format": "Contest + GOS",
+        "time": "14:00–19:00",
+        "ticket_label": "Tickets & Packs",
+        "gallery_label": "Karten ansehen"
+      }
+    },
+    "schedule": {
+      "type": "payday-schedule",
+      "settings": { "heading": "Zeitplan" }
+    },
+    "gallery": {
+      "type": "payday-card-gallery",
+      "settings": {
+        "heading": "Complete Card Set",
+        "subheading": "Field Spells · Co-Host Challenges",
+        "gallery_url": "https://1337wheels-design.github.io/prompthaus/cards/"
+      }
+    },
+    "shop": {
+      "type": "payday-shop",
+      "settings": {
+        "heading": "Tickets & Packs",
+        "subheading": "Single · Double · Triple — Tombola-Lose inklusive",
+        "products_to_show": 6
+      }
+    }
+  },
+  "order": ["hero", "schedule", "gallery", "shop"]
+}

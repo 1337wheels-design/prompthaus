@@ -1,0 +1,122 @@
+{% comment %}
+  Üpark Payday 2026 — Event-Zeitplan
+{% endcomment %}
+
+<section class="payday-schedule" id="schedule">
+  <div class="page-width">
+    <h2 class="payday-schedule__title">{{ section.settings.heading }}</h2>
+    <div class="payday-schedule__grid">
+      {% for block in section.blocks %}
+        <article class="payday-schedule__slot" {{ block.shopify_attributes }}>
+          <time class="payday-schedule__time">{{ block.settings.time }}</time>
+          <h3 class="payday-schedule__name">{{ block.settings.title }}</h3>
+          <p class="payday-schedule__desc">{{ block.settings.description }}</p>
+          {% if block.settings.sponsor != blank %}
+            <span class="payday-schedule__sponsor">{{ block.settings.sponsor }}</span>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+  .payday-schedule {
+    background: #0a120c;
+    padding: 64px 24px;
+    font-family: 'Courier New', monospace;
+    color: #c8c0a8;
+  }
+  .payday-schedule__title {
+    font-family: Impact, sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.06em;
+    color: #f0d060;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .payday-schedule__grid {
+    display: grid;
+    gap: 12px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .payday-schedule__slot {
+    border: 1px solid rgba(201,160,32,0.18);
+    background: rgba(8,16,10,0.6);
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 8px 16px;
+    align-items: start;
+  }
+  .payday-schedule__time {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: #e8c848;
+    grid-row: span 2;
+  }
+  .payday-schedule__name {
+    font-size: 13px;
+    color: #f0d060;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .payday-schedule__desc {
+    font-size: 11px;
+    line-height: 1.6;
+    color: #a8a090;
+    margin: 0;
+    grid-column: 2;
+  }
+  .payday-schedule__sponsor {
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    color: rgba(201,160,32,0.45);
+    text-transform: uppercase;
+    grid-column: 2;
+  }
+  @media (max-width: 520px) {
+    .payday-schedule__slot { grid-template-columns: 1fr; }
+    .payday-schedule__time { grid-row: auto; }
+    .payday-schedule__desc, .payday-schedule__sponsor { grid-column: 1; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Payday Schedule",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Überschrift", "default": "Zeitplan" }
+  ],
+  "blocks": [
+    {
+      "type": "slot",
+      "name": "Zeitslot",
+      "settings": [
+        { "type": "text", "id": "time", "label": "Zeit", "default": "14:00" },
+        { "type": "text", "id": "title", "label": "Titel", "default": "Ankunft & Registration" },
+        { "type": "textarea", "id": "description", "label": "Beschreibung" },
+        { "type": "text", "id": "sponsor", "label": "Sponsor (optional)" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Payday Schedule",
+      "blocks": [
+        { "type": "slot", "settings": { "time": "14:00–14:30", "title": "Ankunft & Registration", "description": "Check-in, Basic Pack am Unlock-Booth", "sponsor": "" }},
+        { "type": "slot", "settings": { "time": "14:30–15:30", "title": "Jam A: Rails & Ledges", "description": "2 Gruppen, Best Trick zählt", "sponsor": "Titus · Skate Deluxe" }},
+        { "type": "slot", "settings": { "time": "15:30–16:15", "title": "Long Fifty Bowl", "description": "Längste 50-50-Linie", "sponsor": "Pay Day · Skate Bar" }},
+        { "type": "slot", "settings": { "time": "16:15–17:00", "title": "Hubba / Stair 1v1", "description": "Field Card Mechanik aktiv", "sponsor": "" }},
+        { "type": "slot", "settings": { "time": "17:00–17:45", "title": "Switch Drop-In", "description": "3 Versuche, best execution", "sponsor": "Titus · Deluxe" }},
+        { "type": "slot", "settings": { "time": "17:45–18:15", "title": "Community Session", "description": "Best Trick Vote + Art Live Paint", "sponsor": "Attitude Bremen" }},
+        { "type": "slot", "settings": { "time": "18:15–18:45", "title": "Siegerehrung & Tombola", "description": "Live-Ziehung", "sponsor": "" }},
+        { "type": "slot", "settings": { "time": "19:00+", "title": "Grill & Networking", "description": "Skate Bar Hay Day", "sponsor": "Attitude DJ" }}
+      ]
+    }
+  ]
+}
+{% endschema %}

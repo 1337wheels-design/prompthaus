@@ -1,0 +1,152 @@
+{% comment %}
+  Üpark Payday 2026 — Hero Section
+  Shopify Online Store 2.0
+{% endcomment %}
+
+<section class="payday-hero" id="hero">
+  <div class="payday-hero__inner page-width">
+    <p class="payday-hero__eyebrow">{{ section.settings.eyebrow }}</p>
+    <h1 class="payday-hero__title">{{ section.settings.title }}</h1>
+    <p class="payday-hero__meta">{{ section.settings.date }} · {{ section.settings.location }}</p>
+    <p class="payday-hero__tagline">{{ section.settings.tagline }}</p>
+    <div class="payday-hero__cta">
+      {% if section.settings.ticket_url != blank %}
+        <a href="{{ section.settings.ticket_url }}" class="payday-btn payday-btn--primary">
+          {{ section.settings.ticket_label }}
+        </a>
+      {% endif %}
+      {% if section.settings.gallery_url != blank %}
+        <a href="{{ section.settings.gallery_url }}" class="payday-btn payday-btn--ghost">
+          {{ section.settings.gallery_label }}
+        </a>
+      {% endif %}
+    </div>
+    <dl class="payday-hero__stats">
+      <div>
+        <dt>Cash Prize</dt>
+        <dd>{{ section.settings.cash_prize }}</dd>
+      </div>
+      <div>
+        <dt>Format</dt>
+        <dd>{{ section.settings.format }}</dd>
+      </div>
+      <div>
+        <dt>Zeit</dt>
+        <dd>{{ section.settings.time }}</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .payday-hero {
+    background: #07100a;
+    background-image:
+      radial-gradient(ellipse 70% 50% at 20% 20%, rgba(20,60,30,0.28) 0%, transparent 100%),
+      radial-gradient(ellipse 50% 70% at 80% 80%, rgba(0,0,0,0.6) 0%, transparent 100%);
+    color: #c8c0a8;
+    padding: 80px 24px 64px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+  }
+  .payday-hero__eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: rgba(201,160,32,0.45);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .payday-hero__title {
+    font-family: Impact, 'Arial Narrow', Arial, sans-serif;
+    font-size: clamp(36px, 8vw, 64px);
+    letter-spacing: 0.06em;
+    color: #f0d060;
+    text-transform: uppercase;
+    line-height: 1;
+    margin: 0 0 12px;
+    text-shadow: 0 0 28px rgba(201,160,32,0.18);
+  }
+  .payday-hero__meta {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: rgba(201,160,32,0.55);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .payday-hero__tagline {
+    max-width: 520px;
+    margin: 0 auto 32px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #b8b0a0;
+  }
+  .payday-hero__cta {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+  .payday-btn {
+    display: inline-block;
+    padding: 12px 28px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid rgba(201,160,32,0.4);
+    transition: background 0.2s, color 0.2s;
+  }
+  .payday-btn--primary {
+    background: rgba(201,160,32,0.15);
+    color: #f0d060;
+  }
+  .payday-btn--primary:hover { background: rgba(201,160,32,0.28); }
+  .payday-btn--ghost {
+    background: transparent;
+    color: #c8c0a8;
+  }
+  .payday-btn--ghost:hover { background: rgba(255,255,255,0.05); }
+  .payday-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 560px;
+    margin: 0 auto;
+    border-top: 1px solid rgba(201,160,32,0.14);
+    padding-top: 24px;
+  }
+  .payday-hero__stats dt {
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    color: rgba(201,160,32,0.4);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .payday-hero__stats dd {
+    font-size: 14px;
+    color: #e8c848;
+    margin: 0;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Payday Hero",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Üpark Payday Vol. 2" },
+    { "type": "text", "id": "title", "label": "Titel", "default": "Ü-Park Payday 2026" },
+    { "type": "text", "id": "date", "label": "Datum", "default": "11.07.2026" },
+    { "type": "text", "id": "location", "label": "Ort", "default": "Skatepark Bremen Überseestadt" },
+    { "type": "textarea", "id": "tagline", "label": "Tagline", "default": "Skateboarding-Contest mit Yu-Gi-Oh!-Style Spielkarten. Challenges, Tombola, 500€ Cash Prize." },
+    { "type": "text", "id": "cash_prize", "label": "Cash Prize", "default": "500€" },
+    { "type": "text", "id": "format", "label": "Format", "default": "Contest + GOS" },
+    { "type": "text", "id": "time", "label": "Zeit", "default": "14:00–19:00" },
+    { "type": "url", "id": "ticket_url", "label": "Ticket-Link" },
+    { "type": "text", "id": "ticket_label", "label": "Ticket-Button", "default": "Tickets & Packs" },
+    { "type": "url", "id": "gallery_url", "label": "Galerie-Link" },
+    { "type": "text", "id": "gallery_label", "label": "Galerie-Button", "default": "Karten ansehen" }
+  ],
+  "presets": [{ "name": "Payday Hero" }]
+}
+{% endschema %}

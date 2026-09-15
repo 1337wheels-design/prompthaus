@@ -13,7 +13,10 @@ Planungsrepository für das **Üpark Payday 2026** Skateboarding-Event.
 | [`docs/refinement-plan.md`](docs/refinement-plan.md) | 5-Schritte-Plan zur Eingrenzung & Finalisierung |
 | [`docs/card-texts.md`](docs/card-texts.md) | Finale Kartentexte (Social Media, Flyer, physische Karten) |
 | [`docs/field-series.md`](docs/field-series.md) | Vollständige Field Spell Serie — alle 5 Zonen mit Kartentexten |
-| [`cards/index.html`](cards/index.html) | Interaktive Kartenгалерея im finalen Stil (HTML/Canvas) |
+| [`cards/index.html`](cards/index.html) | Interaktive Karten-Galerie im finalen Stil (HTML/Canvas) |
+| [`shop/index.html`](shop/index.html) | Event-Landingpage mit Galerie-Embed + Shopify-Shop-Anbindung |
+| [`shopify/SETUP.md`](shopify/SETUP.md) | Shopify-Integrationsanleitung (Theme, Headless, Hybrid) |
+| [`shopify/products.csv`](shopify/products.csv) | Importfertiger Produktkatalog für Shopify Admin |
 
 ## Konzept auf einen Blick
 

@@ -144,16 +144,10 @@
           <span class="pattern-pill pattern-pill--linear" id="pill-linear" style="display:none">Linear</span>
         </div>
         <p class="phase-hint" id="phase-hint">Starte den Generator — jedes Klicken rendert das nächste Board live.</p>
-        <p class="click-progress" id="click-progress">1× Wischen · 2× Tippen</p>
-        <div class="size-pick" id="size-pick" hidden>
-          <button type="button" class="size-pick__btn active" data-size="838">8.38″</button>
-          <button type="button" class="size-pick__btn" data-size="850">8.5″</button>
-        </div>
-        <div class="size-display" id="size-display" style="display:none"></div>
+        <p class="click-progress" id="click-progress">1× Wischen · 1× Tippen</p>
         <div class="round-dots">
           <div class="round-dot active" id="dot-browse" title="Wischen"></div>
-          <div class="round-dot" id="dot-color" title="Farbe"></div>
-          <div class="round-dot" id="dot-size" title="Größe"></div>
+          <div class="round-dot" id="dot-tap" title="Tippen"></div>
           <div class="round-dot" id="dot-shop" title="Shop"></div>
         </div>
       </div>
@@ -319,7 +313,7 @@
     }
 
     function handleSwipe(dx) {
-      if (state.unlocked || state.phase === 'size') return;
+      if (state.unlocked) return;
       suppressTapUntil = Date.now() + 400;
       shiftDesign(dx < 0 ? 1 : -1);
       flashSwipe(dx);
@@ -330,68 +324,40 @@
       }
     }
 
-    function updateSizePick() {
-      const pick = document.getElementById('size-pick');
-      pick.querySelectorAll('.size-pick__btn').forEach((btn) => {
-        btn.classList.toggle('active', btn.dataset.size === INV.SIZES[state.sizeIndex].id);
-      });
-    }
-
     function updateUI() {
       const design = currentDesign();
-      const size = currentSize();
       const prog = document.getElementById('click-progress');
       const badge = document.getElementById('phase-badge');
       const title = document.getElementById('phase-title');
       const hint = document.getElementById('phase-hint');
-      const sizeDisplay = document.getElementById('size-display');
-      const sizePick = document.getElementById('size-pick');
       const dotBrowse = document.getElementById('dot-browse');
-      const dotColor = document.getElementById('dot-color');
-      const dotSize = document.getElementById('dot-size');
+      const dotTap = document.getElementById('dot-tap');
       const dotShop = document.getElementById('dot-shop');
-      const phaseOrder = ['browse', 'color', 'size', 'shop'];
+      const phaseOrder = ['browse', 'color', 'shop'];
       const phaseIdx = phaseOrder.indexOf(state.phase);
 
       dotBrowse.className = 'round-dot' + (phaseIdx > 0 ? ' done' : '') + (state.phase === 'browse' ? ' active' : '');
-      dotColor.className = 'round-dot' + (phaseIdx > 1 ? ' done' : '') + (state.phase === 'color' ? ' active' : '');
-      dotSize.className = 'round-dot' + (phaseIdx > 2 ? ' done' : '') + (state.phase === 'size' ? ' active' : '');
+      dotTap.className = 'round-dot' + (phaseIdx > 1 ? ' done' : '') + (state.phase === 'color' ? ' active' : '');
       dotShop.className = 'round-dot' + (state.unlocked ? ' done active' : '');
 
       document.getElementById('preview-label').textContent = design.name + ' · ' + design.patternLabel;
-      previewFrame.classList.toggle('preview-frame--swipeable', !state.unlocked && state.phase !== 'size');
+      previewFrame.classList.toggle('preview-frame--swipeable', !state.unlocked);
 
       if (state.phase === 'browse') {
-        badge.textContent = 'Schritt 1 von 3 · Designs';
+        badge.textContent = 'Schritt 1 von 2';
         title.textContent = 'Board-Auswahl';
-        hint.textContent = 'Horizontal wischen — einmal durch die Designs scrollen.';
+        hint.textContent = 'Horizontal wischen — Designs durchblättern.';
         prog.textContent = '← Wischen →';
-        sizeDisplay.style.display = 'none';
-        sizePick.hidden = true;
       } else if (state.phase === 'color') {
-        badge.textContent = 'Schritt 2 von 3 · Farbe';
-        title.textContent = design.camoStyle === 'linear' ? 'Linear' : 'Camo';
-        hint.textContent = 'Farbe bestätigen — Board antippen. Optional nochmal wischen.';
-        prog.textContent = 'Tippen · Farbe';
-        sizeDisplay.style.display = 'none';
-        sizePick.hidden = true;
-      } else if (state.phase === 'size') {
-        badge.textContent = 'Schritt 3 von 3 · Größe';
-        title.textContent = 'Deckbreite';
-        hint.textContent = 'Größe wählen, dann Board antippen zum Freischalten.';
-        prog.textContent = 'Tippen · Größe';
-        sizeDisplay.style.display = 'block';
-        sizeDisplay.textContent = size.label;
-        sizePick.hidden = false;
-        updateSizePick();
+        badge.textContent = 'Schritt 2 von 2';
+        title.textContent = design.name;
+        hint.textContent = 'Board antippen — Shop öffnet sich direkt.';
+        prog.textContent = 'Tippen → Shop';
       } else {
-        badge.textContent = 'Freigeschaltet';
-        title.textContent = 'Shop offen';
-        hint.textContent = design.name + ' · ' + size.label + ' · Druck-PDF bereit';
+        badge.textContent = 'Shop offen';
+        title.textContent = 'Verfügbare Decks';
+        hint.textContent = design.name + ' · Größe im Shop wählen';
         prog.textContent = 'Shop offen';
-        sizeDisplay.style.display = 'block';
-        sizeDisplay.textContent = size.label;
-        sizePick.hidden = true;
       }
 
       const tapHint = document.getElementById('preview-tap-hint');
@@ -405,11 +371,7 @@
         tapHint.classList.remove('preview-tap-hint--pdf');
         pdfHint.hidden = true;
       } else if (state.phase === 'color') {
-        tapHint.textContent = 'Tippen — Farbe';
-        tapHint.classList.remove('preview-tap-hint--pdf');
-        pdfHint.hidden = true;
-      } else if (state.phase === 'size') {
-        tapHint.textContent = 'Tippen — Shop öffnen';
+        tapHint.textContent = 'Tippen → Shop';
         tapHint.classList.remove('preview-tap-hint--pdf');
         pdfHint.hidden = true;
       }
@@ -422,17 +384,20 @@
     function unlockShop() {
       state.phase = 'shop';
       state.unlocked = true;
-      state.filterDesign = null;
-      state.filterSize = currentSize().id;
+      state.filterDesign = currentDesign().id;
+      state.filterSize = null;
       document.getElementById('configurator').classList.add('locked-out');
       document.getElementById('unlock-banner').classList.add('visible');
       document.getElementById('shop-section').classList.add('unlocked');
       const design = currentDesign();
-      const size = currentSize();
       document.getElementById('shop-subtitle').textContent =
-        INV.totalStock(state.stock) + ' Decks · Deine Wahl: ' + design.name + ' · ' + size.label;
+        INV.totalStock(state.stock) + ' Decks · Deine Wahl: ' + design.name;
       buildFilters();
       renderShopGrid();
+      updateUI();
+      requestAnimationFrame(() => {
+        document.getElementById('shop-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     }
 
     function handleBoardTap() {
@@ -444,16 +409,13 @@
       if (state.phase === 'browse') return;
       if (state.phase === 'color') {
         state.visitedDesigns.add(currentDesign().id);
-        state.phase = 'size';
-        updateUI();
-        return;
+        unlockShop();
       }
-      if (state.phase === 'size') unlockShop();
     }
 
     function bindSwipe(el) {
       el.addEventListener('pointerdown', (e) => {
-        if (state.unlocked || state.phase === 'size') return;
+        if (state.unlocked) return;
         pointerActive = true;
         pointerStartX = e.clientX;
         pointerStartY = e.clientY;
@@ -476,17 +438,6 @@
       handleBoardTap();
     });
     document.getElementById('pdf-hint-btn').addEventListener('click', () => openBoardPreview(currentDesign()));
-
-    document.getElementById('size-pick').addEventListener('click', (e) => {
-      const btn = e.target.closest('.size-pick__btn');
-      if (!btn || state.phase !== 'size') return;
-      const idx = INV.SIZES.findIndex((s) => s.id === btn.dataset.size);
-      if (idx >= 0) {
-        state.sizeIndex = idx;
-        updateSizePick();
-        document.getElementById('size-display').textContent = currentSize().label;
-      }
-    });
 
     let catalog = [];
 

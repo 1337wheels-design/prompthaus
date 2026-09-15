@@ -532,7 +532,10 @@
     document.getElementById('drive-folder-link').href = INV.DRIVE_FOLDER_URL;
 
     catalog = INV.buildCatalog(state.stock);
-    state.designIndex = Math.floor(Math.random() * INV.DESIGNS.length);
+
+    const designParam = new URLSearchParams(window.location.search).get('design');
+    const paramIndex = designParam ? INV.DESIGNS.findIndex((d) => d.id === designParam) : -1;
+    state.designIndex = paramIndex >= 0 ? paramIndex : Math.floor(Math.random() * INV.DESIGNS.length);
     state.visitedDesigns.add(currentDesign().id);
     updateStockLabels();
 

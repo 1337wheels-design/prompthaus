@@ -263,11 +263,26 @@ body.carousel-immersive .site-nav {
   line-height: 1.4;
 }
 
-/* Deck cards (skateboard shape) */
+/* Deck cards (skateboard shape) — tappable, foreground on interaction */
 .carousel-card--deck {
   width: clamp(72px, 14vw, 120px);
   margin-left: calc(clamp(72px, 14vw, 120px) / -2);
   margin-top: calc(clamp(72px, 14vw, 120px) * 3.5 / -2);
+  pointer-events: auto;
+  z-index: 200;
+}
+
+.carousel-card__deck-link {
+  display: block;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.carousel-card--deck-front {
+  z-index: 280 !important;
 }
 
 .scroll-carousel__stage--immersive .carousel-card--deck {
@@ -297,10 +312,50 @@ body.carousel-immersive .site-nav {
   white-space: nowrap;
   opacity: 0;
   transition: opacity 0.25s;
+  pointer-events: none;
 }
 
-.carousel-card--deck.carousel-card--active .carousel-card__deck-label {
+.carousel-card__deck-cta {
+  position: absolute;
+  bottom: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 7px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #00c8b0;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.2s;
+  pointer-events: none;
+}
+
+.carousel-card--deck.carousel-card--active .carousel-card__deck-label,
+.carousel-card--deck.carousel-card--deck-front .carousel-card__deck-label {
   opacity: 1;
+}
+
+.carousel-card--deck.carousel-card--active .carousel-card__deck-cta,
+.carousel-card--deck.carousel-card--deck-front .carousel-card__deck-cta {
+  opacity: 1;
+}
+
+.carousel-card--deck.carousel-card--active .carousel-card__deck,
+.carousel-card--deck.carousel-card--deck-front .carousel-card__deck {
+  border-color: rgba(0, 200, 176, 0.55);
+  filter: drop-shadow(0 8px 28px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 20px rgba(0, 200, 176, 0.2));
+}
+
+.carousel-card--deck:active .carousel-card__deck-link {
+  transform: scale(0.96);
+}
+
+.scroll-carousel__table--deck-focus .carousel-card--deck {
+  z-index: 220;
+}
+
+.scroll-carousel__table--deck-focus .carousel-card--deck.carousel-card--active {
+  z-index: 320 !important;
 }
 
 /* ── Info panel ── */

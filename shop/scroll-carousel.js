@@ -26,12 +26,12 @@
   ];
 
   const DECK_CARDS = [
-    { name: 'CHROME', thumb: 'assets/boards/payday_CHROME-thumb.jpg', pattern: 'Camo' },
-    { name: 'NEON', thumb: 'assets/boards/payday_NEON-thumb.jpg', pattern: 'Camo' },
-    { name: 'PAYDAY Linear', thumb: 'assets/boards/payday_ARCTIC-thumb.jpg', pattern: 'Linear' },
-    { name: 'ARCTIC', thumb: 'assets/boards/payday_PAYDAY_Linear-thumb.jpg', pattern: 'Linear' },
-    { name: 'NIGHT', thumb: 'assets/boards/payday_NIGHT-thumb.jpg', pattern: 'Camo' },
-    { name: 'PAYDAY Camo', thumb: 'assets/boards/payday_PAYDAY-thumb.jpg', pattern: 'Camo' },
+    { id: 'chrome', name: 'CHROME', thumb: 'assets/boards/payday_CHROME-thumb.jpg', pattern: 'Camo' },
+    { id: 'neon', name: 'NEON', thumb: 'assets/boards/payday_NEON-thumb.jpg', pattern: 'Camo' },
+    { id: 'payday-linear', name: 'PAYDAY Linear', thumb: 'assets/boards/payday_ARCTIC-thumb.jpg', pattern: 'Linear' },
+    { id: 'arctic', name: 'ARCTIC', thumb: 'assets/boards/payday_PAYDAY_Linear-thumb.jpg', pattern: 'Linear' },
+    { id: 'night', name: 'NIGHT', thumb: 'assets/boards/payday_NIGHT-thumb.jpg', pattern: 'Camo' },
+    { id: 'payday-camo', name: 'PAYDAY Camo', thumb: 'assets/boards/payday_PAYDAY-thumb.jpg', pattern: 'Camo' },
   ];
 
   function buildItems() {
@@ -57,10 +57,12 @@
     DECK_CARDS.forEach((c) => {
       items.push({
         kind: 'deck',
+        designId: c.id,
         name: c.name,
         sub: c.pattern,
         type: 'Payday SS26 Deck',
         thumb: c.thumb,
+        shopHref: `decks.html?design=${encodeURIComponent(c.id)}`,
       });
     });
     return items;
@@ -90,8 +92,11 @@
 
     if (item.kind === 'deck') {
       el.innerHTML = `
-        <img class="carousel-card__deck" src="${item.thumb}" alt="${item.name} Deck" loading="lazy" width="72" height="252">
-        <span class="carousel-card__deck-label">${item.name}</span>`;
+        <a class="carousel-card__deck-link" href="${item.shopHref}" aria-label="${item.name} — Deck Shop öffnen">
+          <img class="carousel-card__deck" src="${item.thumb}" alt="" loading="lazy" width="72" height="252">
+          <span class="carousel-card__deck-label">${item.name}</span>
+          <span class="carousel-card__deck-cta">Shop öffnen</span>
+        </a>`;
     } else {
       el.innerHTML = `
         <div class="carousel-card__face">
@@ -158,7 +163,7 @@
       return progress > 0.008 && progress < 0.995;
     }
 
-    function cardTransform(index, progress, activeFloat, immersive) {
+    function cardTransform(index, progress, activeFloat, immersive, deckFocus) {
       const spreadStart = 0.04;
       const spreadEnd = 0.88;
       const spread = clamp((progress - spreadStart) / (spreadEnd - spreadStart), 0, 1);
@@ -169,6 +174,7 @@
 
       const dist = Math.abs(activeFloat - index);
       const isDeck = items[index].kind === 'deck';
+      const isActive = Math.abs(activeFloat - index) < 0.45;
       const fanSpread = immersive ? 1.55 : 1;
 
       // Stacked deck at start
@@ -185,10 +191,12 @@
       const fanRot = fanAngle * (1 - stackT * 0.6);
 
       const activeBoost = Math.max(0, 1 - dist * 0.55);
-      const maxScale = immersive ? (isDeck ? 1.28 : 1.18) : (isDeck ? 1.15 : 1.08);
+      const maxScale = immersive ? (isDeck ? 1.38 : 1.12) : (isDeck ? 1.22 : 1.06);
       const scale = lerp(0.72 + cardReveal * 0.1, maxScale, activeBoost);
-      const lift = -activeBoost * (immersive ? (isDeck ? 48 : 40) : (isDeck ? 36 : 28));
-      const z = Math.round(100 - dist * 10 + activeBoost * 50);
+      const lift = -activeBoost * (immersive ? (isDeck ? 56 : 32) : (isDeck ? 44 : 22));
+      const deckForeground = isDeck ? 120 : 0;
+      const deckActiveBoost = isDeck && isActive ? 80 : 0;
+      const z = Math.round(100 - dist * 10 + activeBoost * 50 + deckForeground + deckActiveBoost);
 
       const portalT = clamp((progress - 0.82) / 0.18, 0, 1);
       const portalPull = portalT * (1 + dist * 0.08);
@@ -199,10 +207,15 @@
       const y = stackY + fanY + lift;
       const rot = stackRot + fanRot;
 
+      let opacity = cardReveal * portalOpacity;
+      if (deckFocus && !isDeck) opacity *= 0.28;
+
       return {
         x, y, rot, scale: scale * portalScale,
-        opacity: cardReveal * portalOpacity,
+        opacity,
         z,
+        isDeck,
+        isActive,
       };
     }
 
@@ -218,14 +231,23 @@
       if (stage) stage.classList.toggle('scroll-carousel__stage--immersive', immersive);
       document.body.classList.toggle('carousel-immersive', immersive);
 
+      const activeItem = items[activeIndex];
+      const deckFocus = activeItem?.kind === 'deck' && progress < 0.88;
+
+      if (table) table.classList.toggle('scroll-carousel__table--deck-focus', deckFocus);
+
       cardEls.forEach((el, i) => {
-        const t = cardTransform(i, progress, activeFloat, immersive);
+        const t = cardTransform(i, progress, activeFloat, immersive, deckFocus);
         el.style.zIndex = String(t.z);
         el.style.opacity = String(t.opacity);
         el.style.transform = `translate(calc(-50% + ${t.x}px), calc(-50% + ${t.y}px)) rotate(${t.rot}deg) scale(${t.scale})`;
         const isActive = i === activeIndex && progress < 0.9;
         el.classList.toggle('carousel-card--active', isActive);
+        el.classList.toggle('carousel-card--deck-front', t.isDeck && (isActive || deckFocus));
         el.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        if (items[i].kind === 'deck') {
+          el.style.pointerEvents = t.opacity > 0.35 ? 'auto' : 'none';
+        }
       });
 
       if (activeIndex !== lastActive && activeIndex >= 0 && activeIndex < count) {
@@ -233,7 +255,9 @@
         const item = items[activeIndex];
         infoName.textContent = item.name;
         infoSub.textContent = item.sub;
-        infoType.textContent = item.type;
+        infoType.textContent = item.kind === 'deck'
+          ? `${item.type} · Tippen für Shop`
+          : item.type;
         info.classList.add('visible');
         progressLabel.textContent = `${activeIndex + 1} / ${count}`;
       }
@@ -291,7 +315,13 @@
       infoName.textContent = 'Alle Karten & Decks';
       infoSub.textContent = 'Field Spells · Challenges · SS26 Decks';
       infoType.textContent = 'Scroll-Animation deaktiviert (Reduced Motion)';
-      cardEls.forEach((el) => el.classList.add('carousel-card--active'));
+      cardEls.forEach((el, i) => {
+        el.classList.add('carousel-card--active');
+        if (items[i].kind === 'deck') {
+          el.style.pointerEvents = 'auto';
+          el.classList.add('carousel-card--deck-front');
+        }
+      });
       if (portalTarget) {
         portalTarget.classList.remove('portal-hidden');
         portalTarget.classList.add('portal-revealed');

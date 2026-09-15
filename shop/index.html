@@ -435,7 +435,7 @@
         ${p.tombola > 0 ? `<p class="product-card__tombola">+ ${p.tombola} Tombola-Lose</p>` : ''}
         <p class="product-card__price">${p.price}</p>
         <div class="product-card__embed" id="buy-${p.handle}"></div>
-        <button class="btn btn--primary" data-handle="${p.handle}" type="button">Kaufen</button>
+        <button class="btn btn--primary" data-handle="${p.handle}" type="button">${p.handle === 'payday-deck' ? 'Konfigurieren' : 'Kaufen'}</button>
       </article>
     `).join('');
 

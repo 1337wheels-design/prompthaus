@@ -290,7 +290,7 @@
       if (state.phase === 'camo') {
         badge.textContent = 'Runde 1 von 2';
         title.textContent = 'Camo Generator';
-        hint.textContent = 'Jeder Klick mischt ein neues Camo-Pattern. Du musst mindestens ' + state.camoRequired + '× durchklicken.';
+        hint.textContent = 'Jeder Klick zeigt das nächste Design (CHROME, NEON, PAYDAY …). Mindestens ' + state.camoRequired + '× durchklicken.';
         prog.innerHTML = `Klick <span>${state.camoClicks}</span> / <span>${state.camoRequired}</span>`;
         btnText.textContent = 'Camo generieren';
       } else if (state.phase === 'size') {

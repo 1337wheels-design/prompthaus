@@ -144,12 +144,20 @@
     .deck-card__title { font-size: 9px; letter-spacing: 0.08em; color: var(--gold); text-transform: uppercase; margin-bottom: 2px; }
     .deck-card__size { font-size: 8px; color: var(--text-muted); margin-bottom: 4px; }
     .deck-card__price { font-size: 12px; color: #e8c848; }
+    .deck-card__stock {
+      font-size: 8px; letter-spacing: 0.1em; margin-top: 4px;
+      color: var(--aqua);
+    }
+    .deck-card__stock.low { color: #e8a848; }
+    .deck-card__stock.out { color: #c04a4a; }
+    .deck-card.sold-out { opacity: 0.45; }
     .deck-card__add {
       margin-top: 8px; width: 100%; padding: 6px; font-size: 8px; letter-spacing: 0.12em;
       text-transform: uppercase; border: 1px solid var(--border); background: transparent;
       color: var(--gold); cursor: pointer; font-family: inherit;
     }
     .deck-card__add:hover { background: rgba(240,208,80,0.12); }
+    .deck-card__add:disabled { opacity: 0.35; cursor: not-allowed; }
 
     .cart-panel {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
@@ -213,12 +221,11 @@
   <section class="shop-section" id="shop-section">
     <header class="shop-header">
       <h2>Verfügbare Decks</h2>
-      <p id="shop-subtitle">133 Designs · 4 Größen · Pay Day Skateboards</p>
+      <p id="shop-subtitle">50 Decks · 6 Designs · 8.38″ &amp; 8.5″</p>
     </header>
 
     <div class="filter-bar" id="filter-size"></div>
-    <div class="filter-bar" id="filter-camo"></div>
-    <div class="filter-bar" id="filter-illus"></div>
+    <div class="filter-bar" id="filter-design"></div>
 
     <div class="deck-grid" id="deck-grid"></div>
   </section>
@@ -228,9 +235,11 @@
     <button class="checkout-btn" id="checkout-btn" type="button">Zur Kasse</button>
   </div>
 
+  <script src="deck-inventory.js"></script>
   <script src="deck-renderer.js"></script>
   <script>
     const R = window.PaydayDeckRenderer;
+    const INV = window.PAYDAY_DECK_INVENTORY;
     const previewCanvas = document.getElementById('preview-canvas');
 
     const state = {
@@ -239,25 +248,29 @@
       sizeRequired: 1 + Math.floor(Math.random() * 2),
       camoClicks: 0,
       sizeClicks: 0,
-      camoIndex: 0,
-      sizeIndex: 2,
-      illusIndex: 0,
+      designIndex: 0,
+      sizeIndex: 0,
       unlocked: false,
       cart: [],
-      filterCamo: null,
-      filterIllus: null,
+      stock: INV.cloneStock(),
+      filterDesign: null,
       filterSize: null,
     };
 
+    function currentDesign() { return INV.DESIGNS[state.designIndex]; }
+    function currentSize() { return INV.SIZES[state.sizeIndex]; }
+
+    function availableStock(skuId) {
+      const reserved = state.cart.filter(i => i.id === skuId).length;
+      return Math.max(0, (state.stock[skuId] ?? 0) - reserved);
+    }
+
     function renderPreview() {
-      R.renderDeck(previewCanvas, {
-        camoIndex: state.camoIndex,
-        illusIndex: state.illusIndex,
-      });
-      document.getElementById('preview-label').textContent = R.CAMO_PATTERNS[state.camoIndex].name;
-      const size = R.DECK_SIZES[state.sizeIndex];
-      document.getElementById('preview-sublabel').textContent =
-        `${R.ILLUSTRATIONS[state.illusIndex].name} · ${size.label}`;
+      const design = currentDesign();
+      const size = currentSize();
+      R.renderFromDesign(previewCanvas, design);
+      document.getElementById('preview-label').textContent = design.name;
+      document.getElementById('preview-sublabel').textContent = size.label + ' · ' + design.pdf;
     }
 
     function updateUI() {
@@ -289,7 +302,7 @@
       } else {
         badge.textContent = 'Freigeschaltet';
         title.textContent = 'Shop offen';
-        hint.textContent = 'Dein Camo: ' + R.CAMO_PATTERNS[state.camoIndex].name + ' · Größe: ' + R.DECK_SIZES[state.sizeIndex].label;
+        hint.textContent = 'Dein Design: ' + currentDesign().name + ' · Größe: ' + currentSize().label;
         prog.innerHTML = 'Alle Designs verfügbar';
         document.getElementById('gen-btn').disabled = true;
       }
@@ -297,7 +310,7 @@
     }
 
     function advanceCamo() {
-      state.camoIndex = (state.camoIndex + 1) % R.CAMO_PATTERNS.length;
+      state.designIndex = (state.designIndex + 1) % INV.DESIGNS.length;
       state.camoClicks++;
       if (state.camoClicks >= state.camoRequired) {
         state.phase = 'size';
@@ -306,7 +319,7 @@
     }
 
     function advanceSize() {
-      state.sizeIndex = (state.sizeIndex + 1) % R.DECK_SIZES.length;
+      state.sizeIndex = (state.sizeIndex + 1) % INV.SIZES.length;
       state.sizeClicks++;
       if (state.sizeClicks >= state.sizeRequired) {
         unlockShop();
@@ -317,17 +330,18 @@
     function unlockShop() {
       state.phase = 'shop';
       state.unlocked = true;
-      state.filterCamo = null;
-      state.filterIllus = null;
-      state.filterSize = R.DECK_SIZES[state.sizeIndex].id;
+      state.filterDesign = null;
+      state.filterSize = currentSize().id;
 
       document.getElementById('configurator').classList.add('locked-out');
       document.getElementById('unlock-banner').classList.add('visible');
       document.getElementById('shop-section').classList.add('unlocked');
 
-      const size = R.DECK_SIZES[state.sizeIndex];
+      const design = currentDesign();
+      const size = currentSize();
+      const total = INV.totalStock(state.stock);
       document.getElementById('shop-subtitle').textContent =
-        `Deine Wahl: ${R.CAMO_PATTERNS[state.camoIndex].name} · ${size.label} — oder frei wählen`;
+        `${total} Decks verfügbar · Deine Wahl: ${design.name} · ${size.label}`;
 
       buildFilters();
       renderShopGrid();
@@ -343,53 +357,39 @@
 
     function buildFilters() {
       const sizeBar = document.getElementById('filter-size');
-      const camoBar = document.getElementById('filter-camo');
-      const illBar = document.getElementById('filter-illus');
+      const designBar = document.getElementById('filter-design');
 
-      sizeBar.innerHTML = '';
-      R.DECK_SIZES.forEach(s => {
+      sizeBar.innerHTML = '<button class="filter-chip' + (!state.filterSize ? ' active' : '') + '" data-size="all">Alle Größen</button>';
+      INV.SIZES.forEach(s => {
         const btn = document.createElement('button');
         const isPick = state.filterSize === s.id;
-        const isRitual = s.id === R.DECK_SIZES[state.sizeIndex].id;
+        const isRitual = s.id === currentSize().id;
         btn.className = 'filter-chip' + (isPick ? ' active' : '') + (isRitual && isPick ? ' highlight' : '');
         btn.dataset.size = s.id;
         btn.textContent = s.label;
         sizeBar.appendChild(btn);
       });
 
-      camoBar.innerHTML = '<button class="filter-chip' + (state.filterCamo === null ? ' active' : '') + '" data-camo="all">Alle Camos</button>';
-      R.CAMO_PATTERNS.forEach((c, i) => {
+      designBar.innerHTML = '<button class="filter-chip' + (!state.filterDesign ? ' active' : '') + '" data-design="all">Alle Designs</button>';
+      INV.DESIGNS.forEach(d => {
         const btn = document.createElement('button');
-        const ritual = i === state.camoIndex;
-        btn.className = 'filter-chip' + (state.filterCamo === i ? ' active' : '') + (ritual && state.filterCamo === i ? ' highlight' : '');
-        btn.dataset.camo = i;
-        btn.textContent = c.name;
-        camoBar.appendChild(btn);
-      });
-
-      illBar.innerHTML = '<button class="filter-chip' + (state.filterIllus === null ? ' active' : '') + '" data-illus="all">Alle Illustrationen</button>';
-      R.ILLUSTRATIONS.forEach((ill, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'filter-chip' + (state.filterIllus === i ? ' active' : '');
-        btn.dataset.illus = i;
-        btn.textContent = ill.name;
-        illBar.appendChild(btn);
+        const ritual = d.id === currentDesign().id;
+        btn.className = 'filter-chip' + (state.filterDesign === d.id ? ' active' : '') + (ritual && state.filterDesign === d.id ? ' highlight' : '');
+        btn.dataset.design = d.id;
+        btn.textContent = d.name;
+        designBar.appendChild(btn);
       });
     }
 
     document.getElementById('shop-section').addEventListener('click', e => {
       const chip = e.target.closest('.filter-chip');
       if (!chip) return;
-      if (chip.dataset.size) {
-        state.filterSize = chip.dataset.size;
+      if (chip.dataset.size !== undefined) {
+        state.filterSize = chip.dataset.size === 'all' ? null : chip.dataset.size;
         buildFilters();
         renderShopGrid();
-      } else if (chip.dataset.camo !== undefined) {
-        state.filterCamo = chip.dataset.camo === 'all' ? null : +chip.dataset.camo;
-        buildFilters();
-        renderShopGrid();
-      } else if (chip.dataset.illus !== undefined) {
-        state.filterIllus = chip.dataset.illus === 'all' ? null : +chip.dataset.illus;
+      } else if (chip.dataset.design !== undefined) {
+        state.filterDesign = chip.dataset.design === 'all' ? null : chip.dataset.design;
         buildFilters();
         renderShopGrid();
       }
@@ -401,21 +401,25 @@
 
       const filtered = catalog.filter(item => {
         if (state.filterSize && item.sizeId !== state.filterSize) return false;
-        if (state.filterCamo !== null && item.camoIndex !== state.filterCamo) return false;
-        if (state.filterIllus !== null && item.illusIndex !== state.filterIllus) return false;
+        if (state.filterDesign && item.designId !== state.filterDesign) return false;
         return true;
       });
 
       filtered.forEach(item => {
+        const avail = availableStock(item.id);
         const card = document.createElement('article');
-        card.className = 'deck-card';
-        if (item.camoIndex === state.camoIndex && item.illusIndex === state.illusIndex) {
+        card.className = 'deck-card' + (avail === 0 ? ' sold-out' : '');
+        if (item.designId === currentDesign().id && item.sizeId === currentSize().id) {
           card.classList.add('selected');
         }
 
         const cv = document.createElement('canvas');
         cv.width = 120; cv.height = 420;
-        R.renderDeck(cv, { camoIndex: item.camoIndex, illusIndex: item.illusIndex });
+        R.renderDeck(cv, {
+          camoIndex: item.camoIndex,
+          camoStyle: item.camoStyle,
+          camoOnly: true,
+        });
 
         const title = document.createElement('div');
         title.className = 'deck-card__title';
@@ -425,6 +429,10 @@
         sizeEl.className = 'deck-card__size';
         sizeEl.textContent = item.sizeLabel;
 
+        const stockEl = document.createElement('div');
+        stockEl.className = 'deck-card__stock' + (avail <= 2 ? ' low' : '') + (avail === 0 ? ' out' : '');
+        stockEl.textContent = avail === 0 ? 'Ausverkauft' : `${avail} von ${item.stock} verfügbar`;
+
         const price = document.createElement('div');
         price.className = 'deck-card__price';
         price.textContent = item.price + ',00 €';
@@ -432,15 +440,17 @@
         const addBtn = document.createElement('button');
         addBtn.className = 'deck-card__add';
         addBtn.type = 'button';
-        addBtn.textContent = 'In den Warenkorb';
+        addBtn.textContent = avail === 0 ? 'Nicht verfügbar' : 'In den Warenkorb';
+        addBtn.disabled = avail === 0;
         addBtn.addEventListener('click', e => {
           e.stopPropagation();
-          addToCart(item);
+          if (availableStock(item.id) > 0) addToCart(item);
         });
 
         card.appendChild(cv);
         card.appendChild(title);
         card.appendChild(sizeEl);
+        card.appendChild(stockEl);
         card.appendChild(price);
         card.appendChild(addBtn);
         grid.appendChild(card);
@@ -448,8 +458,10 @@
     }
 
     function addToCart(item) {
-      state.cart.push(item);
+      if (availableStock(item.id) <= 0) return;
+      state.cart.push({ ...item });
       updateCart();
+      renderShopGrid();
     }
 
     function updateCart() {
@@ -483,8 +495,8 @@
     });
 
     R.loadAssets().then(() => {
-      catalog = R.buildCatalog();
-      state.camoIndex = Math.floor(Math.random() * R.CAMO_PATTERNS.length);
+      catalog = INV.buildCatalog(state.stock);
+      state.designIndex = Math.floor(Math.random() * INV.DESIGNS.length);
       updateUI();
     });
   </script>

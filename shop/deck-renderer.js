@@ -41,11 +41,19 @@
   ];
 
   const DECK_SIZES = [
-    { id: '775', label: '7.75"', widthIn: 7.75, price: 79 },
-    { id: '800', label: '8.0"', widthIn: 8.0, price: 84 },
-    { id: '825', label: '8.25"', widthIn: 8.25, price: 89 },
+    { id: '838', label: '8.38"', widthIn: 8.38, price: 89 },
     { id: '850', label: '8.5"', widthIn: 8.5, price: 94 },
   ];
+
+  function drawLinearGradientBg(ctx, w, h, palette) {
+    const g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, palette[0][0]);
+    g.addColorStop(0.33, palette[1][1]);
+    g.addColorStop(0.66, palette[2][2]);
+    g.addColorStop(1, palette[3][3]);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  }
 
   function mkRng(seed) {
     let s = seed >>> 0;
@@ -141,14 +149,26 @@
     ctx.drawImage(img, sx, sy, drawW, drawH);
   }
 
-  function paintBackground(ctx, w, h, camoIndex, illusIndex) {
+  function paintBackground(ctx, w, h, opts) {
+    const camoIndex = opts.camoIndex ?? 0;
+    const illusIndex = opts.illusIndex ?? 0;
+    const camoStyle = opts.camoStyle || 'blob';
+    const camoOnly = opts.camoOnly ?? false;
     const camo = CAMO_PATTERNS[camoIndex];
+
+    if (camoStyle === 'linear') {
+      drawLinearGradientBg(ctx, w, h, camo.palettes);
+    } else {
+      drawCamoBlobs(ctx, w, h, camo.palettes, camo.seed);
+    }
+
+    if (camoOnly) return;
+
     const ill = ILLUSTRATIONS[illusIndex];
     const bgColor = ILLUSTRATION_BG[illusIndex];
     const illusPalette = makeMonoPalette(bgColor);
     const img = illustrationImgs[illusIndex];
 
-    drawCamoBlobs(ctx, w, h, camo.palettes, camo.seed);
     if (img && img.complete && img.naturalWidth > 0) {
       ctx.save();
       ctx.beginPath(); ctx.rect(0, ILLUS_Y, w, ILLUS_H); ctx.clip();
@@ -189,7 +209,15 @@
     });
   }
 
-  function renderDeck(canvas, { camoIndex = 0, illusIndex = 0, showLogo = true, logoScale = 0.85 } = {}) {
+  function renderDeck(canvas, opts = {}) {
+    const {
+      camoIndex = 0,
+      illusIndex = 0,
+      camoStyle = 'blob',
+      camoOnly = false,
+      showLogo = true,
+      logoScale = 0.85,
+    } = opts;
     const ctx = canvas.getContext('2d');
     const path = new Path2D(DECK_PATH);
     const cw = canvas.width || W, ch = canvas.height || H;
@@ -203,7 +231,7 @@
     const bg = document.createElement('canvas');
     bg.width = W; bg.height = H;
     const bgCtx = bg.getContext('2d');
-    paintBackground(bgCtx, W, H, camoIndex, illusIndex);
+    paintBackground(bgCtx, W, H, { camoIndex, illusIndex, camoStyle, camoOnly });
     ctx.drawImage(bg, 0, 0);
 
     if (showLogo && logoImg && logoImg.naturalWidth) {
@@ -221,28 +249,17 @@
     ctx.restore();
   }
 
-  function buildCatalog() {
-    const items = [];
-    CAMO_PATTERNS.forEach((camo, ci) => {
-      ILLUSTRATIONS.forEach((ill, ii) => {
-        DECK_SIZES.forEach((size) => {
-          items.push({
-            id: `${camo.name.toLowerCase()}-${ill.name.toLowerCase()}-${size.id}`,
-            camoIndex: ci,
-            illusIndex: ii,
-            sizeId: size.id,
-            title: `${camo.name} · ${ill.name}`,
-            sizeLabel: size.label,
-            price: size.price,
-          });
-        });
-      });
+  function renderFromDesign(canvas, design, showLogo = true) {
+    renderDeck(canvas, {
+      camoIndex: design.camoIndex,
+      camoStyle: design.camoStyle || 'blob',
+      camoOnly: true,
+      showLogo,
     });
-    return items;
   }
 
   global.PaydayDeckRenderer = {
     W, H, CAMO_PATTERNS, ILLUSTRATIONS, DECK_SIZES,
-    loadAssets, renderDeck, buildCatalog,
+    loadAssets, renderDeck, renderFromDesign,
   };
 })(window);

@@ -252,8 +252,8 @@
 
   <section class="configurator" id="configurator">
     <div class="phase-badge" id="phase-badge">Runde 1 von 2</div>
-    <h1 class="phase-title" id="phase-title">Camo Generator</h1>
-    <p class="phase-hint" id="phase-hint">Drücke den Button, um durch die Camo-Patterns zu wechseln. Mindestens 1–2 Durchläufe, dann geht es zur Deckgröße.</p>
+    <h1 class="phase-title" id="phase-title">Design Generator</h1>
+    <p class="phase-hint" id="phase-hint">Jeder Klick zeigt das nächste Druck-PDF (Camo oder Linear). Mindestens 1–2 Durchläufe, dann geht es zur Deckgröße.</p>
     <p class="click-progress" id="click-progress">Klick <span>0</span> / <span>2</span></p>
 
     <div class="preview-wrap">
@@ -344,7 +344,7 @@
       previewBoard.alt = design.name + ' Deck';
       document.getElementById('preview-label').textContent = design.name;
       document.getElementById('preview-sublabel').textContent =
-        size.label + ' · ' + meta.pdf + ' · sha256:' + meta.sha256.slice(0, 8);
+        design.patternLabel + ' · ' + size.label + ' · ' + meta.pdf;
     }
 
     function openBoardPreview(design) {
@@ -353,7 +353,7 @@
       document.getElementById('pdf-modal-title').textContent = design.name;
       document.getElementById('pdf-modal-download').href = INV.pdfLocalUrl(design);
       document.getElementById('pdf-modal-meta').textContent =
-        meta.pdf + ' · ' + meta.width + '×' + meta.height + 'px · sha256:' + meta.sha256.slice(0, 16) + '…';
+        design.patternLabel + ' · Editor: ' + design.camoStyle + ' · ' + meta.pdf + ' · ' + meta.width + '×' + meta.height + 'px';
       document.getElementById('pdf-modal-board').src = INV.previewUrl(design);
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
@@ -381,11 +381,12 @@
       dotShop.className = 'round-dot' + (state.unlocked ? ' done active' : '');
 
       if (state.phase === 'camo') {
+        const design = currentDesign();
         badge.textContent = 'Runde 1 von 2';
-        title.textContent = 'Camo Generator';
-        hint.textContent = 'Jeder Klick zeigt das nächste Board aus den Druck-PDFs. Mindestens ' + state.camoRequired + '× durchklicken.';
+        title.textContent = design.patternLabel === 'Linear' ? 'Linear Generator' : 'Camo Generator';
+        hint.textContent = 'Aktuell: ' + design.name + ' (' + design.patternLabel + '). Mindestens ' + state.camoRequired + '× durchklicken.';
         prog.innerHTML = `Klick <span>${state.camoClicks}</span> / <span>${state.camoRequired}</span>`;
-        btnText.textContent = 'Camo generieren';
+        btnText.textContent = design.patternLabel === 'Linear' ? 'Linear wechseln' : 'Camo generieren';
       } else if (state.phase === 'size') {
         badge.textContent = 'Runde 2 von 2';
         title.textContent = 'Deckgröße';

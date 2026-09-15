@@ -60,13 +60,17 @@
     },
   };
 
+  /**
+   * Editor engine mapping (decks/editor.html CAMO_PATTERNS + camoStyle).
+   * manifestKey always matches the physical Druck-PDF filename on Drive.
+   */
   const DESIGNS = [
-    { id: 'chrome', name: 'CHROME', manifestKey: 'payday_CHROME', driveId: '1-sd4Vy8id4IaTDD0arnv6gKhYImCF5sM' },
-    { id: 'neon', name: 'NEON', manifestKey: 'payday_NEON', driveId: '150wocQj8Pp6YYADu4aj_zyjUXmnz-q-H' },
-    { id: 'payday-linear', name: 'PAYDAY Linear', manifestKey: 'payday_PAYDAY_Linear', driveId: '1l5LnU9eAI6ft9ZpEdh8-KeXRC2vDdIwb' },
-    { id: 'arctic', name: 'ARCTIC', manifestKey: 'payday_ARCTIC', driveId: '1e4ux5YIHkDg9qrYyNR4Z7xXxeCY4gYH7' },
-    { id: 'night', name: 'NIGHT', manifestKey: 'payday_NIGHT', driveId: '1qrlZZqr1X204vqp2_PuOuHEcyM2ZmaEq' },
-    { id: 'payday-camo', name: 'PAYDAY Camo', manifestKey: 'payday_PAYDAY', driveId: '1iuEOWM_ovSGEKXFdshXnaGnFROXG2X9s' },
+    { id: 'chrome', name: 'CHROME', manifestKey: 'payday_CHROME', driveId: '1-sd4Vy8id4IaTDD0arnv6gKhYImCF5sM', camoIndex: 15, camoStyle: 'blob', patternLabel: 'Camo' },
+    { id: 'neon', name: 'NEON', manifestKey: 'payday_NEON', driveId: '150wocQj8Pp6YYADu4aj_zyjUXmnz-q-H', camoIndex: 4, camoStyle: 'blob', patternLabel: 'Camo' },
+    { id: 'payday-linear', name: 'PAYDAY Linear', manifestKey: 'payday_PAYDAY_Linear', driveId: '1l5LnU9eAI6ft9ZpEdh8-KeXRC2vDdIwb', camoIndex: 0, camoStyle: 'linear', patternLabel: 'Linear' },
+    { id: 'arctic', name: 'ARCTIC', manifestKey: 'payday_ARCTIC', driveId: '1e4ux5YIHkDg9qrYyNR4Z7xXxeCY4gYH7', camoIndex: 3, camoStyle: 'linear', patternLabel: 'Linear' },
+    { id: 'night', name: 'NIGHT', manifestKey: 'payday_NIGHT', driveId: '1qrlZZqr1X204vqp2_PuOuHEcyM2ZmaEq', camoIndex: 5, camoStyle: 'blob', patternLabel: 'Camo' },
+    { id: 'payday-camo', name: 'PAYDAY Camo', manifestKey: 'payday_PAYDAY', driveId: '1iuEOWM_ovSGEKXFdshXnaGnFROXG2X9s', camoIndex: 0, camoStyle: 'blob', patternLabel: 'Camo' },
   ];
 
   const SIZES = [
@@ -126,6 +130,9 @@
           designId: design.id,
           designName: design.name,
           manifestKey: design.manifestKey,
+          camoIndex: design.camoIndex,
+          camoStyle: design.camoStyle,
+          patternLabel: design.patternLabel,
           pdf: meta.pdf,
           sha256: meta.sha256,
           thumbUrl: thumbUrl(design),

@@ -28,8 +28,8 @@
   const DECK_CARDS = [
     { name: 'CHROME', thumb: 'assets/boards/payday_CHROME-thumb.jpg', pattern: 'Camo' },
     { name: 'NEON', thumb: 'assets/boards/payday_NEON-thumb.jpg', pattern: 'Camo' },
-    { name: 'PAYDAY Linear', thumb: 'assets/boards/payday_PAYDAY_Linear-thumb.jpg', pattern: 'Linear' },
-    { name: 'ARCTIC', thumb: 'assets/boards/payday_ARCTIC-thumb.jpg', pattern: 'Linear' },
+    { name: 'PAYDAY Linear', thumb: 'assets/boards/payday_ARCTIC-thumb.jpg', pattern: 'Linear' },
+    { name: 'ARCTIC', thumb: 'assets/boards/payday_PAYDAY_Linear-thumb.jpg', pattern: 'Linear' },
     { name: 'NIGHT', thumb: 'assets/boards/payday_NIGHT-thumb.jpg', pattern: 'Camo' },
     { name: 'PAYDAY Camo', thumb: 'assets/boards/payday_PAYDAY-thumb.jpg', pattern: 'Camo' },
   ];

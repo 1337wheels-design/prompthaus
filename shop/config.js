@@ -10,8 +10,8 @@ window.PAYDAY_SHOP = {
   // Option C/D: Hybrid oder Buy Button
   shopDomain: 'YOUR-STORE.myshopify.com',
 
-  // GitHub Pages Basis-URL (ohne trailing slash)
-  galleryBaseUrl: '../cards/index.html',
+  // GitHub Pages: Karten-Galerie (relativ oder absolut)
+  galleryBaseUrl: '/prompthaus/cards/index.html',
 
   // Storefront API (Option B — optional)
   storefrontAccessToken: '',

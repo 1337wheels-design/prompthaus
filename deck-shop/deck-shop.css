@@ -144,20 +144,20 @@
   text-align: center;
 }
 
-.preview-frame {
-  display: inline-block;
-  position: relative;
-  max-height: 320px;
-  overflow: hidden;
-}
-
-.preview-frame--swipeable {
+.configurator__sidebar--swipeable {
   touch-action: pan-y;
   cursor: grab;
 }
 
-.preview-frame--swipeable:active {
+.configurator__sidebar--swipeable:active {
   cursor: grabbing;
+}
+
+.preview-frame {
+  display: inline-block;
+  position: relative;
+  max-height: 426px;
+  overflow: visible;
 }
 
 .preview-frame--swipe-left { animation: swipe-left 0.28s ease; }
@@ -194,16 +194,16 @@
 
 #preview-canvas {
   display: block;
-  width: min(200px, 50vw);
+  width: min(266px, 66vw);
   height: auto;
-  max-height: 300px;
+  max-height: 399px;
   object-fit: contain;
   filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.85));
 }
 
 .configurator.is-unlocked #preview-canvas {
-  width: min(140px, 36vw);
-  max-height: 200px;
+  width: min(186px, 48vw);
+  max-height: 266px;
 }
 
 .preview-nav-hint {
@@ -408,7 +408,7 @@
 /* Desktop: sidebar left, shop right */
 @media (min-width: 900px) {
   .configurator__layout {
-    grid-template-columns: minmax(260px, 300px) 1fr;
+    grid-template-columns: minmax(300px, 360px) 1fr;
     gap: 32px;
   }
 
@@ -418,13 +418,13 @@
   }
 
   #preview-canvas {
-    width: 180px;
-    max-height: 280px;
+    width: 239px;
+    max-height: 372px;
   }
 
   .configurator.is-unlocked #preview-canvas {
-    width: 120px;
-    max-height: 180px;
+    width: 160px;
+    max-height: 239px;
   }
 
   .design-nav.is-visible {

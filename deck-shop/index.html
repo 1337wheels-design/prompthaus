@@ -428,7 +428,8 @@
 
       const isDesktop = usesDesktopNav();
       const navActive = state.phase === 'swipe' || state.unlocked;
-      previewFrame.classList.toggle('preview-frame--swipeable', !isDesktop && navActive);
+      const sidebar = document.querySelector('.configurator__sidebar');
+      if (sidebar) sidebar.classList.toggle('configurator__sidebar--swipeable', !isDesktop && navActive);
 
       document.getElementById('design-nav').classList.toggle('is-visible', isDesktop && navActive);
       document.getElementById('zone-progress').classList.toggle('is-done', state.unlocked);
@@ -450,7 +451,7 @@
         title.textContent = design.name;
         hint.textContent = isDesktop
           ? 'Weiter / Zurück klicken — ' + left + '× bis der Shop freigeschaltet wird.'
-          : 'Horizontal wischen — ' + left + '× bis der Shop freigeschaltet wird.';
+          : 'In der Sidebar wischen — ' + left + '× bis der Shop freigeschaltet wird.';
         prog.textContent = left + '× ' + navVerb() + ' bis Shop';
       } else {
         badge.textContent = 'Shop offen';
@@ -464,7 +465,7 @@
         navHint.hidden = true;
       } else {
         navHint.hidden = false;
-        navHint.textContent = '← Wischen →';
+        navHint.textContent = 'Sidebar: ← Wischen →';
       }
 
       setProgressBar(progressPercent(), state.introRunning);
@@ -503,9 +504,16 @@
       updateUI();
     }
 
+    function isSwipeExcludedTarget(target) {
+      return target.closest('.design-strip')
+        || target.closest('button')
+        || target.closest('a');
+    }
+
     function bindSwipe(el) {
       el.addEventListener('pointerdown', (e) => {
         if (usesDesktopNav() || state.introRunning) return;
+        if (isSwipeExcludedTarget(e.target)) return;
         pointerActive = true;
         pointerStartX = e.clientX;
         pointerStartY = e.clientY;
@@ -521,7 +529,7 @@
       el.addEventListener('pointercancel', () => { pointerActive = false; });
     }
 
-    bindSwipe(previewFrame);
+    bindSwipe(document.querySelector('.configurator__sidebar'));
     document.getElementById('nav-prev').addEventListener('click', () => handleNavStep(-1));
     document.getElementById('nav-next').addEventListener('click', () => handleNavStep(1));
     window.matchMedia('(min-width: 900px)').addEventListener('change', () => updateUI());

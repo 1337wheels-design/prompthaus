@@ -117,13 +117,14 @@
             </div>
             <span class="unlock-progress__label" id="unlock-progress-label">Vorschau startet…</span>
           </div>
-          <canvas id="preview-canvas" width="400" height="1400" title="Tippen zum Generieren"></canvas>
+          <canvas id="preview-canvas" width="400" height="1400" title="Design wechseln"></canvas>
           <p class="preview-tap-hint" id="preview-tap-hint">← Wischen →</p>
         </div>
-        <div class="design-strip-wrap">
-          <p class="design-strip__label">Design wählen</p>
-          <div class="design-strip" id="design-strip" aria-label="Design-Auswahl"></div>
-        </div>
+      </div>
+
+      <div class="design-strip-wrap">
+        <p class="design-strip__label">Design wählen</p>
+        <div class="design-strip" id="design-strip" aria-label="Design-Auswahl"></div>
       </div>
 
       <div class="control-col">
@@ -134,7 +135,7 @@
           <span class="pattern-pill pattern-pill--linear" id="pill-linear" style="display:none">Linear</span>
         </div>
         <p class="phase-hint" id="phase-hint">Alle Designs werden kurz vorgestellt…</p>
-        <p class="click-progress" id="click-progress">3× Wischen zum Freischalten</p>
+        <p class="click-progress" id="click-progress">3× Wischen / Scrollen zum Freischalten</p>
         <div class="round-dots" id="swipe-dots">
           <div class="round-dot" id="dot-swipe-1" title="Wisch 1"></div>
           <div class="round-dot" id="dot-swipe-2" title="Wisch 2"></div>
@@ -187,10 +188,24 @@
     const INTRO_DURATION_MS = 500;
     const SWIPES_REQUIRED = 3;
     const INTRO_PROGRESS_SHARE = 25;
+    const desktopNavMq = window.matchMedia('(min-width: 769px) and (pointer: fine)');
     let pointerStartX = 0;
     let pointerStartY = 0;
     let pointerActive = false;
     let suppressTapUntil = 0;
+    let wheelLock = false;
+
+    function usesScrollNav() {
+      return desktopNavMq.matches;
+    }
+
+    function navVerb() {
+      return usesScrollNav() ? 'Scrollen' : 'Wischen';
+    }
+
+    function navHint() {
+      return usesScrollNav() ? '↕ Scrollen' : '← Wischen →';
+    }
 
     function currentDesign() { return INV.DESIGNS[state.designIndex]; }
     function currentSize() { return INV.SIZES[state.sizeIndex]; }
@@ -303,7 +318,7 @@
       }
       if (state.phase === 'swipe') {
         const left = SWIPES_REQUIRED - state.swipeCount;
-        label.innerHTML = 'Noch <span>' + left + '× wischen</span> bis Shop';
+        label.innerHTML = 'Noch <span>' + left + '× ' + navVerb().toLowerCase() + '</span> bis Shop';
         return;
       }
       label.innerHTML = '<span>Shop freigeschaltet</span>';
@@ -391,7 +406,7 @@
 
       const prog = document.getElementById('click-progress');
       const left = SWIPES_REQUIRED - state.swipeCount;
-      prog.textContent = left > 0 ? left + '× Wischen bis Shop' : 'Shop wird freigeschaltet…';
+      prog.textContent = left > 0 ? left + '× ' + navVerb() + ' bis Shop' : 'Shop wird freigeschaltet…';
 
       if (state.swipeCount >= SWIPES_REQUIRED) {
         setTimeout(unlockShop, 180);
@@ -407,7 +422,9 @@
       const title = document.getElementById('phase-title');
       const hint = document.getElementById('phase-hint');
 
-      previewFrame.classList.toggle('preview-frame--swipeable', state.phase === 'swipe' || state.unlocked);
+      const navActive = state.phase === 'swipe' || state.unlocked;
+      previewFrame.classList.toggle('preview-frame--swipeable', !usesScrollNav() && navActive);
+      previewFrame.classList.toggle('preview-frame--scrollable', usesScrollNav() && navActive);
 
       if (state.phase === 'loading') {
         badge.textContent = 'Lädt';
@@ -423,8 +440,10 @@
         const left = SWIPES_REQUIRED - state.swipeCount;
         badge.textContent = 'Schritt ' + (state.swipeCount + 1) + ' von ' + SWIPES_REQUIRED;
         title.textContent = design.name;
-        hint.textContent = 'Horizontal wischen — ' + left + '× bis der Shop freigeschaltet wird.';
-        prog.textContent = left + '× Wischen bis Shop';
+        hint.textContent = usesScrollNav()
+          ? 'Am Board scrollen — ' + left + '× bis der Shop freigeschaltet wird.'
+          : 'Horizontal wischen — ' + left + '× bis der Shop freigeschaltet wird.';
+        prog.textContent = left + '× ' + navVerb() + ' bis Shop';
       } else {
         badge.textContent = 'Shop offen';
         title.textContent = 'Verfügbare Decks';
@@ -437,10 +456,10 @@
         tapHint.hidden = true;
       } else if (state.phase === 'swipe') {
         tapHint.hidden = false;
-        tapHint.textContent = '← Wischen →';
+        tapHint.textContent = navHint();
       } else {
         tapHint.hidden = false;
-        tapHint.textContent = state.phase === 'intro' ? 'Vorschau…' : '← Wischen →';
+        tapHint.textContent = state.phase === 'intro' ? 'Vorschau…' : navHint();
       }
 
       setProgressBar(progressPercent(), state.introRunning);
@@ -486,13 +505,13 @@
 
     function bindSwipe(el) {
       el.addEventListener('pointerdown', (e) => {
-        if (state.introRunning) return;
+        if (usesScrollNav() || state.introRunning) return;
         pointerActive = true;
         pointerStartX = e.clientX;
         pointerStartY = e.clientY;
       });
       el.addEventListener('pointerup', (e) => {
-        if (!pointerActive) return;
+        if (!pointerActive || usesScrollNav()) return;
         pointerActive = false;
         const dx = e.clientX - pointerStartX;
         const dy = e.clientY - pointerStartY;
@@ -502,7 +521,23 @@
       el.addEventListener('pointercancel', () => { pointerActive = false; });
     }
 
+    function bindWheelNav(el) {
+      el.addEventListener('wheel', (e) => {
+        if (!usesScrollNav() || state.introRunning) return;
+        if (state.phase !== 'swipe' && !state.unlocked) return;
+        if (Math.abs(e.deltaY) < 14) return;
+        e.preventDefault();
+        if (wheelLock) return;
+        wheelLock = true;
+        setTimeout(() => { wheelLock = false; }, 320);
+        handleSwipe(e.deltaY > 0 ? -80 : 80);
+      }, { passive: false });
+    }
+
     bindSwipe(previewFrame);
+    bindWheelNav(previewFrame);
+    bindWheelNav(document.querySelector('.control-col'));
+    desktopNavMq.addEventListener('change', () => updateUI());
 
     let catalog = [];
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extract embedded board JPEGs from Payday PDFs → shop/assets/boards/"""
+"""Extract embedded board JPEGs from Payday PDFs → deck-shop/assets/boards/"""
 import hashlib
 import io
 import json
@@ -10,8 +10,8 @@ import fitz
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-PDF_DIR = ROOT / 'shop' / 'assets' / 'pdfs'
-OUT_DIR = ROOT / 'shop' / 'assets' / 'boards'
+PDF_DIR = ROOT / 'deck-shop' / 'assets' / 'pdfs'
+OUT_DIR = ROOT / 'deck-shop' / 'assets' / 'boards'
 THUMB_W, PREVIEW_W = 200, 400
 
 

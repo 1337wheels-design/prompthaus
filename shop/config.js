@@ -51,15 +51,6 @@ window.PAYDAY_SHOP = {
       variantId: null,
     },
     {
-      handle: 'payday-deck',
-      title: 'Payday Deck',
-      price: 'ab 89,00 €',
-      description: 'Multikonfigurator: Camo → Größe → freie Auswahl',
-      tombola: 0,
-      variantId: null,
-      configuratorUrl: 'decks.html',
-    },
-    {
       handle: 'art-print-attitude',
       title: 'Art Print',
       price: '25,00 €',

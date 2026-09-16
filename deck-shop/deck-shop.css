@@ -295,6 +295,10 @@
   transform: translateY(-2px);
 }
 
+.design-strip__item.visited {
+  opacity: 0.85;
+}
+
 .design-strip__item.visited::after {
   content: '';
   position: absolute;
@@ -305,6 +309,14 @@
   height: 4px;
   border-radius: 50%;
   background: var(--aqua);
+}
+
+.configurator.is-unlocked .design-strip__item {
+  opacity: 1;
+}
+
+.configurator.is-unlocked .design-strip__item.visited::after {
+  background: var(--gold);
 }
 
 .design-strip__item:disabled {

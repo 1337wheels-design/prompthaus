@@ -254,11 +254,12 @@
       INV.DESIGNS.forEach((d, i) => {
         const btn = document.createElement('button');
         btn.type = 'button';
+        const isUnlocked = state.unlocked || state.visitedDesigns.has(d.id);
         btn.className = 'design-strip__item'
           + (i === state.designIndex ? ' active' : '')
-          + (state.visitedDesigns.has(d.id) ? ' visited' : '');
+          + (isUnlocked ? ' visited' : '');
         btn.title = d.name;
-        btn.disabled = !state.unlocked;
+        btn.disabled = !state.unlocked && !isUnlocked;
         const img = document.createElement('img');
         img.src = INV.thumbUrl(d);
         img.alt = d.name;
@@ -414,7 +415,14 @@
     }
 
     function handleSwipe(dx) {
-      if (state.unlocked || state.introRunning) return;
+      if (state.introRunning) return;
+      if (state.unlocked) {
+        suppressTapUntil = Date.now() + 400;
+        shiftDesign(dx < 0 ? 1 : -1);
+        flashSwipe(dx, false);
+        updateUI();
+        return;
+      }
       if (state.phase !== 'swipe') return;
 
       suppressTapUntil = Date.now() + 400;
@@ -444,7 +452,7 @@
       const hint = document.getElementById('phase-hint');
 
       document.getElementById('preview-label').textContent = design.name + ' · ' + design.patternLabel;
-      previewFrame.classList.toggle('preview-frame--swipeable', state.phase === 'swipe');
+      previewFrame.classList.toggle('preview-frame--swipeable', state.phase === 'swipe' || state.unlocked);
 
       if (state.phase === 'loading') {
         badge.textContent = 'Lädt';
@@ -495,6 +503,10 @@
       if (!state.introRunning) renderCanvasPreview();
     }
 
+    function unlockAllDesigns() {
+      INV.DESIGNS.forEach((d) => state.visitedDesigns.add(d.id));
+    }
+
     function unlockShop() {
       state.introRunning = false;
       state.phase = 'shop';
@@ -503,14 +515,14 @@
       updateProgressLabel();
       const progressEl = document.getElementById('unlock-progress');
       if (progressEl) progressEl.classList.add('hidden');
-      state.filterDesign = currentDesign().id;
+      unlockAllDesigns();
+      state.filterDesign = null;
       state.filterSize = null;
-      document.getElementById('configurator').classList.add('locked-out');
+      document.getElementById('configurator').classList.add('is-unlocked');
       document.getElementById('unlock-banner').classList.add('visible');
       document.getElementById('shop-section').classList.add('unlocked');
-      const design = currentDesign();
       document.getElementById('shop-subtitle').textContent =
-        INV.totalStock(state.stock) + ' Decks · Deine Wahl: ' + design.name;
+        INV.totalStock(state.stock) + ' Decks · Alle ' + INV.DESIGNS.length + ' Designs · 8.38″ & 8.5″';
       buildFilters();
       renderShopGrid();
       updateUI();
@@ -526,7 +538,7 @@
 
     function bindSwipe(el) {
       el.addEventListener('pointerdown', (e) => {
-        if (state.unlocked) return;
+        if (state.introRunning) return;
         pointerActive = true;
         pointerStartX = e.clientX;
         pointerStartY = e.clientY;

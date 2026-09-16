@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extract embedded board JPEGs from Payday PDFs → deck-shop/assets/boards/"""
+"""Extract embedded board JPEGs from print masters → deck-shop/assets/boards/"""
 import hashlib
 import io
 import json
@@ -37,7 +37,7 @@ def main():
             resized.save(out, 'JPEG', quality=88 if suffix == '-thumb' else 90, optimize=True)
 
         manifest[base] = {
-            'pdf': pdf_path.name,
+            'source': base,
             'sha256': sha,
             'width': info['width'],
             'height': info['height'],

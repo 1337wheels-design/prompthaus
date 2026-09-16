@@ -108,6 +108,53 @@
   100% { transform: translateX(0); opacity: 1; }
 }
 
+.preview-frame--intro-swipe {
+  animation: intro-swipe 0.08s ease;
+}
+
+@keyframes intro-swipe {
+  0% { transform: translateX(8px); opacity: 0.85; }
+  50% { transform: translateX(-10px); opacity: 0.65; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+.unlock-progress {
+  margin: 20px 0 16px;
+}
+
+.unlock-progress__track {
+  height: 6px;
+  background: rgba(240, 208, 96, 0.1);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.unlock-progress__fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--aqua), var(--gold));
+  border-radius: 2px;
+  transition: width 0.22s ease;
+}
+
+.unlock-progress__fill--intro {
+  transition: none;
+}
+
+.unlock-progress__label {
+  display: block;
+  margin-top: 8px;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+}
+
+.unlock-progress__label span {
+  color: var(--gold);
+}
+
 .preview-tap-hint {
   position: absolute;
   bottom: 12px;

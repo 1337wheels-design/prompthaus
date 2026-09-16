@@ -136,18 +136,24 @@
       </div>
 
       <div class="control-col">
-        <div class="phase-badge" id="phase-badge">Runde 1 von 2</div>
-        <h2 class="phase-title" id="phase-title">Camo Generator</h2>
+        <div class="phase-badge" id="phase-badge">Lädt</div>
+        <h2 class="phase-title" id="phase-title">Payday Decks</h2>
         <div class="pattern-pills" id="pattern-pills">
           <span class="pattern-pill pattern-pill--camo" id="pill-camo">Camo</span>
           <span class="pattern-pill pattern-pill--linear" id="pill-linear" style="display:none">Linear</span>
         </div>
-        <p class="phase-hint" id="phase-hint">Starte den Generator — jedes Klicken rendert das nächste Board live.</p>
-        <p class="click-progress" id="click-progress">1× Wischen · 1× Tippen</p>
-        <div class="round-dots">
-          <div class="round-dot active" id="dot-browse" title="Wischen"></div>
-          <div class="round-dot" id="dot-tap" title="Tippen"></div>
-          <div class="round-dot" id="dot-shop" title="Shop"></div>
+        <p class="phase-hint" id="phase-hint">Alle Designs werden kurz vorgestellt…</p>
+        <div class="unlock-progress" id="unlock-progress">
+          <div class="unlock-progress__track">
+            <div class="unlock-progress__fill" id="unlock-progress-fill"></div>
+          </div>
+          <span class="unlock-progress__label" id="unlock-progress-label">Vorschau startet…</span>
+        </div>
+        <p class="click-progress" id="click-progress">3× Wischen zum Freischalten</p>
+        <div class="round-dots" id="swipe-dots">
+          <div class="round-dot" id="dot-swipe-1" title="Wisch 1"></div>
+          <div class="round-dot" id="dot-swipe-2" title="Wisch 2"></div>
+          <div class="round-dot" id="dot-swipe-3" title="Wisch 3"></div>
         </div>
       </div>
     </div>
@@ -195,7 +201,7 @@
     const previewFrame = document.getElementById('preview-frame');
 
     const state = {
-      phase: 'browse',
+      phase: 'loading',
       designIndex: 0,
       sizeIndex: 0,
       unlocked: false,
@@ -205,9 +211,14 @@
       filterSize: null,
       visitedDesigns: new Set(),
       rendererReady: false,
+      swipeCount: 0,
+      introRunning: false,
     };
 
     const SWIPE_MIN = 48;
+    const INTRO_DURATION_MS = 500;
+    const SWIPES_REQUIRED = 3;
+    const INTRO_PROGRESS_SHARE = 25;
     let pointerStartX = 0;
     let pointerStartY = 0;
     let pointerActive = false;
@@ -247,14 +258,14 @@
           + (i === state.designIndex ? ' active' : '')
           + (state.visitedDesigns.has(d.id) ? ' visited' : '');
         btn.title = d.name;
-        btn.disabled = !state.unlocked && state.phase !== 'color';
+        btn.disabled = !state.unlocked;
         const img = document.createElement('img');
         img.src = INV.thumbUrl(d);
         img.alt = d.name;
         img.loading = 'lazy';
         btn.appendChild(img);
         btn.addEventListener('click', () => {
-          if (!state.unlocked && state.phase !== 'color') return;
+          if (!state.unlocked) return;
           state.designIndex = i;
           renderCanvasPreview();
           updateDesignStrip();
@@ -305,20 +316,122 @@
         currentDesign().name + ' · ' + currentDesign().patternLabel;
     }
 
-    function flashSwipe(dir) {
-      previewFrame.classList.remove('preview-frame--swipe-left', 'preview-frame--swipe-right');
+    function flashSwipe(dir, fast) {
+      previewFrame.classList.remove('preview-frame--swipe-left', 'preview-frame--swipe-right', 'preview-frame--intro-swipe');
       void previewFrame.offsetWidth;
-      previewFrame.classList.add(dir < 0 ? 'preview-frame--swipe-left' : 'preview-frame--swipe-right');
+      if (fast) {
+        previewFrame.classList.add('preview-frame--intro-swipe');
+      } else {
+        previewFrame.classList.add(dir < 0 ? 'preview-frame--swipe-left' : 'preview-frame--swipe-right');
+      }
+    }
+
+    function setProgressBar(percent, introMode) {
+      const fill = document.getElementById('unlock-progress-fill');
+      fill.style.width = Math.min(100, Math.max(0, percent)) + '%';
+      fill.classList.toggle('unlock-progress__fill--intro', !!introMode);
+    }
+
+    function updateProgressLabel() {
+      const label = document.getElementById('unlock-progress-label');
+      if (state.phase === 'loading') {
+        label.innerHTML = 'Generator lädt…';
+        return;
+      }
+      if (state.phase === 'intro') {
+        label.innerHTML = 'Vorschau · <span>alle ' + INV.DESIGNS.length + ' Designs</span>';
+        return;
+      }
+      if (state.phase === 'swipe') {
+        const left = SWIPES_REQUIRED - state.swipeCount;
+        label.innerHTML = 'Noch <span>' + left + '× wischen</span> bis Shop';
+        return;
+      }
+      label.innerHTML = '<span>Shop freigeschaltet</span>';
+    }
+
+    function progressPercent() {
+      if (state.phase === 'loading') return 0;
+      if (state.phase === 'intro') return INTRO_PROGRESS_SHARE;
+      if (state.phase === 'swipe') {
+        const swipeShare = (100 - INTRO_PROGRESS_SHARE) / SWIPES_REQUIRED;
+        return INTRO_PROGRESS_SHARE + state.swipeCount * swipeShare;
+      }
+      return 100;
+    }
+
+    function updateSwipeDots() {
+      for (let i = 1; i <= SWIPES_REQUIRED; i++) {
+        const dot = document.getElementById('dot-swipe-' + i);
+        if (!dot) continue;
+        const done = state.swipeCount >= i;
+        const active = state.phase === 'swipe' && state.swipeCount === i - 1;
+        dot.className = 'round-dot' + (done ? ' done' : '') + (active ? ' active' : '');
+      }
+    }
+
+    function runIntroAnimation() {
+      state.phase = 'intro';
+      state.introRunning = true;
+      state.designIndex = 0;
+      const n = INV.DESIGNS.length;
+      const start = performance.now();
+      let lastIdx = -1;
+
+      function tick(now) {
+        if (!state.introRunning) return;
+        const elapsed = now - start;
+        const t = Math.min(elapsed / INTRO_DURATION_MS, 1);
+        const idx = Math.min(Math.floor(t * n), n - 1);
+
+        setProgressBar(t * INTRO_PROGRESS_SHARE, true);
+        updateProgressLabel();
+
+        if (idx !== lastIdx) {
+          lastIdx = idx;
+          state.designIndex = idx;
+          state.visitedDesigns.add(INV.DESIGNS[idx].id);
+          renderCanvasPreview();
+          flashSwipe(-1, true);
+          document.getElementById('preview-label').textContent =
+            INV.DESIGNS[idx].name + ' · ' + INV.DESIGNS[idx].patternLabel;
+          updateDesignStrip();
+        }
+
+        if (t < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          state.introRunning = false;
+          state.phase = 'swipe';
+          state.swipeCount = 0;
+          setProgressBar(INTRO_PROGRESS_SHARE, false);
+          updateUI();
+        }
+      }
+
+      updateUI();
+      requestAnimationFrame(tick);
     }
 
     function handleSwipe(dx) {
-      if (state.unlocked) return;
+      if (state.unlocked || state.introRunning) return;
+      if (state.phase !== 'swipe') return;
+
       suppressTapUntil = Date.now() + 400;
       shiftDesign(dx < 0 ? 1 : -1);
-      flashSwipe(dx);
+      flashSwipe(dx, false);
+      state.swipeCount += 1;
+      setProgressBar(progressPercent(), false);
+      updateProgressLabel();
+      updateSwipeDots();
 
-      if (state.phase === 'browse') {
-        state.phase = 'color';
+      const prog = document.getElementById('click-progress');
+      const left = SWIPES_REQUIRED - state.swipeCount;
+      prog.textContent = left > 0 ? left + '× Wischen bis Shop' : 'Shop wird freigeschaltet…';
+
+      if (state.swipeCount >= SWIPES_REQUIRED) {
+        setTimeout(unlockShop, 180);
+      } else {
         updateUI();
       }
     }
@@ -329,29 +442,26 @@
       const badge = document.getElementById('phase-badge');
       const title = document.getElementById('phase-title');
       const hint = document.getElementById('phase-hint');
-      const dotBrowse = document.getElementById('dot-browse');
-      const dotTap = document.getElementById('dot-tap');
-      const dotShop = document.getElementById('dot-shop');
-      const phaseOrder = ['browse', 'color', 'shop'];
-      const phaseIdx = phaseOrder.indexOf(state.phase);
-
-      dotBrowse.className = 'round-dot' + (phaseIdx > 0 ? ' done' : '') + (state.phase === 'browse' ? ' active' : '');
-      dotTap.className = 'round-dot' + (phaseIdx > 1 ? ' done' : '') + (state.phase === 'color' ? ' active' : '');
-      dotShop.className = 'round-dot' + (state.unlocked ? ' done active' : '');
 
       document.getElementById('preview-label').textContent = design.name + ' · ' + design.patternLabel;
-      previewFrame.classList.toggle('preview-frame--swipeable', !state.unlocked);
+      previewFrame.classList.toggle('preview-frame--swipeable', state.phase === 'swipe');
 
-      if (state.phase === 'browse') {
-        badge.textContent = 'Schritt 1 von 2';
-        title.textContent = 'Board-Auswahl';
-        hint.textContent = 'Horizontal wischen — Designs durchblättern.';
-        prog.textContent = '← Wischen →';
-      } else if (state.phase === 'color') {
-        badge.textContent = 'Schritt 2 von 2';
+      if (state.phase === 'loading') {
+        badge.textContent = 'Lädt';
+        title.textContent = 'Payday Decks';
+        hint.textContent = 'Generator wird vorbereitet…';
+        prog.textContent = 'Bitte kurz warten';
+      } else if (state.phase === 'intro') {
+        badge.textContent = 'Vorschau';
+        title.textContent = 'Alle Designs';
+        hint.textContent = '0,5 Sekunden — alle ' + INV.DESIGNS.length + ' Boards im Schnelldurchlauf.';
+        prog.textContent = 'Vorschau läuft…';
+      } else if (state.phase === 'swipe') {
+        const left = SWIPES_REQUIRED - state.swipeCount;
+        badge.textContent = 'Schritt ' + (state.swipeCount + 1) + ' von ' + SWIPES_REQUIRED;
         title.textContent = design.name;
-        hint.textContent = 'Board antippen — Shop öffnet sich direkt.';
-        prog.textContent = 'Tippen → Shop';
+        hint.textContent = 'Horizontal wischen — ' + left + '× bis der Shop freigeschaltet wird.';
+        prog.textContent = left + '× Wischen bis Shop';
       } else {
         badge.textContent = 'Shop offen';
         title.textContent = 'Verfügbare Decks';
@@ -365,24 +475,32 @@
         tapHint.textContent = 'Tippen für Druck-PDF';
         tapHint.classList.add('preview-tap-hint--pdf');
         pdfHint.hidden = false;
-      } else if (state.phase === 'browse') {
+      } else if (state.phase === 'swipe') {
         tapHint.textContent = '← Wischen →';
         tapHint.classList.remove('preview-tap-hint--pdf');
         pdfHint.hidden = true;
-      } else if (state.phase === 'color') {
-        tapHint.textContent = 'Tippen → Shop';
+      } else {
+        tapHint.textContent = state.phase === 'intro' ? 'Vorschau…' : '← Wischen →';
         tapHint.classList.remove('preview-tap-hint--pdf');
         pdfHint.hidden = true;
       }
 
+      setProgressBar(progressPercent(), state.introRunning);
+      updateProgressLabel();
+      updateSwipeDots();
+      const dotsWrap = document.getElementById('swipe-dots');
+      if (dotsWrap) dotsWrap.style.visibility = state.phase === 'swipe' ? 'visible' : 'hidden';
       updatePatternPills();
       updateDesignStrip();
-      renderCanvasPreview();
+      if (!state.introRunning) renderCanvasPreview();
     }
 
     function unlockShop() {
+      state.introRunning = false;
       state.phase = 'shop';
       state.unlocked = true;
+      setProgressBar(100, false);
+      updateProgressLabel();
       state.filterDesign = currentDesign().id;
       state.filterSize = null;
       document.getElementById('configurator').classList.add('locked-out');
@@ -401,15 +519,7 @@
 
     function handleBoardTap() {
       if (Date.now() < suppressTapUntil) return;
-      if (state.unlocked) {
-        openBoardPreview(currentDesign());
-        return;
-      }
-      if (state.phase === 'browse') return;
-      if (state.phase === 'color') {
-        state.visitedDesigns.add(currentDesign().id);
-        unlockShop();
-      }
+      if (state.unlocked) openBoardPreview(currentDesign());
     }
 
     function bindSwipe(el) {
@@ -581,15 +691,18 @@
 
     catalog = INV.buildCatalog(state.stock);
 
-    state.designIndex = Math.floor(Math.random() * INV.DESIGNS.length);
-    state.visitedDesigns.add(currentDesign().id);
     updateStockLabels();
 
     R.loadAssets('../decks/').then(() => {
       state.rendererReady = true;
+      state.designIndex = 0;
+      state.visitedDesigns.clear();
+      state.visitedDesigns.add(currentDesign().id);
       updateUI();
+      runIntroAnimation();
     }).catch(() => {
       state.rendererReady = false;
+      state.phase = 'swipe';
       document.getElementById('phase-hint').textContent = 'Generator lädt… Fallback: Druck-PDF Vorschau nutzen.';
       updateUI();
     });

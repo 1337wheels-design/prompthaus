@@ -125,6 +125,12 @@
     <div class="configurator__grid">
       <div class="preview-col">
         <div class="preview-frame" id="preview-frame">
+          <div class="unlock-progress unlock-progress--overlay" id="unlock-progress">
+            <div class="unlock-progress__track">
+              <div class="unlock-progress__fill" id="unlock-progress-fill"></div>
+            </div>
+            <span class="unlock-progress__label" id="unlock-progress-label">Vorschau startet…</span>
+          </div>
           <canvas id="preview-canvas" width="400" height="1400" title="Tippen zum Generieren"></canvas>
           <p class="preview-tap-hint" id="preview-tap-hint">Tippen zum Generieren</p>
         </div>
@@ -143,12 +149,6 @@
           <span class="pattern-pill pattern-pill--linear" id="pill-linear" style="display:none">Linear</span>
         </div>
         <p class="phase-hint" id="phase-hint">Alle Designs werden kurz vorgestellt…</p>
-        <div class="unlock-progress" id="unlock-progress">
-          <div class="unlock-progress__track">
-            <div class="unlock-progress__fill" id="unlock-progress-fill"></div>
-          </div>
-          <span class="unlock-progress__label" id="unlock-progress-label">Vorschau startet…</span>
-        </div>
         <p class="click-progress" id="click-progress">3× Wischen zum Freischalten</p>
         <div class="round-dots" id="swipe-dots">
           <div class="round-dot" id="dot-swipe-1" title="Wisch 1"></div>
@@ -501,6 +501,8 @@
       state.unlocked = true;
       setProgressBar(100, false);
       updateProgressLabel();
+      const progressEl = document.getElementById('unlock-progress');
+      if (progressEl) progressEl.classList.add('hidden');
       state.filterDesign = currentDesign().id;
       state.filterSize = null;
       document.getElementById('configurator').classList.add('locked-out');

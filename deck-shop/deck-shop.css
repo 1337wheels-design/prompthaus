@@ -122,6 +122,40 @@
   margin: 20px 0 16px;
 }
 
+.unlock-progress--overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 12;
+  margin: 0;
+  padding: 10px 10px 18px;
+  background: linear-gradient(
+    to bottom,
+    rgba(4, 14, 12, 0.94) 0%,
+    rgba(4, 14, 12, 0.72) 55%,
+    transparent 100%
+  );
+  pointer-events: none;
+  border-radius: 6px 6px 0 0;
+}
+
+.unlock-progress--overlay .unlock-progress__track {
+  max-width: 100%;
+}
+
+.unlock-progress--overlay .unlock-progress__label {
+  margin-top: 6px;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.85);
+}
+
+.unlock-progress--overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
 .unlock-progress__track {
   height: 6px;
   background: rgba(240, 208, 96, 0.1);

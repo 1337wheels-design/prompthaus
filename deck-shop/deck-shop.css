@@ -4,14 +4,14 @@
   text-align: center;
   padding: 32px 20px 24px;
   border-bottom: 1px solid var(--border);
-  background: rgba(4, 14, 12, 0.6);
+  background: rgba(10, 8, 18, 0.6);
 }
 
 .deck-hero__title {
   font-family: var(--font-display);
   font-size: clamp(22px, 5vw, 32px);
   letter-spacing: 0.06em;
-  color: var(--gold);
+  color: var(--purple);
   text-transform: uppercase;
   margin-bottom: 6px;
 }
@@ -19,7 +19,7 @@
 .deck-hero__sub {
   font-size: 10px;
   letter-spacing: 0.14em;
-  color: var(--gold-dim);
+  color: var(--purple-dim);
   text-transform: uppercase;
 }
 
@@ -30,7 +30,7 @@
   font-size: 9px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--aqua);
+  color: var(--accent);
   border: 1px solid rgba(0, 200, 176, 0.3);
   background: rgba(0, 200, 176, 0.06);
 }
@@ -38,7 +38,7 @@
 .nav__stock {
   font-size: 8px;
   letter-spacing: 0.1em;
-  color: var(--aqua);
+  color: var(--accent);
   margin-right: 12px;
   text-transform: uppercase;
 }
@@ -76,7 +76,7 @@
   font-size: 8px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gold-dim);
+  color: var(--purple-dim);
   margin-bottom: 12px;
   text-align: center;
 }
@@ -88,7 +88,7 @@
 
 .unlock-progress__track {
   height: 6px;
-  background: rgba(240, 208, 96, 0.1);
+  background: rgba(167, 139, 250, 0.1);
   border: 1px solid var(--border);
   border-radius: 3px;
   overflow: hidden;
@@ -97,7 +97,7 @@
 .unlock-progress__fill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, var(--aqua), var(--gold));
+  background: linear-gradient(90deg, var(--accent), var(--purple));
   border-radius: 2px;
   transition: width 0.22s ease;
 }
@@ -112,12 +112,12 @@
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--gold-dim);
+  color: var(--purple-dim);
   text-align: center;
 }
 
 .unlock-progress__label span {
-  color: var(--gold);
+  color: var(--purple);
 }
 
 .zone--progress.is-done {
@@ -136,7 +136,7 @@
   font-size: 9px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--aqua);
+  color: var(--accent);
 }
 
 /* Zone 2: Preview */
@@ -211,7 +211,7 @@
   font-size: 8px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--aqua);
+  color: var(--accent);
 }
 
 .preview-nav-hint[hidden] {
@@ -237,14 +237,14 @@
   padding: 8px 16px;
   border: 1px solid var(--border);
   background: transparent;
-  color: var(--gold);
+  color: var(--purple);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
 
 .design-nav__btn:hover {
-  border-color: var(--gold);
-  background: rgba(240, 208, 80, 0.08);
+  border-color: var(--purple);
+  background: rgba(167, 139, 250, 0.08);
 }
 
 /* Zone 3: Design strip */
@@ -258,12 +258,12 @@
   padding: 4px 2px 8px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-  scrollbar-color: rgba(240, 208, 96, 0.35) transparent;
+  scrollbar-color: rgba(167, 139, 250, 0.35) transparent;
 }
 
 .design-strip::-webkit-scrollbar { height: 4px; }
 .design-strip::-webkit-scrollbar-thumb {
-  background: rgba(240, 208, 96, 0.35);
+  background: rgba(167, 139, 250, 0.35);
   border-radius: 2px;
 }
 
@@ -289,7 +289,7 @@
 
 .design-strip__item.active {
   opacity: 1;
-  border-color: var(--gold);
+  border-color: var(--purple);
   transform: translateY(-2px);
 }
 
@@ -304,7 +304,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--aqua);
+  background: var(--accent);
 }
 
 .configurator.is-unlocked .design-strip__item {
@@ -312,7 +312,7 @@
 }
 
 .configurator.is-unlocked .design-strip__item.visited::after {
-  background: var(--gold);
+  background: var(--purple);
 }
 
 .design-strip__item:disabled {
@@ -354,12 +354,12 @@
 
 .pattern-pill--linear {
   border-color: rgba(0, 200, 176, 0.35);
-  color: var(--aqua);
+  color: var(--accent);
 }
 
 .pattern-pill--camo {
-  border-color: rgba(240, 208, 96, 0.35);
-  color: var(--gold);
+  border-color: rgba(167, 139, 250, 0.35);
+  color: var(--purple);
 }
 
 /* Shop panel */
@@ -384,14 +384,14 @@
 .shop-header h2 {
   font-family: var(--font-display);
   font-size: 22px;
-  color: var(--gold);
+  color: var(--purple);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .shop-header p {
   font-size: 10px;
-  color: var(--gold-dim);
+  color: var(--purple-dim);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-top: 6px;
@@ -401,7 +401,7 @@
   font-size: 7px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--aqua);
+  color: var(--accent);
   margin-bottom: 2px;
 }
 

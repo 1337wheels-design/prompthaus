@@ -8,12 +8,13 @@
   <link rel="stylesheet" href="deck-shop.css">
   <style>
     :root {
-      --gold: #f0d060;
-      --gold-dim: rgba(201,160,32,0.45);
-      --aqua: #00c8b0;
-      --bg: #040e0c;
-      --panel: #071210;
-      --border: rgba(240,208,80,0.18);
+      --purple: #c4b5fd;
+      --purple-dim: rgba(167, 139, 250, 0.55);
+      --purple-deep: #a78bfa;
+      --accent: #e879f9;
+      --bg: #0a0812;
+      --panel: #100c1a;
+      --border: rgba(167, 139, 250, 0.22);
       --text: #d0d0d2;
       --text-muted: #a8a090;
       --font-mono: 'Courier New', monospace;
@@ -23,7 +24,7 @@
     body {
       background: var(--bg);
       background-image:
-        radial-gradient(ellipse 60% 40% at 30% 10%, rgba(95,58,114,0.15) 0%, transparent 100%),
+        radial-gradient(ellipse 60% 40% at 30% 10%, rgba(120, 60, 180, 0.22) 0%, transparent 100%),
         radial-gradient(ellipse 50% 50% at 80% 90%, rgba(0,0,0,0.5) 0%, transparent 100%);
       font-family: var(--font-mono);
       color: var(--text);
@@ -32,53 +33,53 @@
     .nav {
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px 20px; border-bottom: 1px solid var(--border);
-      background: rgba(4,14,12,0.92); position: sticky; top: 0; z-index: 50;
+      background: rgba(10, 8, 18, 0.92); position: sticky; top: 0; z-index: 50;
     }
-    .nav__logo { font-family: var(--font-display); font-size: 16px; letter-spacing: 0.08em; color: var(--gold); text-decoration: none; text-transform: uppercase; }
-    .nav__links a { font-size: 9px; letter-spacing: 0.14em; color: var(--gold-dim); text-decoration: none; text-transform: uppercase; margin-left: 16px; }
-    .nav__links a:hover, .nav__links a.active { color: var(--gold); }
+    .nav__logo { font-family: var(--font-display); font-size: 16px; letter-spacing: 0.08em; color: var(--purple); text-decoration: none; text-transform: uppercase; }
+    .nav__links a { font-size: 9px; letter-spacing: 0.14em; color: var(--purple-dim); text-decoration: none; text-transform: uppercase; margin-left: 16px; }
+    .nav__links a:hover, .nav__links a.active { color: var(--purple); }
     .nav__right { display: flex; align-items: center; gap: 8px; }
-    .cart-btn { font-size: 9px; letter-spacing: 0.12em; color: var(--gold); border: 1px solid var(--border); padding: 6px 12px; background: transparent; cursor: pointer; font-family: inherit; text-transform: uppercase; }
-    .phase-badge { display: inline-block; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--aqua); border: 1px solid rgba(0,200,176,0.3); padding: 5px 12px; }
-    .phase-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 0.06em; color: var(--gold); text-transform: uppercase; }
+    .cart-btn { font-size: 9px; letter-spacing: 0.12em; color: var(--purple); border: 1px solid var(--border); padding: 6px 12px; background: transparent; cursor: pointer; font-family: inherit; text-transform: uppercase; }
+    .phase-badge { display: inline-block; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(232, 121, 249, 0.35); padding: 5px 12px; }
+    .phase-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 0.06em; color: var(--purple); text-transform: uppercase; }
     .phase-hint { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
-    .click-progress { font-size: 10px; letter-spacing: 0.14em; color: var(--gold-dim); text-transform: uppercase; }
-    .click-progress span { color: var(--gold); }
-    .gen-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: 220px; padding: 14px 28px; font-family: inherit; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; border: 1px solid var(--gold); background: rgba(240,208,80,0.1); color: var(--gold); cursor: pointer; transition: background 0.15s, transform 0.1s; }
-    .gen-btn:hover { background: rgba(240,208,80,0.22); }
+    .click-progress { font-size: 10px; letter-spacing: 0.14em; color: var(--purple-dim); text-transform: uppercase; }
+    .click-progress span { color: var(--purple); }
+    .gen-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: 220px; padding: 14px 28px; font-family: inherit; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; border: 1px solid var(--purple); background: rgba(167, 139, 250, 0.12); color: var(--purple); cursor: pointer; transition: background 0.15s, transform 0.1s; }
+    .gen-btn:hover { background: rgba(167, 139, 250, 0.22); }
     .gen-btn:active { transform: scale(0.97); }
     .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .gen-btn .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--aqua); animation: pulse 1.2s ease infinite; }
+    .gen-btn .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1.2s ease infinite; }
     @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
     .round-dots { display: flex; gap: 8px; margin-top: 24px; }
     .round-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--border); background: transparent; }
-    .round-dot.done { background: var(--aqua); border-color: var(--aqua); }
-    .round-dot.active { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px rgba(240,208,80,0.4); }
+    .round-dot.done { background: var(--accent); border-color: var(--accent); }
+    .round-dot.active { background: var(--purple); border-color: var(--purple); box-shadow: 0 0 8px rgba(196, 181, 253, 0.45); }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
     .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
     .filter-chip { font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; padding: 6px 12px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; font-family: inherit; transition: all 0.12s; }
-    .filter-chip:hover, .filter-chip.active { border-color: var(--gold); color: var(--gold); background: rgba(240,208,80,0.06); }
-    .filter-chip.highlight { border-color: var(--aqua); color: var(--aqua); }
+    .filter-chip:hover, .filter-chip.active { border-color: var(--purple); color: var(--purple); background: rgba(167, 139, 250, 0.08); }
+    .filter-chip.highlight { border-color: var(--accent); color: var(--accent); }
     .deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
     .deck-card { border: 1px solid var(--border); background: var(--panel); padding: 12px 10px; text-align: center; cursor: pointer; transition: border-color 0.15s, transform 0.1s; }
-    .deck-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-    .deck-card.selected { border-color: var(--aqua); box-shadow: 0 0 12px rgba(0,200,176,0.15); }
-    .deck-card__title { font-size: 9px; letter-spacing: 0.08em; color: var(--gold); text-transform: uppercase; margin-bottom: 2px; }
+    .deck-card:hover { border-color: var(--purple); transform: translateY(-2px); }
+    .deck-card.selected { border-color: var(--accent); box-shadow: 0 0 12px rgba(232, 121, 249, 0.18); }
+    .deck-card__title { font-size: 9px; letter-spacing: 0.08em; color: var(--purple); text-transform: uppercase; margin-bottom: 2px; }
     .deck-card__size { font-size: 8px; color: var(--text-muted); margin-bottom: 4px; }
-    .deck-card__price { font-size: 12px; color: #e8c848; }
-    .deck-card__stock { font-size: 8px; letter-spacing: 0.1em; margin-top: 4px; color: var(--aqua); }
-    .deck-card__stock.low { color: #e8a848; }
+    .deck-card__price { font-size: 12px; color: #d8b4fe; }
+    .deck-card__stock { font-size: 8px; letter-spacing: 0.1em; margin-top: 4px; color: var(--accent); }
+    .deck-card__stock.low { color: #c084fc; }
     .deck-card__stock.out { color: #c04a4a; }
     .deck-card.sold-out { opacity: 0.45; }
-    .deck-card__add { margin-top: 8px; width: 100%; padding: 6px; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid var(--border); background: transparent; color: var(--gold); cursor: pointer; font-family: inherit; }
-    .deck-card__add:hover { background: rgba(240,208,80,0.12); }
+    .deck-card__add { margin-top: 8px; width: 100%; padding: 6px; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid var(--border); background: transparent; color: var(--purple); cursor: pointer; font-family: inherit; }
+    .deck-card__add:hover { background: rgba(167, 139, 250, 0.12); }
     .deck-card__add:disabled { opacity: 0.35; cursor: not-allowed; }
     .board-img--thumb { width: 70px; margin: 0 auto 8px; max-height: 245px; display: block; object-fit: contain; }
-    .cart-panel { position: fixed; bottom: 0; left: 0; right: 0; z-index: 60; background: rgba(4,14,12,0.96); border-top: 1px solid var(--border); padding: 12px 20px; display: none; align-items: center; justify-content: space-between; gap: 16px; }
+    .cart-panel { position: fixed; bottom: 0; left: 0; right: 0; z-index: 60; background: rgba(10, 8, 18, 0.96); border-top: 1px solid var(--border); padding: 12px 20px; display: none; align-items: center; justify-content: space-between; gap: 16px; }
     .cart-panel.visible { display: flex; }
     .cart-panel__info { font-size: 10px; color: var(--text-muted); }
-    .cart-panel__info strong { color: var(--gold); }
-    .checkout-btn { padding: 10px 20px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--gold); background: rgba(240,208,80,0.15); color: var(--gold); cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .cart-panel__info strong { color: var(--purple); }
+    .checkout-btn { padding: 10px 20px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--purple); background: rgba(167, 139, 250, 0.15); color: var(--purple); cursor: pointer; font-family: inherit; white-space: nowrap; }
     @media (max-width: 480px) { .deck-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>

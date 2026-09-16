@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Payday Deck Shop — Generator &amp; Konfigurator</title>
-  <meta name="description" content="Payday Deck Shop — 6 SS26 Druck-PDF Designs, Camo/Linear Generator, Größen 8.38″ und 8.5″.">
+  <meta name="description" content="Payday Deck Shop — 6 SS26 Designs, Camo/Linear Generator, Größen 8.38″ und 8.5″.">
   <link rel="stylesheet" href="deck-shop.css">
   <style>
     :root {
@@ -54,8 +54,6 @@
     .round-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--border); background: transparent; }
     .round-dot.done { background: var(--aqua); border-color: var(--aqua); }
     .round-dot.active { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px rgba(240,208,80,0.4); }
-    .unlock-banner { display: none; text-align: center; padding: 20px; background: rgba(0,200,176,0.08); border: 1px solid rgba(0,200,176,0.25); margin: 0 20px 24px; font-size: 11px; letter-spacing: 0.1em; color: var(--aqua); animation: fadeIn 0.5s ease; }
-    .unlock-banner.visible { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
     .shop-section { max-width: 1100px; margin: 0 auto; padding: 0 20px 64px; opacity: 0.25; pointer-events: none; filter: blur(2px); transition: opacity 0.6s, filter 0.6s; }
     .shop-section.unlocked { opacity: 1; pointer-events: auto; filter: none; }
@@ -80,19 +78,7 @@
     .deck-card__add { margin-top: 8px; width: 100%; padding: 6px; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid var(--border); background: transparent; color: var(--gold); cursor: pointer; font-family: inherit; }
     .deck-card__add:hover { background: rgba(240,208,80,0.12); }
     .deck-card__add:disabled { opacity: 0.35; cursor: not-allowed; }
-    .deck-card__pdf { display: inline-block; margin-top: 6px; font-size: 8px; letter-spacing: 0.1em; color: var(--gold-dim); text-decoration: none; text-transform: uppercase; }
-    .deck-card__pdf:hover { color: var(--gold); }
     .board-img--thumb { width: 70px; margin: 0 auto 8px; max-height: 245px; display: block; object-fit: contain; }
-    .board-img--modal { width: min(100%, 320px); max-height: 75vh; margin: 0 auto; display: block; }
-    .pdf-modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.88); padding: 24px; flex-direction: column; align-items: center; justify-content: center; }
-    .pdf-modal.open { display: flex; }
-    .pdf-modal__meta { font-size: 8px; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 10px; text-align: center; }
-    .pdf-modal__bar { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; justify-content: center; }
-    .pdf-modal__btn { font-family: inherit; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 14px; border: 1px solid var(--border); background: transparent; color: var(--gold); cursor: pointer; text-decoration: none; }
-    .pdf-modal__btn:hover { background: rgba(240,208,80,0.1); }
-    .drive-link { text-align: center; margin-top: 20px; font-size: 9px; letter-spacing: 0.1em; }
-    .drive-link a { color: var(--gold-dim); text-decoration: none; }
-    .drive-link a:hover { color: var(--gold); }
     .cart-panel { position: fixed; bottom: 0; left: 0; right: 0; z-index: 60; background: rgba(4,14,12,0.96); border-top: 1px solid var(--border); padding: 12px 20px; display: none; align-items: center; justify-content: space-between; gap: 16px; }
     .cart-panel.visible { display: flex; }
     .cart-panel__info { font-size: 10px; color: var(--text-muted); }
@@ -117,7 +103,7 @@
 
   <header class="deck-hero">
     <h1 class="deck-hero__title">Payday SS26 Deck Shop</h1>
-    <p class="deck-hero__sub">6 Designs · Camo &amp; Linear · Druck-PDF 3600×12600</p>
+    <p class="deck-hero__sub">6 Designs · Camo &amp; Linear · SS26 Kollektion</p>
     <span class="deck-hero__stock" id="hero-stock">50 Decks · 8.38″ &amp; 8.5″</span>
   </header>
 
@@ -132,13 +118,12 @@
             <span class="unlock-progress__label" id="unlock-progress-label">Vorschau startet…</span>
           </div>
           <canvas id="preview-canvas" width="400" height="1400" title="Tippen zum Generieren"></canvas>
-          <p class="preview-tap-hint" id="preview-tap-hint">Tippen zum Generieren</p>
+          <p class="preview-tap-hint" id="preview-tap-hint">← Wischen →</p>
         </div>
-        <p class="preview-label" id="preview-label" style="margin-top:12px;font-size:10px;letter-spacing:0.12em;color:var(--gold);text-transform:uppercase;text-align:center;">—</p>
-        <p class="preview-pdf-hint" id="preview-pdf-hint" hidden>
-          <button type="button" id="pdf-hint-btn">Druck-PDF ansehen</button>
-        </p>
-        <div class="design-strip" id="design-strip" aria-label="Design-Auswahl"></div>
+        <div class="design-strip-wrap">
+          <p class="design-strip__label">Design wählen</p>
+          <div class="design-strip" id="design-strip" aria-label="Design-Auswahl"></div>
+        </div>
       </div>
 
       <div class="control-col">
@@ -159,10 +144,6 @@
     </div>
   </section>
 
-  <div class="unlock-banner" id="unlock-banner">
-    ◈ Shop freigeschaltet — alle 6 Druck-PDF Designs &amp; Größen verfügbar
-  </div>
-
   <section class="shop-section" id="shop-section">
     <header class="shop-header">
       <h2>Verfügbare Decks</h2>
@@ -171,20 +152,7 @@
     <div class="filter-bar" id="filter-size"></div>
     <div class="filter-bar" id="filter-design"></div>
     <div class="deck-grid" id="deck-grid"></div>
-    <p class="drive-link">
-      Druck-PDFs: <a href="#" id="drive-folder-link" target="_blank" rel="noopener">Google Drive — Payday SS26</a>
-    </p>
   </section>
-
-  <div class="pdf-modal" id="pdf-modal" aria-hidden="true">
-    <div class="pdf-modal__bar">
-      <span class="pdf-modal__btn" id="pdf-modal-title" style="border:none;color:var(--text);"></span>
-      <a class="pdf-modal__btn" id="pdf-modal-download" href="#" target="_blank" rel="noopener">Druck-PDF</a>
-      <button class="pdf-modal__btn" type="button" id="pdf-modal-close">Schließen</button>
-    </div>
-    <p class="pdf-modal__meta" id="pdf-modal-meta"></p>
-    <img class="board-img board-img--modal" id="pdf-modal-board" alt="Board aus Druck-PDF">
-  </div>
 
   <div class="cart-panel" id="cart-panel">
     <div class="cart-panel__info" id="cart-info">Kein Deck im Warenkorb</div>
@@ -267,11 +235,7 @@
         btn.appendChild(img);
         btn.addEventListener('click', () => {
           if (!state.unlocked) return;
-          state.designIndex = i;
-          renderCanvasPreview();
-          updateDesignStrip();
-          updatePatternPills();
-          document.getElementById('preview-label').textContent = d.name;
+          selectDesignByIndex(i);
         });
         strip.appendChild(btn);
       });
@@ -290,22 +254,18 @@
       }
     }
 
-    function openBoardPreview(design) {
-      const meta = INV.getBoardMeta(design);
-      const modal = document.getElementById('pdf-modal');
-      document.getElementById('pdf-modal-title').textContent = design.name;
-      document.getElementById('pdf-modal-download').href = INV.pdfLocalUrl(design);
-      document.getElementById('pdf-modal-meta').textContent =
-        design.patternLabel + ' · ' + meta.pdf + ' · ' + meta.width + '×' + meta.height + 'px';
-      document.getElementById('pdf-modal-board').src = INV.previewUrl(design);
-      modal.classList.add('open');
-      modal.setAttribute('aria-hidden', 'false');
+    function selectDesignByIndex(index) {
+      state.designIndex = index;
+      renderCanvasPreview();
+      updateDesignStrip();
+      updatePatternPills();
+      if (state.unlocked) renderShopGrid();
     }
 
-    document.getElementById('pdf-modal-close').addEventListener('click', () => {
-      document.getElementById('pdf-modal').classList.remove('open');
-      document.getElementById('pdf-modal-board').src = '';
-    });
+    function selectDesignById(designId) {
+      const idx = INV.DESIGNS.findIndex((d) => d.id === designId);
+      if (idx >= 0) selectDesignByIndex(idx);
+    }
 
     function shiftDesign(delta) {
       const n = INV.DESIGNS.length;
@@ -313,8 +273,6 @@
       state.visitedDesigns.add(currentDesign().id);
       renderCanvasPreview();
       updateDesignStrip();
-      document.getElementById('preview-label').textContent =
-        currentDesign().name + ' · ' + currentDesign().patternLabel;
     }
 
     function flashSwipe(dir, fast) {
@@ -394,8 +352,6 @@
           state.visitedDesigns.add(INV.DESIGNS[idx].id);
           renderCanvasPreview();
           flashSwipe(-1, true);
-          document.getElementById('preview-label').textContent =
-            INV.DESIGNS[idx].name + ' · ' + INV.DESIGNS[idx].patternLabel;
           updateDesignStrip();
         }
 
@@ -451,7 +407,6 @@
       const title = document.getElementById('phase-title');
       const hint = document.getElementById('phase-hint');
 
-      document.getElementById('preview-label').textContent = design.name + ' · ' + design.patternLabel;
       previewFrame.classList.toggle('preview-frame--swipeable', state.phase === 'swipe' || state.unlocked);
 
       if (state.phase === 'loading') {
@@ -478,19 +433,14 @@
       }
 
       const tapHint = document.getElementById('preview-tap-hint');
-      const pdfHint = document.getElementById('preview-pdf-hint');
-      if (state.phase === 'shop') {
-        tapHint.textContent = 'Tippen für Druck-PDF';
-        tapHint.classList.add('preview-tap-hint--pdf');
-        pdfHint.hidden = false;
+      if (state.unlocked) {
+        tapHint.hidden = true;
       } else if (state.phase === 'swipe') {
+        tapHint.hidden = false;
         tapHint.textContent = '← Wischen →';
-        tapHint.classList.remove('preview-tap-hint--pdf');
-        pdfHint.hidden = true;
       } else {
+        tapHint.hidden = false;
         tapHint.textContent = state.phase === 'intro' ? 'Vorschau…' : '← Wischen →';
-        tapHint.classList.remove('preview-tap-hint--pdf');
-        pdfHint.hidden = true;
       }
 
       setProgressBar(progressPercent(), state.introRunning);
@@ -523,7 +473,6 @@
       unlockAllDesigns();
       resetShopFilters();
       document.getElementById('configurator').classList.add('is-unlocked');
-      document.getElementById('unlock-banner').classList.add('visible');
       document.getElementById('shop-section').classList.add('unlocked');
       document.getElementById('shop-subtitle').textContent =
         INV.totalStock(state.stock) + ' Decks · Alle ' + INV.DESIGNS.length + ' Designs · 8.38″ & 8.5″';
@@ -533,11 +482,6 @@
       requestAnimationFrame(() => {
         document.getElementById('shop-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
-    }
-
-    function handleBoardTap() {
-      if (Date.now() < suppressTapUntil) return;
-      if (state.unlocked) openBoardPreview(currentDesign());
     }
 
     function bindSwipe(el) {
@@ -559,12 +503,6 @@
     }
 
     bindSwipe(previewFrame);
-
-    document.getElementById('preview-frame').addEventListener('click', (e) => {
-      if (e.target.closest('#pdf-hint-btn')) return;
-      handleBoardTap();
-    });
-    document.getElementById('pdf-hint-btn').addEventListener('click', () => openBoardPreview(currentDesign()));
 
     let catalog = [];
 
@@ -616,7 +554,7 @@
         const design = INV.getDesignById(item.designId);
         const card = document.createElement('article');
         card.className = 'deck-card' + (avail === 0 ? ' sold-out' : '');
-        if (state.filterDesign && item.designId === state.filterDesign) card.classList.add('selected');
+        if (item.designId === currentDesign().id) card.classList.add('selected');
 
         const pattern = document.createElement('div');
         pattern.className = 'deck-card__pattern';
@@ -644,12 +582,6 @@
         price.className = 'deck-card__price';
         price.textContent = item.price + ',00 €';
 
-        const pdfLink = document.createElement('a');
-        pdfLink.className = 'deck-card__pdf';
-        pdfLink.href = item.pdfUrl;
-        pdfLink.textContent = 'PDF Vorschau';
-        pdfLink.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openBoardPreview(design); });
-
         const addBtn = document.createElement('button');
         addBtn.className = 'deck-card__add';
         addBtn.type = 'button';
@@ -657,14 +589,13 @@
         addBtn.disabled = avail === 0;
         addBtn.addEventListener('click', e => { e.stopPropagation(); if (availableStock(item.id) > 0) addToCart(item); });
 
-        card.addEventListener('click', () => openBoardPreview(design));
+        card.addEventListener('click', () => selectDesignById(item.designId));
         card.appendChild(pattern);
         card.appendChild(img);
         card.appendChild(title);
         card.appendChild(sizeEl);
         card.appendChild(stockEl);
         card.appendChild(price);
-        card.appendChild(pdfLink);
         card.appendChild(addBtn);
         grid.appendChild(card);
       });
@@ -705,8 +636,6 @@
       document.getElementById('cart-panel').classList.toggle('visible');
     });
 
-    document.getElementById('drive-folder-link').href = INV.DRIVE_FOLDER_URL;
-
     catalog = INV.buildCatalog(state.stock);
 
     updateStockLabels();
@@ -721,7 +650,7 @@
     }).catch(() => {
       state.rendererReady = false;
       state.phase = 'swipe';
-      document.getElementById('phase-hint').textContent = 'Generator lädt… Fallback: Druck-PDF Vorschau nutzen.';
+      document.getElementById('phase-hint').textContent = 'Generator lädt… Bitte kurz warten.';
       updateUI();
     });
   </script>

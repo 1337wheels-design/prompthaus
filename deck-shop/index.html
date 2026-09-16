@@ -192,7 +192,7 @@
     };
 
     const SWIPE_MIN = 48;
-    const INTRO_DURATION_MS = 500;
+    const INTRO_DURATION_MS = 1000;
     const SWIPES_REQUIRED = 3;
     const INTRO_PROGRESS_SHARE = 25;
     let pointerStartX = 0;
@@ -443,7 +443,7 @@
       } else if (state.phase === 'intro') {
         badge.textContent = 'Vorschau';
         title.textContent = 'Alle Designs';
-        hint.textContent = '0,5 Sekunden — alle ' + INV.DESIGNS.length + ' Boards im Schnelldurchlauf.';
+        hint.textContent = '1 Sekunde — alle ' + INV.DESIGNS.length + ' Boards im Schnelldurchlauf.';
         prog.textContent = 'Vorschau läuft…';
       } else if (state.phase === 'swipe') {
         const left = SWIPES_REQUIRED - state.swipeCount;

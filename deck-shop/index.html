@@ -507,6 +507,11 @@
       INV.DESIGNS.forEach((d) => state.visitedDesigns.add(d.id));
     }
 
+    function resetShopFilters() {
+      state.filterDesign = null;
+      state.filterSize = null;
+    }
+
     function unlockShop() {
       state.introRunning = false;
       state.phase = 'shop';
@@ -516,8 +521,7 @@
       const progressEl = document.getElementById('unlock-progress');
       if (progressEl) progressEl.classList.add('hidden');
       unlockAllDesigns();
-      state.filterDesign = null;
-      state.filterSize = null;
+      resetShopFilters();
       document.getElementById('configurator').classList.add('is-unlocked');
       document.getElementById('unlock-banner').classList.add('visible');
       document.getElementById('shop-section').classList.add('unlocked');
@@ -571,7 +575,7 @@
       INV.SIZES.forEach(s => {
         const btn = document.createElement('button');
         const isPick = state.filterSize === s.id;
-        btn.className = 'filter-chip' + (isPick ? ' active' : '') + (isPick && s.id === currentSize().id ? ' highlight' : '');
+        btn.className = 'filter-chip' + (isPick ? ' active' : '');
         btn.dataset.size = s.id;
         btn.textContent = s.label;
         sizeBar.appendChild(btn);
@@ -579,7 +583,7 @@
       designBar.innerHTML = '<button class="filter-chip' + (!state.filterDesign ? ' active' : '') + '" data-design="all">Alle Designs</button>';
       INV.DESIGNS.forEach(d => {
         const btn = document.createElement('button');
-        btn.className = 'filter-chip' + (state.filterDesign === d.id ? ' active' : '') + (state.filterDesign === d.id && d.id === currentDesign().id ? ' highlight' : '');
+        btn.className = 'filter-chip' + (state.filterDesign === d.id ? ' active' : '');
         btn.dataset.design = d.id;
         btn.textContent = d.name;
         designBar.appendChild(btn);
@@ -612,7 +616,7 @@
         const design = INV.getDesignById(item.designId);
         const card = document.createElement('article');
         card.className = 'deck-card' + (avail === 0 ? ' sold-out' : '');
-        if (item.designId === currentDesign().id && item.sizeId === currentSize().id) card.classList.add('selected');
+        if (state.filterDesign && item.designId === state.filterDesign) card.classList.add('selected');
 
         const pattern = document.createElement('div');
         pattern.className = 'deck-card__pattern';

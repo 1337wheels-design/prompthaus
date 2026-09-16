@@ -68,9 +68,11 @@
     { id: 'payday-camo', name: 'PAYDAY Camo', manifestKey: 'payday_PAYDAY', camoIndex: 0, camoStyle: 'blob', patternLabel: 'Camo', logoScale: 0.72 },
   ];
 
+  const DECK_PRICE = 59;
+
   const SIZES = [
-    { id: '838', label: '8.38"', widthIn: 8.38, price: 89 },
-    { id: '850', label: '8.5"', widthIn: 8.5, price: 94 },
+    { id: '838', label: '8.38"', widthIn: 8.38, price: DECK_PRICE },
+    { id: '850', label: '8.5"', widthIn: 8.5, price: DECK_PRICE },
   ];
 
   const INITIAL_STOCK = {

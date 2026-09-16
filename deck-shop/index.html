@@ -66,7 +66,7 @@
     .deck-card.selected { border-color: var(--accent); box-shadow: 0 0 12px rgba(232, 121, 249, 0.18); }
     .deck-card__title { font-size: 9px; letter-spacing: 0.08em; color: var(--purple); text-transform: uppercase; margin-bottom: 2px; }
     .deck-card__size { font-size: 8px; color: var(--text-muted); margin-bottom: 4px; }
-    .deck-card__price { font-size: 12px; color: #d8b4fe; }
+    .deck-card__price { font-size: 11px; line-height: 1.35; color: #d8b4fe; }
     .deck-card__stock { font-size: 8px; letter-spacing: 0.1em; margin-top: 4px; color: var(--accent); }
     .deck-card__stock.low { color: #c084fc; }
     .deck-card__stock.out { color: #c04a4a; }
@@ -99,7 +99,7 @@
 
   <header class="deck-hero">
     <h1 class="deck-hero__title">Payday SS26 Deck Shop</h1>
-    <p class="deck-hero__sub">6 Designs · Camo &amp; Linear · SS26 Kollektion</p>
+    <p class="deck-hero__sub">6 Designs · Camo &amp; Linear · 59&nbsp;€ inkl. Griptape</p>
     <span class="deck-hero__stock" id="hero-stock">50 Decks · 8.38″ &amp; 8.5″</span>
   </header>
 
@@ -611,7 +611,7 @@
 
         const price = document.createElement('div');
         price.className = 'deck-card__price';
-        price.textContent = item.price + ',00 €';
+        price.textContent = item.price + ',00 € inkl. Griptape';
 
         const addBtn = document.createElement('button');
         addBtn.className = 'deck-card__add';

@@ -41,8 +41,8 @@
   ];
 
   const DECK_SIZES = [
-    { id: '838', label: '8.38"', widthIn: 8.38, price: 89 },
-    { id: '850', label: '8.5"', widthIn: 8.5, price: 94 },
+    { id: '838', label: '8.38"', widthIn: 8.38, price: 59 },
+    { id: '850', label: '8.5"', widthIn: 8.5, price: 59 },
   ];
 
   function drawLinearGradientBg(ctx, w, h, palette) {

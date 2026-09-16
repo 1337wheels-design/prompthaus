@@ -25,14 +25,24 @@
     { id: 'CHX-08', name: 'S.K.A.T.E.', sponsor: 'ALL SPONSORS', type: 'Elimination' },
   ];
 
-  const DECK_CARDS = [
-    { id: 'chrome', name: 'CHROME', thumb: 'assets/boards/payday_CHROME-thumb.jpg', pattern: 'Camo' },
-    { id: 'neon', name: 'NEON', thumb: 'assets/boards/payday_NEON-thumb.jpg', pattern: 'Camo' },
-    { id: 'payday-linear', name: 'PAYDAY Linear', thumb: 'assets/boards/payday_ARCTIC-thumb.jpg', pattern: 'Linear' },
-    { id: 'arctic', name: 'ARCTIC', thumb: 'assets/boards/payday_PAYDAY_Linear-thumb.jpg', pattern: 'Linear' },
-    { id: 'night', name: 'NIGHT', thumb: 'assets/boards/payday_NIGHT-thumb.jpg', pattern: 'Camo' },
-    { id: 'payday-camo', name: 'PAYDAY Camo', thumb: 'assets/boards/payday_PAYDAY-thumb.jpg', pattern: 'Camo' },
-  ];
+  function getDeckCards() {
+    const INV = global.PAYDAY_DECK_INVENTORY;
+    if (INV?.DESIGNS) {
+      return INV.DESIGNS.map((d) => ({
+        id: d.id,
+        name: d.name,
+        pattern: d.patternLabel,
+      }));
+    }
+    return [
+      { id: 'chrome', name: 'CHROME', pattern: 'Camo' },
+      { id: 'neon', name: 'NEON', pattern: 'Camo' },
+      { id: 'payday-linear', name: 'PAYDAY Linear', pattern: 'Linear' },
+      { id: 'arctic', name: 'ARCTIC', pattern: 'Linear' },
+      { id: 'night', name: 'NIGHT', pattern: 'Camo' },
+      { id: 'payday-camo', name: 'PAYDAY Camo', pattern: 'Camo' },
+    ];
+  }
 
   function buildItems() {
     const items = [];
@@ -54,13 +64,13 @@
         icon: '✦',
       });
     });
-    DECK_CARDS.forEach((c) => {
+    getDeckCards().forEach((c) => {
       items.push({
         kind: 'deck',
+        designId: c.id,
         name: c.name,
         sub: c.pattern,
         type: 'Payday SS26 Deck',
-        thumb: c.thumb,
       });
     });
     return items;
@@ -91,7 +101,7 @@
     if (item.kind === 'deck') {
       el.innerHTML = `
         <button type="button" class="carousel-card__deck-link" aria-label="${item.name} — Deck Shop öffnen">
-          <img class="carousel-card__deck" src="${item.thumb}" alt="" loading="lazy" width="72" height="252">
+          <canvas class="carousel-card__deck-canvas" width="72" height="252" aria-hidden="true"></canvas>
           <span class="carousel-card__deck-label">${item.name}</span>
           <span class="carousel-card__deck-cta">Deck Shop</span>
         </button>`;
@@ -134,7 +144,7 @@
       const deckBtn = el.querySelector('.carousel-card__deck-link');
       if (deckBtn) {
         deckBtn.addEventListener('click', () => {
-          if (el.classList.contains('carousel-card--active')) {
+          if (reducedMotion || el.classList.contains('carousel-card--active')) {
             window.location.href = SHOP_URL;
           }
         });
@@ -289,6 +299,25 @@
       }
     }
 
+    function renderDeckCanvases() {
+      const INV = global.PAYDAY_DECK_INVENTORY;
+      const R = global.PaydayDeckRenderer;
+      if (!INV || !R) return Promise.resolve();
+
+      return R.loadAssets('../decks/').then(() => {
+        cardEls.forEach((el, i) => {
+          const item = items[i];
+          if (item.kind !== 'deck') return;
+          const design = INV.getDesignById(item.designId);
+          const canvas = el.querySelector('.carousel-card__deck-canvas');
+          if (!design || !canvas) return;
+          R.renderFromDesign(canvas, design);
+        });
+      }).catch(() => {});
+    }
+
+    renderDeckCanvases();
+
     if (!reducedMotion) {
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onScroll, { passive: true });
@@ -320,5 +349,5 @@
     init();
   }
 
-  global.PAYDAY_SCROLL_CAROUSEL = { buildItems, FIELD_CARDS, SPONSOR_CARDS, DECK_CARDS };
+  global.PAYDAY_SCROLL_CAROUSEL = { buildItems, FIELD_CARDS, SPONSOR_CARDS, getDeckCards };
 })(window);

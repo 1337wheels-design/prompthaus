@@ -298,7 +298,8 @@ body.carousel-immersive .site-nav {
   margin-top: calc(clamp(88px, 16vw, 140px) * 3.5 / -2);
 }
 
-.carousel-card__deck {
+.carousel-card__deck,
+.carousel-card__deck-canvas {
   width: 100%;
   height: auto;
   display: block;

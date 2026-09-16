@@ -255,6 +255,7 @@
       camoStyle: design.camoStyle || 'blob',
       camoOnly: true,
       showLogo,
+      logoScale: design.logoScale ?? 0.72,
     });
   }
 

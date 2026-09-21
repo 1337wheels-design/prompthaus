@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payday Deck Scroll Show — Prototyp</title>
+  <link rel="stylesheet" href="deck-scroll-show.css">
+  <style>
+    body { margin: 0; background: #0a0812; color: #a8a090; font-family: 'Courier New', monospace; }
+    .demo-intro, .demo-outro {
+      min-height: 40vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 20px;
+      border-bottom: 1px solid rgba(167, 139, 250, 0.15);
+    }
+    .demo-intro h1 {
+      font-family: Impact, 'Arial Narrow', Arial, sans-serif;
+      color: #c4b5fd;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: clamp(22px, 5vw, 36px);
+    }
+    .demo-intro p { font-size: 11px; letter-spacing: 0.12em; max-width: 42ch; line-height: 1.7; }
+    .demo-outro { border-top: 1px solid rgba(167, 139, 250, 0.15); border-bottom: none; }
+    #shop-target {
+      padding: 64px 20px;
+      text-align: center;
+      background: #100c1a;
+    }
+    #shop-target h2 { color: #e879f9; font-family: Impact, sans-serif; letter-spacing: 0.08em; }
+  </style>
+</head>
+<body>
+  <section class="demo-intro">
+    <div>
+      <h1>Deck Scroll Show</h1>
+      <p>Standalone-Prototyp · Assets aus Google Drive · Scroll zum Durchblättern der Deck-SVGs</p>
+    </div>
+  </section>
+
+  <div id="deck-scroll-show"></div>
+
+  <section class="demo-outro">
+    <p>Integration: <code>PAYDAY_DECK_SCROLL_SHOW.mount({ root: '#deck-scroll-show' })</code></p>
+  </section>
+
+  <section id="shop-target">
+    <h2>Deck Shop (Ziel)</h2>
+    <p>Hier würde der Shop-Abschnitt einbinden — CTA scrollt hierher.</p>
+  </section>
+
+  <script src="manifest.js"></script>
+  <script src="deck-scroll-show.js"></script>
+  <script>
+    PAYDAY_DECK_SCROLL_SHOW.mount({
+      root: '#deck-scroll-show',
+      assetsBase: 'assets/',
+      title: 'Deck Show',
+      slideIds: null,
+      ctaTarget: '#shop-target',
+      onSlideChange: (i, slide) => {
+        document.title = slide.label + ' — Deck Show';
+      },
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+/* Payday Deck Scroll Show — standalone, embeddable */
+
+.deck-scroll-show {
+  --dss-purple: #c4b5fd;
+  --dss-purple-dim: rgba(167, 139, 250, 0.55);
+  --dss-accent: #e879f9;
+  --dss-bg: #0a0812;
+  --dss-panel: rgba(16, 12, 26, 0.92);
+  --dss-border: rgba(167, 139, 250, 0.22);
+  position: relative;
+  background: var(--dss-bg);
+  color: #d0d0d2;
+  font-family: 'Courier New', monospace;
+}
+
+.deck-scroll-show__track {
+  position: relative;
+}
+
+.deck-scroll-show__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 35%, rgba(120, 60, 180, 0.2) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(232, 121, 249, 0.08) 0%, transparent 55%),
+    var(--dss-bg);
+}
+
+.deck-scroll-show__stage--immersive {
+  position: fixed;
+  inset: 0;
+  z-index: 280;
+}
+
+body.deck-scroll-show-immersive {
+  overflow-x: hidden;
+}
+
+.deck-scroll-show__header {
+  position: absolute;
+  top: max(20px, env(safe-area-inset-top));
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 30;
+  pointer-events: none;
+  transition: opacity 0.35s;
+}
+
+.deck-scroll-show__eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dss-purple-dim);
+  margin-bottom: 6px;
+}
+
+.deck-scroll-show__title {
+  font-family: Impact, 'Arial Narrow', Arial, sans-serif;
+  font-size: clamp(20px, 4vw, 28px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dss-purple);
+}
+
+.deck-scroll-show__hint {
+  position: absolute;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dss-purple-dim);
+  z-index: 30;
+  transition: opacity 0.35s;
+}
+
+.deck-scroll-show__ornaments {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.deck-scroll-show__ornament {
+  position: absolute;
+  width: clamp(48px, 8vw, 96px);
+  height: auto;
+  opacity: 0.35;
+  filter: drop-shadow(0 0 12px rgba(196, 181, 253, 0.25));
+  transition: transform 0.1s linear, opacity 0.2s;
+}
+
+.deck-scroll-show__table {
+  position: relative;
+  width: min(94vw, 920px);
+  height: min(42vh, 320px);
+  margin: auto;
+  z-index: 10;
+}
+
+.deck-scroll-show__slide {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(92vw, 880px);
+  transform-origin: center center;
+  will-change: transform, opacity;
+  transition: filter 0.15s;
+}
+
+.deck-scroll-show__slide img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.55));
+}
+
+.deck-scroll-show__slide--active img {
+  filter: drop-shadow(0 32px 64px rgba(167, 139, 250, 0.22));
+}
+
+.deck-scroll-show__info {
+  position: absolute;
+  left: 50%;
+  bottom: max(72px, calc(env(safe-area-inset-bottom) + 56px));
+  transform: translateX(-50%);
+  text-align: center;
+  padding: 12px 20px;
+  background: var(--dss-panel);
+  border: 1px solid var(--dss-border);
+  min-width: min(90vw, 360px);
+  z-index: 25;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.deck-scroll-show__info.visible {
+  opacity: 1;
+}
+
+.deck-scroll-show__info-name {
+  font-family: Impact, 'Arial Narrow', Arial, sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dss-purple);
+}
+
+.deck-scroll-show__info-tag {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dss-accent);
+  margin-top: 4px;
+}
+
+.deck-scroll-show__progress {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  z-index: 35;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--dss-purple-dim);
+  text-transform: uppercase;
+}
+
+.deck-scroll-show__progress-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: rgba(167, 139, 250, 0.12);
+  z-index: 35;
+}
+
+.deck-scroll-show__progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--dss-accent), var(--dss-purple));
+  transition: width 0.08s linear;
+}
+
+.deck-scroll-show__cta {
+  position: absolute;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 40;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  border: 1px solid var(--dss-purple);
+  background: rgba(167, 139, 250, 0.12);
+  color: var(--dss-purple);
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.35s, transform 0.35s, background 0.15s;
+}
+
+.deck-scroll-show__cta.visible {
+  opacity: 1;
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+.deck-scroll-show__cta:hover {
+  background: rgba(167, 139, 250, 0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-scroll-show__slide {
+    transition: none;
+  }
+  .deck-scroll-show__track {
+    height: auto !important;
+  }
+  .deck-scroll-show__stage {
+    position: relative;
+    height: auto;
+    min-height: 100vh;
+    padding: 80px 16px 48px;
+  }
+  .deck-scroll-show__table {
+    height: auto;
+    display: grid;
+    gap: 24px;
+  }
+  .deck-scroll-show__slide {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .deck-scroll-show__ornaments,
+  .deck-scroll-show__hint {
+    display: none;
+  }
+}

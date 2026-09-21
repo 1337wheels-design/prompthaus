@@ -42,7 +42,7 @@
       if (ids?.length) {
         return all.filter((s) => ids.includes(s.id));
       }
-      return all.slice(0, 6);
+      return all;
     }
     return config.slides;
   }
@@ -91,12 +91,21 @@
     const ornamentEls = [];
     const ornRoot = root.querySelector('#dss-ornaments');
     const positions = [
-      { left: '8%', top: '18%' },
-      { left: '86%', top: '22%' },
-      { left: '12%', top: '72%' },
-      { left: '82%', top: '68%' },
-      { left: '48%', top: '12%' },
-      { left: '52%', top: '78%' },
+      { left: '6%', top: '14%' },
+      { left: '88%', top: '18%' },
+      { left: '10%', top: '68%' },
+      { left: '84%', top: '72%' },
+      { left: '46%', top: '10%' },
+      { left: '54%', top: '82%' },
+      { left: '22%', top: '38%' },
+      { left: '76%', top: '44%' },
+      { left: '32%', top: '22%' },
+      { left: '68%', top: '58%' },
+      { left: '18%', top: '48%' },
+      { left: '72%', top: '28%' },
+      { left: '40%', top: '76%' },
+      { left: '60%', top: '16%' },
+      { left: '50%', top: '50%' },
     ];
     ornaments.forEach((orn, i) => {
       const img = document.createElement('img');

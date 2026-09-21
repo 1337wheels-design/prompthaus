@@ -5,6 +5,31 @@ Scroll-getriebene **Deck Show** mit SVGs aus dem Drive-Ordner
 
 Eigenständig unter `deck-scroll-prototype/` — einbindbar in Event-Site oder Deck Shop ohne den bestehenden Event-Carousel (`shop/scroll-carousel.js`) zu verändern.
 
+## Artefakt-Atlas (neu)
+
+Der Ordner enthält **28 SVGs** in fünf Kategorien:
+
+| Kategorie | Anzahl | Beispiele |
+|-----------|--------|-----------|
+| Deck-Grafiken | 14 | horizontale Comps 2123×549, Camo/Linear-Fills |
+| Fadenkreuz & Zielhilfen | 4 | Element 12, 14, 16, 17 |
+| Achsen & Guides | 2 | Element 13, 15 |
+| Marken-Rahmen | 4 | Element 18, 19, 21, 22 |
+| Kachel-Motive | 4 | Element 24–27 |
+| Produktion | 1 | Element 28 (Matt-Platzhalter) |
+
+`artifact-catalog.js` ist die **Single Source of Truth**; `manifest.js` und der Atlas lesen daraus.
+
+```html
+<link rel="stylesheet" href="deck-scroll-prototype/artifact-atlas.css">
+<div id="artifact-atlas"></div>
+<script src="deck-scroll-prototype/artifact-catalog.js"></script>
+<script src="deck-scroll-prototype/artifact-atlas.js"></script>
+<script>
+  PAYDAY_ARTIFACT_ATLAS.mount({ root: '#artifact-atlas', assetsBase: 'deck-scroll-prototype/assets/' });
+</script>
+```
+
 ## Demo lokal
 
 ```bash

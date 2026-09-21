@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Payday Deck Scroll Show — Prototyp</title>
+  <link rel="stylesheet" href="artifact-atlas.css">
   <link rel="stylesheet" href="deck-scroll-show.css">
   <style>
     body { margin: 0; background: #0a0812; color: #a8a090; font-family: 'Courier New', monospace; }
@@ -37,9 +38,12 @@
   <section class="demo-intro">
     <div>
       <h1>Deck Scroll Show</h1>
-      <p>Standalone-Prototyp · Assets aus Google Drive · Scroll zum Durchblättern der Deck-SVGs</p>
+      <p>28 SVG-Artefakte aus Google Drive · Atlas + Scroll-Show · einbindbar in Shop &amp; Event</p>
+      <p style="margin-top:12px"><a href="#artifact-atlas" style="color:#e879f9;text-decoration:none;letter-spacing:0.14em;font-size:10px">↓ ARTEFAKT-ATLAS</a></p>
     </div>
   </section>
+
+  <div id="artifact-atlas"></div>
 
   <div id="deck-scroll-show"></div>
 
@@ -52,9 +56,21 @@
     <p>Hier würde der Shop-Abschnitt einbinden — CTA scrollt hierher.</p>
   </section>
 
+  <script src="artifact-catalog.js"></script>
+  <script src="artifact-atlas.js"></script>
   <script src="manifest.js"></script>
   <script src="deck-scroll-show.js"></script>
   <script>
+    PAYDAY_ARTIFACT_ATLAS.mount({
+      root: '#artifact-atlas',
+      assetsBase: 'assets/',
+      onSelect: (a) => {
+        if (a.integration === 'slide') {
+          document.getElementById('deck-scroll-show')?.scrollIntoView({ behavior: 'smooth' });
+        }
+      },
+    });
+
     PAYDAY_DECK_SCROLL_SHOW.mount({
       root: '#deck-scroll-show',
       assetsBase: 'assets/',

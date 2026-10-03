@@ -204,8 +204,14 @@
       return { ok: false, reason: 'shop_password' };
     }
 
-    const token = cfg.storefrontAccessToken;
+    // Permalink (/cart/{variantId}:qty) → stabiler Checkout auf Live-Shops
+    const permalink = buildCartCheckout(cfg, cartItems);
+    if (permalink.ok && permalink.url) {
+      window.location.href = permalink.url;
+      return permalink;
+    }
 
+    const token = cfg.storefrontAccessToken;
     if (token && isConfigured(cfg)) {
       try {
         const sf = await checkoutViaStorefront(cfg, cartItems);
@@ -214,16 +220,11 @@
           return sf;
         }
       } catch (err) {
-        console.warn('[shopify-checkout] Storefront failed, fallback permalink', err);
+        console.warn('[shopify-checkout] Storefront failed after permalink miss', err);
       }
     }
 
-    const result = buildCartCheckout(cfg, cartItems);
-
-    if (result.ok && result.url) {
-      window.location.href = result.url;
-      return result;
-    }
+    const result = permalink;
 
     if (result.reason === 'missing_variants' && cartItems.length === 1) {
       const fallback = resolveProductUrl(cfg, cartItems[0]);

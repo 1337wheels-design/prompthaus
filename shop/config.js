@@ -15,7 +15,7 @@ window.PAYDAY_SHOP = {
       price: '15,00 €',
       description: 'Einlass + Basic Pack',
       tombola: 0,
-      variantId: null,
+      variantId: 67670520004893,
     },
     {
       handle: 'single-pack',
@@ -23,7 +23,7 @@ window.PAYDAY_SHOP = {
       price: '8,00 €',
       description: '1 Sponsor-Karte · 1 Tombola-Los',
       tombola: 1,
-      variantId: null,
+      variantId: 67670520725789,
     },
     {
       handle: 'double-pack',
@@ -31,7 +31,7 @@ window.PAYDAY_SHOP = {
       price: '18,00 €',
       description: '2 Karten · 3 Tombola-Lose',
       tombola: 3,
-      variantId: null,
+      variantId: 67670521512221,
     },
     {
       handle: 'triple-pack',
@@ -39,7 +39,7 @@ window.PAYDAY_SHOP = {
       price: '35,00 €',
       description: '3 Karten + Bonus · 7 Lose',
       tombola: 7,
-      variantId: null,
+      variantId: 67670521577757,
     },
     {
       handle: 'payday-deck',
@@ -56,7 +56,7 @@ window.PAYDAY_SHOP = {
       price: '25,00 €',
       description: 'Limitiert · A3',
       tombola: 0,
-      variantId: null,
+      variantId: 67670529179933,
     },
   ],
 

@@ -21,26 +21,26 @@ window.PAYDAY_SHOP = {
    * variantId = numerische Shopify Variant ID (nach Import)
    */
   deckVariants: {
-    'chrome-838': { handle: 'payday-deck-chrome-838', variantId: null },
-    'chrome-850': { handle: 'payday-deck-chrome-850', variantId: null },
-    'neon-838': { handle: 'payday-deck-neon-838', variantId: null },
-    'neon-850': { handle: 'payday-deck-neon-850', variantId: null },
-    'payday-linear-838': { handle: 'payday-deck-linear-838', variantId: null },
-    'payday-linear-850': { handle: 'payday-deck-linear-850', variantId: null },
-    'arctic-838': { handle: 'payday-deck-arctic-838', variantId: null },
-    'arctic-850': { handle: 'payday-deck-arctic-850', variantId: null },
-    'night-838': { handle: 'payday-deck-night-838', variantId: null },
-    'night-850': { handle: 'payday-deck-night-850', variantId: null },
-    'payday-camo-838': { handle: 'payday-deck-camo-838', variantId: null },
-    'payday-camo-850': { handle: 'payday-deck-camo-850', variantId: null },
+    'chrome-838': { handle: 'payday-deck-chrome-838', variantId: 67670522429725 },
+    'chrome-850': { handle: 'payday-deck-chrome-850', variantId: 67670523150621 },
+    'neon-838': { handle: 'payday-deck-neon-838', variantId: 67670523445533 },
+    'neon-850': { handle: 'payday-deck-neon-850', variantId: 67670524002589 },
+    'payday-linear-838': { handle: 'payday-deck-linear-838', variantId: 67670524068125 },
+    'payday-linear-850': { handle: 'payday-deck-linear-850', variantId: 67670524723485 },
+    'arctic-838': { handle: 'payday-deck-arctic-838', variantId: 67670525477149 },
+    'arctic-850': { handle: 'payday-deck-arctic-850', variantId: 67670525837597 },
+    'night-838': { handle: 'payday-deck-night-838', variantId: 67670526591261 },
+    'night-850': { handle: 'payday-deck-night-850', variantId: 67670526689565 },
+    'payday-camo-838': { handle: 'payday-deck-camo-838', variantId: 67670527377693 },
+    'payday-camo-850': { handle: 'payday-deck-camo-850', variantId: 67670527770909 },
   },
 
   /** Event-Packs (optional, für gemeinsame Navigation mit shop/) */
   packVariants: {
-    'event-ticket': { handle: 'event-ticket', variantId: null },
-    'single-pack': { handle: 'single-pack', variantId: null },
-    'double-pack': { handle: 'double-pack', variantId: null },
-    'triple-pack': { handle: 'triple-pack', variantId: null },
-    'art-print-attitude': { handle: 'art-print-attitude', variantId: null },
+    'event-ticket': { handle: 'event-ticket', variantId: 67670520004893 },
+    'single-pack': { handle: 'single-pack', variantId: 67670520725789 },
+    'double-pack': { handle: 'double-pack', variantId: 67670521512221 },
+    'triple-pack': { handle: 'triple-pack', variantId: 67670521577757 },
+    'art-print-attitude': { handle: 'art-print-attitude', variantId: 67670529179933 },
   },
 };

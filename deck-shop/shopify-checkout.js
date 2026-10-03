@@ -124,6 +124,7 @@
       try {
         const sf = await checkoutViaStorefront(cfg, cartItems);
         if (sf.ok && sf.url) {
+          maybeWarnPasswordStore(cfg);
           window.location.href = sf.url;
           return sf;
         }
@@ -135,6 +136,7 @@
     const result = buildCartCheckout(cfg, cartItems);
 
     if (result.ok && result.url) {
+      maybeWarnPasswordStore(cfg);
       window.location.href = result.url;
       return result;
     }
@@ -163,6 +165,24 @@
 
     alert('Warenkorb ist leer.');
     return result;
+  }
+
+  const PASSWORD_HINT_KEY = 'payday_shopify_password_hint_v1';
+
+  /** Dev-Shops mit „Opening soon“ / Passwortseite — kein Code-Bug. */
+  function maybeWarnPasswordStore(cfg) {
+    try {
+      if (localStorage.getItem(PASSWORD_HINT_KEY)) return;
+      localStorage.setItem(PASSWORD_HINT_KEY, '1');
+    } catch {
+      return;
+    }
+    const domain = cfg?.shopDomain || '';
+    console.info(
+      '[Payday Deck Shop] Wenn Shopify „Opening soon“ oder eine Passwortseite zeigt: ' +
+        'Admin → Online Store → Preferences → Passwortschutz deaktivieren (Shop für Käufer öffnen). Domain:',
+      domain
+    );
   }
 
   function statusLine() {

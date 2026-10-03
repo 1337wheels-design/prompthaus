@@ -9,8 +9,10 @@ Cloud Agent → **Environment** → Secrets / Variables:
 | Variable | Beispiel | Wo in Shopify |
 |----------|----------|----------------|
 | `SHOPIFY_STORE_DOMAIN` | `payday-uepark.myshopify.com` | Settings → Domains |
-| `SHOPIFY_ADMIN_TOKEN` | `shpat_…` | Apps → Develop apps → Admin API |
-| `SHOPIFY_STOREFRONT_TOKEN` | Public token | Dieselbe App → Storefront API (optional, für Checkout im Deck Shop) |
+| `SHOPIFY_CLIENT_ID` | aus Dev Dashboard | App → Settings |
+| `SHOPIFY_CLIENT_SECRET` | aus Dev Dashboard | App → Settings (Secret!) |
+| `SHOPIFY_STOREFRONT_TOKEN` | Public token | App installiert / Headless (Deck-Checkout) |
+| `SHOPIFY_ADMIN_TOKEN` | `shpat_…` | nur Legacy Custom Apps (optional) |
 
 **Admin API Scopes (Minimum):** `read_products`, `write_products` (nur für automatischen Import)
 
@@ -32,6 +34,21 @@ Ergebnis:
 - `shopify/sync-summary.json` — Report fehlender Produkte
 
 Die Dateien `*.local.js` sind **gitignored** — Secrets bleiben lokal/in deiner Umgebung.
+
+---
+
+## Checkout zeigt „Opening soon“ / Passwortseite
+
+Der Deck Shop leitet korrekt zu Shopify weiter. Wenn dort **Opening soon** oder **Enter store password** erscheint, ist der **Online Store passwortgeschützt** (typisch bei Dev-/Trial-Shops).
+
+**Fix in Shopify Admin:**
+
+1. **Online Store** → **Preferences** (oder **Settings** → **Apps and sales channels** → **Online Store** → **Open sales channel** → **Preferences**)
+2. Bereich **Password protection** / **Store access**
+3. **Passwortschutz deaktivieren** bzw. **Remove password** / Shop veröffentlichen
+4. Optional: **Settings** → **Plan** — Trial-Shop braucht ggf. einen Plan, damit Käufer-Checkout dauerhaft offen ist
+
+Headless/Storefront-API funktioniert trotzdem; **Browser-Checkout** (`/cart/…`, `checkoutUrl`) landet solange auf `/password`.
 
 ---
 

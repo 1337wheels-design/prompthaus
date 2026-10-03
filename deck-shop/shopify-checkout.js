@@ -1,9 +1,11 @@
 /**
- * Payday Deck Shop ↔ Shopify (Hybrid / Cart Permalink)
- * Siehe deck-shop/config.js und shopify/SETUP.md
+ * Payday Deck Shop ↔ Shopify (Permalink + Storefront Checkout)
  */
 (function (global) {
   function getConfig() {
+    if (global.PAYDAY_SHOPIFY_CONNECT?.getEffectiveConfig) {
+      return global.PAYDAY_SHOPIFY_CONNECT.getEffectiveConfig();
+    }
     return global.PAYDAY_SHOP || {};
   }
 
@@ -23,15 +25,20 @@
     return null;
   }
 
+  function resolveVariantGid(cfg, item) {
+    const entry = variantEntry(cfg, item.id);
+    if (entry?.variantGid) return entry.variantGid;
+    const id = resolveVariantId(cfg, item);
+    if (id) return `gid://shopify/ProductVariant/${id}`;
+    return null;
+  }
+
   function resolveProductUrl(cfg, item) {
     const entry = variantEntry(cfg, item);
     if (!entry?.handle || !isConfigured(cfg)) return null;
     return `https://${cfg.shopDomain}/products/${entry.handle}`;
   }
 
-  /**
-   * @returns {{ ok: boolean, url?: string, missing?: string[], reason?: string }}
-   */
   function buildCartCheckout(cfg, cartItems) {
     cfg = cfg || getConfig();
     if (!isConfigured(cfg)) {
@@ -59,11 +66,72 @@
 
     const segments = [...counts.entries()].map(([id, qty]) => `${id}:${qty}`);
     const url = `https://${cfg.shopDomain}/cart/${segments.join(',')}`;
-    return { ok: true, url };
+    return { ok: true, url, mode: 'permalink' };
   }
 
-  function goToCheckout(cartItems) {
+  async function checkoutViaStorefront(cfg, cartItems) {
+    const lines = [];
+    const missing = [];
+    cartItems.forEach((item) => {
+      const gid = resolveVariantGid(cfg, item);
+      if (!gid) {
+        missing.push(item.id);
+        return;
+      }
+      lines.push({
+        merchandiseId: gid,
+        quantity: 1,
+        attributes: [
+          { key: 'Design', value: item.title || item.designName || '' },
+          { key: 'Größe', value: item.sizeLabel || '' },
+        ],
+      });
+    });
+    if (missing.length) {
+      return { ok: false, reason: 'missing_variants', missing };
+    }
+
+    const connect = global.PAYDAY_SHOPIFY_CONNECT;
+    if (!connect?.storefrontQuery) {
+      return { ok: false, reason: 'no_storefront' };
+    }
+
+    const data = await connect.storefrontQuery(
+      cfg,
+      `mutation CartCreate($lines: [CartLineInput!]!) {
+        cartCreate(input: { lines: $lines }) {
+          cart { checkoutUrl id }
+          userErrors { field message }
+        }
+      }`,
+      { lines }
+    );
+
+    const payload = data?.cartCreate;
+    if (payload?.userErrors?.length) {
+      throw new Error(payload.userErrors.map((e) => e.message).join('; '));
+    }
+    const url = payload?.cart?.checkoutUrl;
+    if (!url) throw new Error('Keine checkoutUrl von Shopify erhalten.');
+    return { ok: true, url, mode: 'storefront' };
+  }
+
+  async function goToCheckout(cartItems) {
     const cfg = getConfig();
+    const token = cfg.storefrontAccessToken;
+
+    if (token && isConfigured(cfg)) {
+      try {
+        const sf = await checkoutViaStorefront(cfg, cartItems);
+        if (sf.ok && sf.url) {
+          window.location.href = sf.url;
+          return sf;
+        }
+      } catch (err) {
+        console.warn('[shopify-checkout] Storefront failed, fallback permalink', err);
+      }
+    }
+
     const result = buildCartCheckout(cfg, cartItems);
 
     if (result.ok && result.url) {
@@ -80,13 +148,7 @@
     }
 
     if (result.reason === 'not_configured') {
-      alert(
-        'Shopify noch nicht verbunden.\n\n' +
-          '1. Produkte importieren: shopify/products.csv\n' +
-          '2. Variant-IDs in deck-shop/config.js eintragen\n' +
-          '3. shopDomain setzen\n\n' +
-          'Deine Auswahl liegt im Browser (localStorage: payday_deck_cart).'
-      );
+      global.PAYDAY_SHOPIFY_CONNECT?.mountConnectUI?.({ openOnLoad: true });
       return result;
     }
 
@@ -94,7 +156,7 @@
       alert(
         'Variant-IDs fehlen für:\n' +
           result.missing.join('\n') +
-          '\n\nShopify Admin → Produkt → Variante → ID in config.js eintragen.'
+          '\n\nIm Deck Shop auf „Shopify“ klicken → Verbinden & Varianten laden.'
       );
       return result;
     }
@@ -106,11 +168,12 @@
   function statusLine() {
     const cfg = getConfig();
     if (!isConfigured(cfg)) {
-      return 'Shopify: bitte deck-shop/config.js ausfüllen';
+      return 'Shopify: nicht verbunden — Button „Shopify“ oben rechts';
     }
     const mapped = Object.values(cfg.deckVariants || {}).filter((v) => v && v.variantId).length;
     const total = Object.keys(cfg.deckVariants || {}).length;
-    return `Shopify: ${cfg.shopDomain} · Varianten ${mapped}/${total}`;
+    const via = cfg.storefrontAccessToken ? 'Storefront' : 'Permalink';
+    return `Shopify (${via}): ${cfg.shopDomain} · Varianten ${mapped}/${total}`;
   }
 
   global.PAYDAY_SHOPIFY_CHECKOUT = {
@@ -119,5 +182,6 @@
     goToCheckout,
     statusLine,
     resolveVariantId,
+    getConfig,
   };
 })(window);

@@ -93,6 +93,21 @@
     }
     .shopify-status--ready { color: var(--accent); }
     .shopify-status a { color: var(--purple); }
+    .shopify-connect-btn { font-size: 9px; letter-spacing: 0.12em; color: var(--accent); border: 1px solid rgba(232, 121, 249, 0.35); padding: 6px 10px; background: transparent; cursor: pointer; font-family: inherit; text-transform: uppercase; }
+    .shopify-connect { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .shopify-connect.is-open { display: flex; }
+    .shopify-connect__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.72); }
+    .shopify-connect__panel { position: relative; z-index: 1; width: min(440px, 100%); max-height: 90vh; overflow: auto; padding: 24px 22px; background: var(--panel); border: 1px solid var(--border); box-shadow: 0 24px 64px rgba(0,0,0,0.55); }
+    .shopify-connect__title { font-family: var(--font-display); font-size: 20px; letter-spacing: 0.06em; color: var(--purple); text-transform: uppercase; margin-bottom: 8px; }
+    .shopify-connect__lead, .shopify-connect__hint { font-size: 10px; line-height: 1.55; color: var(--text-muted); margin-bottom: 12px; }
+    .shopify-connect__field { display: block; margin-bottom: 14px; }
+    .shopify-connect__field span { display: block; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--purple-dim); margin-bottom: 6px; }
+    .shopify-connect__field input { width: 100%; padding: 10px 12px; font-family: inherit; font-size: 11px; border: 1px solid var(--border); background: #0a0812; color: var(--text); }
+    .shopify-connect__actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+    .shopify-connect__btn { padding: 10px 14px; font-family: inherit; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--border); background: transparent; color: var(--purple); cursor: pointer; }
+    .shopify-connect__btn--primary { border-color: var(--purple); background: rgba(167, 139, 250, 0.12); }
+    .shopify-connect__log { font-size: 10px; color: var(--accent); min-height: 1.4em; }
+    .shopify-connect__close { position: absolute; top: 10px; right: 12px; border: none; background: transparent; color: var(--text-muted); font-size: 22px; cursor: pointer; line-height: 1; }
   </style>
 </head>
 <body>
@@ -105,6 +120,7 @@
     </div>
     <div class="nav__right">
       <span class="nav__stock" id="nav-stock">50 verfügbar</span>
+      <button type="button" class="shopify-connect-btn" id="shopify-connect-open">Shopify</button>
       <button class="cart-btn" id="cart-toggle" type="button">Warenkorb (0)</button>
     </div>
   </nav>
@@ -176,6 +192,8 @@
     </div>
   </section>
 
+  <div class="shopify-connect" id="shopify-connect" aria-hidden="true"></div>
+
   <div class="cart-panel" id="cart-panel">
     <div class="cart-panel__info" id="cart-info">Kein Deck im Warenkorb</div>
     <button class="checkout-btn" id="checkout-btn" type="button">Zur Kasse</button>
@@ -184,6 +202,8 @@
   <script src="deck-inventory.js"></script>
   <script src="deck-renderer.js"></script>
   <script src="config.js"></script>
+  <script src="config.local.js" onerror="void 0"></script>
+  <script src="shopify-connect.js"></script>
   <script src="shopify-checkout.js"></script>
   <script>
     const INV = window.PAYDAY_DECK_INVENTORY;
@@ -679,26 +699,30 @@
       window.PAYDAY_SHOPIFY_CHECKOUT.goToCheckout(state.cart);
     });
 
-    (function renderShopifyStatus() {
+    function renderShopifyStatus() {
       const el = document.getElementById('shopify-status');
       const SH = window.PAYDAY_SHOPIFY_CHECKOUT;
       if (!el || !SH) return;
+      el.classList.remove('shopify-status--ready');
+      const cfg = SH.getConfig ? SH.getConfig() : window.PAYDAY_SHOP || {};
       el.textContent = SH.statusLine();
-      if (SH.isConfigured()) {
-        const cfg = window.PAYDAY_SHOP || {};
-        const mapped = Object.values(cfg.deckVariants || {}).filter((v) => v && v.variantId).length;
-        if (mapped > 0) el.classList.add('shopify-status--ready');
-        else {
-          el.innerHTML =
-            'Shopify-Domain gesetzt — <strong>Variant-IDs</strong> in ' +
-            '<a href="config.js">config.js</a> eintragen (CSV: shopify/products.csv)';
-        }
+      const mapped = Object.values(cfg.deckVariants || {}).filter((v) => v && v.variantId).length;
+      if (SH.isConfigured() && mapped > 0) {
+        el.classList.add('shopify-status--ready');
+      } else if (SH.isConfigured()) {
+        el.innerHTML = 'Domain gesetzt — <button type="button" id="shopify-status-sync" style="font:inherit;color:var(--accent);cursor:pointer;border:none;background:none;text-decoration:underline">Varianten laden</button> (Shopify-Button)';
       } else {
-        el.innerHTML =
-          'Checkout: shopify/SETUP.md · ' +
-          '<code>deck-shop/config.js</code>';
+        el.innerHTML = 'Shopify: <button type="button" id="shopify-status-open" style="font:inherit;color:var(--purple);cursor:pointer;border:none;background:none;text-decoration:underline">Jetzt verbinden</button>';
       }
-    })();
+      document.getElementById('shopify-status-open')?.addEventListener('click', () => connectUI?.open());
+      document.getElementById('shopify-status-sync')?.addEventListener('click', () => connectUI?.open());
+    }
+
+    const connectUI = window.PAYDAY_SHOPIFY_CONNECT?.mountConnectUI({
+      openOnLoad: location.hash === '#shopify-connect',
+    });
+    window.addEventListener('payday-shopify-updated', renderShopifyStatus);
+    renderShopifyStatus();
 
     document.getElementById('cart-toggle').addEventListener('click', () => {
       document.getElementById('cart-panel').classList.toggle('visible');

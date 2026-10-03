@@ -3,7 +3,10 @@
 Payday — Shopify-Konfiguration (Admin API)
 Benötigt Umgebungsvariablen:
   SHOPIFY_STORE_DOMAIN   z.B. payday-uepark.myshopify.com
-  SHOPIFY_ADMIN_TOKEN    Admin API access token (shpat_…)
+  SHOPIFY_ADMIN_TOKEN       Admin API token (shpat_…, legacy)
+  — oder Dev Dashboard —
+  SHOPIFY_CLIENT_ID         Client ID
+  SHOPIFY_CLIENT_SECRET     Client secret (Client-Credentials, ~24h Token)
 Optional:
   SHOPIFY_STOREFRONT_TOKEN  Storefront public token → config.local.js
 
@@ -11,6 +14,7 @@ Aufruf:
   python3 scripts/shopify-setup.py status
   python3 scripts/shopify-setup.py import-products
   python3 scripts/shopify-setup.py sync-config
+  python3 scripts/shopify-setup.py sync-prices   # Preise aus CSV → bestehende Varianten
   python3 scripts/shopify-setup.py all
 """
 from __future__ import annotations
@@ -20,6 +24,7 @@ import json
 import os
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -56,19 +61,53 @@ def env(name: str) -> str:
     return (os.environ.get(name) or "").strip()
 
 
+def client_credentials_token(domain: str, client_id: str, client_secret: str) -> str:
+    url = f"https://{domain}/admin/oauth/access_token"
+    body = (
+        f"grant_type=client_credentials&client_id={urllib.parse.quote(client_id)}"
+        f"&client_secret={urllib.parse.quote(client_secret)}"
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=body,
+        method="POST",
+        headers={"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        payload = e.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Client credentials failed HTTP {e.code}: {payload}") from e
+    token = data.get("access_token")
+    if not token:
+        raise RuntimeError(f"Kein access_token in Antwort: {data}")
+    return str(token)
+
+
+def resolve_admin_token(domain: str) -> str:
+    direct = env("SHOPIFY_ADMIN_TOKEN")
+    if direct:
+        return direct
+    client_id = env("SHOPIFY_CLIENT_ID")
+    client_secret = env("SHOPIFY_CLIENT_SECRET")
+    if client_id and client_secret:
+        print("  Admin-Token via Client Credentials (Dev Dashboard)…")
+        return client_credentials_token(domain, client_id, client_secret)
+    sys.exit(
+        "Kein Admin-Zugang: SHOPIFY_ADMIN_TOKEN oder "
+        "SHOPIFY_CLIENT_ID + SHOPIFY_CLIENT_SECRET in der Environment setzen."
+    )
+
+
 def require_env() -> tuple[str, str]:
     domain = env("SHOPIFY_STORE_DOMAIN").replace("https://", "").replace("http://", "").strip("/")
-    token = env("SHOPIFY_ADMIN_TOKEN")
     if not domain or "YOUR-STORE" in domain:
         sys.exit(
             "SHOPIFY_STORE_DOMAIN fehlt. In Cursor: Cloud Agent Environment → "
             "SHOPIFY_STORE_DOMAIN=dein-store.myshopify.com"
         )
-    if not token:
-        sys.exit(
-            "SHOPIFY_ADMIN_TOKEN fehlt. Admin → Settings → Apps → Develop apps → "
-            "Admin API token (read_products, write_products)."
-        )
+    token = resolve_admin_token(domain)
     return domain, token
 
 
@@ -165,6 +204,42 @@ def fetch_variant_id(domain: str, token: str, handle: str) -> str | None:
     return str(variants[0]["id"])
 
 
+def update_variant_price(domain: str, token: str, handle: str, price: str) -> bool:
+    p = get_product_by_handle(domain, token, handle)
+    if not p:
+        print(f"  fehlt: {handle}")
+        return False
+    variants = p.get("variants") or []
+    if not variants:
+        print(f"  keine Variante: {handle}")
+        return False
+    vid = variants[0]["id"]
+    admin_request(
+        domain,
+        token,
+        "PUT",
+        f"/variants/{vid}.json",
+        {"variant": {"id": vid, "price": str(price)}},
+    )
+    print(f"  {handle} → {price} EUR")
+    return True
+
+
+def cmd_sync_prices(domain: str, token: str):
+    print("Preise aus CSV in Shopify aktualisieren (bestehende Produkte)")
+    with CSV_PATH.open(newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    ok = 0
+    for row in rows:
+        handle = row.get("Handle", "").strip()
+        price = row.get("Variant Price", "").strip()
+        if not handle or not price:
+            continue
+        if update_variant_price(domain, token, handle, price):
+            ok += 1
+    print(f"  fertig: {ok}/{len(rows)} Zeilen")
+
+
 def cmd_sync_config(domain: str, token: str):
     print("Schritt 2/3 — Variant-IDs vom Shop lesen")
     deck_variants = {}
@@ -245,16 +320,23 @@ def cmd_sync_config(domain: str, token: str):
 def cmd_status():
     domain = env("SHOPIFY_STORE_DOMAIN")
     token = env("SHOPIFY_ADMIN_TOKEN")
+    cid = env("SHOPIFY_CLIENT_ID")
+    secret = env("SHOPIFY_CLIENT_SECRET")
     sf = env("SHOPIFY_STOREFRONT_TOKEN")
     print("Shopify Setup Status")
-    print(f"  SHOPIFY_STORE_DOMAIN:    {'✓ ' + domain if domain else '✗ fehlt'}")
-    print(f"  SHOPIFY_ADMIN_TOKEN:     {'✓ gesetzt' if token else '✗ fehlt'}")
-    print(f"  SHOPIFY_STOREFRONT_TOKEN:{'✓ gesetzt' if sf else '○ optional'}")
+    print(f"  SHOPIFY_STORE_DOMAIN:     {'✓ ' + domain if domain else '✗ fehlt'}")
+    print(f"  SHOPIFY_ADMIN_TOKEN:      {'✓ gesetzt' if token else '○ (optional)'}")
+    print(f"  SHOPIFY_CLIENT_ID:        {'✓ gesetzt' if cid else '✗ fehlt'}")
+    print(f"  SHOPIFY_CLIENT_SECRET:    {'✓ gesetzt' if secret else '✗ fehlt'}")
+    print(f"  SHOPIFY_STOREFRONT_TOKEN: {'✓ gesetzt' if sf else '○ für Deck-Checkout empfohlen'}")
     print(f"  CSV: {CSV_PATH} ({CSV_PATH.exists()})")
-    if domain and token:
+    if domain and (token or (cid and secret)):
         try:
-            data = admin_request(domain.replace("https://", "").strip("/"), token, "GET", "/shop.json")
+            d = domain.replace("https://", "").strip("/")
+            api_token = resolve_admin_token(d)
+            data = admin_request(d, api_token, "GET", "/shop.json")
             print(f"  Shop-Name: {data.get('shop', {}).get('name', '?')}")
+            print("  API-Test: OK")
         except Exception as e:
             print(f"  API-Test fehlgeschlagen: {e}")
 
@@ -270,8 +352,11 @@ def main():
     elif cmd == "sync-config":
         ok = cmd_sync_config(domain, token)
         sys.exit(0 if ok else 2)
+    elif cmd == "sync-prices":
+        cmd_sync_prices(domain, token)
     elif cmd == "all":
         cmd_import_products(domain, token)
+        cmd_sync_prices(domain, token)
         ok = cmd_sync_config(domain, token)
         sys.exit(0 if ok else 2)
     else:

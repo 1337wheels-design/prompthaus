@@ -92,6 +92,7 @@
       background: rgba(10, 8, 18, 0.85);
     }
     .shopify-status--ready { color: var(--accent); }
+    .shopify-status--locked { color: #fbbf24; }
     .shopify-status a { color: var(--purple); }
     .shopify-connect-btn { font-size: 9px; letter-spacing: 0.12em; color: var(--accent); border: 1px solid rgba(232, 121, 249, 0.35); padding: 6px 10px; background: transparent; cursor: pointer; font-family: inherit; text-transform: uppercase; }
     .shopify-connect { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -703,7 +704,7 @@
       const el = document.getElementById('shopify-status');
       const SH = window.PAYDAY_SHOPIFY_CHECKOUT;
       if (!el || !SH) return;
-      el.classList.remove('shopify-status--ready');
+      el.classList.remove('shopify-status--ready', 'shopify-status--locked');
       const cfg = SH.getConfig ? SH.getConfig() : window.PAYDAY_SHOP || {};
       el.textContent = SH.statusLine();
       const mapped = Object.values(cfg.deckVariants || {}).filter((v) => v && v.variantId).length;
@@ -716,6 +717,25 @@
       }
       document.getElementById('shopify-status-open')?.addEventListener('click', () => connectUI?.open());
       document.getElementById('shopify-status-sync')?.addEventListener('click', () => connectUI?.open());
+
+      SH.shopLiveStatusLine?.(cfg).then((live) => {
+        if (!live || !el) return;
+        const extra = document.createElement('div');
+        extra.style.marginTop = '4px';
+        extra.style.fontSize = '9px';
+        if (live.locked) {
+          el.classList.add('shopify-status--locked');
+          extra.innerHTML =
+            '⚠ ' +
+            live.text +
+            ' — <a href="' +
+            live.adminUrl +
+            '" target="_blank" rel="noopener" style="color:var(--accent)">Passwortschutz in Shopify deaktivieren</a>';
+        } else {
+          extra.textContent = '✓ ' + live.text;
+        }
+        el.appendChild(extra);
+      });
     }
 
     const connectUI = window.PAYDAY_SHOPIFY_CONNECT?.mountConnectUI({

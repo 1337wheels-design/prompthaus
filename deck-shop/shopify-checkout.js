@@ -2,6 +2,25 @@
  * Payday Deck Shop ↔ Shopify (Permalink + Storefront Checkout)
  */
 (function (global) {
+  const LIVE_CACHE_KEY = 'payday_shopify_live_check';
+
+  function normalizeDomain(domain) {
+    return String(domain || '')
+      .replace(/^https?:\/\//, '')
+      .replace(/\/$/, '');
+  }
+
+  function storeHandleFromDomain(domain) {
+    const d = normalizeDomain(domain);
+    const m = d.match(/^([^.]+)\.myshopify\.com$/i);
+    return m ? m[1] : d.split('.')[0];
+  }
+
+  function adminPreferencesUrl(domain) {
+    const handle = storeHandleFromDomain(domain);
+    return `https://admin.shopify.com/store/${handle}/online_store/preferences`;
+  }
+
   function getConfig() {
     if (global.PAYDAY_SHOPIFY_CONNECT?.getEffectiveConfig) {
       return global.PAYDAY_SHOPIFY_CONNECT.getEffectiveConfig();
@@ -36,7 +55,68 @@
   function resolveProductUrl(cfg, item) {
     const entry = variantEntry(cfg, item);
     if (!entry?.handle || !isConfigured(cfg)) return null;
-    return `https://${cfg.shopDomain}/products/${entry.handle}`;
+    return `https://${normalizeDomain(cfg.shopDomain)}/products/${entry.handle}`;
+  }
+
+  /** Shopify leitet bei Passwortschutz alles auf /password („Opening soon“). */
+  async function isShopPasswordLocked(domain) {
+    const d = normalizeDomain(domain);
+    if (!d) return false;
+    try {
+      const cached = sessionStorage.getItem(LIVE_CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.domain === d && Date.now() - parsed.at < 120000) {
+          return Boolean(parsed.locked);
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+
+    let locked = false;
+    try {
+      const res = await fetch(`https://${d}/`, { method: 'HEAD', redirect: 'manual', credentials: 'omit' });
+      if ([301, 302, 303, 307, 308].includes(res.status)) {
+        const loc = (res.headers.get('Location') || '').toLowerCase();
+        locked = loc.includes('/password');
+      }
+    } catch {
+      locked = false;
+    }
+
+    try {
+      sessionStorage.setItem(
+        LIVE_CACHE_KEY,
+        JSON.stringify({ domain: d, locked, at: Date.now() })
+      );
+    } catch {
+      /* ignore */
+    }
+    return locked;
+  }
+
+  function notifyPasswordBlocked(cfg) {
+    const admin = adminPreferencesUrl(cfg.shopDomain);
+    const msg =
+      'Dein Shopify-Shop ist noch im Modus „Opening soon“ (Passwortschutz).\n\n' +
+      'Solange der Passwortschutz AN ist, landen alle Checkout-Links auf /password — das ist eine Shopify-Einstellung, kein Fehler im Deck Shop.\n\n' +
+      'Fix: Shopify Admin → Online Store → Preferences → Password protection → deaktivieren / Remove password.\n\n' +
+      'OK = Admin-Einstellungen in neuem Tab öffnen';
+    if (window.confirm(msg)) {
+      window.open(admin, '_blank', 'noopener,noreferrer');
+    }
+    return { ok: false, reason: 'shop_password', adminUrl: admin };
+  }
+
+  async function ensureShopLive(cfg) {
+    if (!isConfigured(cfg)) return true;
+    const locked = await isShopPasswordLocked(cfg.shopDomain);
+    if (locked) {
+      notifyPasswordBlocked(cfg);
+      return false;
+    }
+    return true;
   }
 
   function buildCartCheckout(cfg, cartItems) {
@@ -64,8 +144,9 @@
       return { ok: false, reason: 'missing_variants', missing };
     }
 
+    const domain = normalizeDomain(cfg.shopDomain);
     const segments = [...counts.entries()].map(([id, qty]) => `${id}:${qty}`);
-    const url = `https://${cfg.shopDomain}/cart/${segments.join(',')}`;
+    const url = `https://${domain}/cart/${segments.join(',')}`;
     return { ok: true, url, mode: 'permalink' };
   }
 
@@ -118,13 +199,17 @@
 
   async function goToCheckout(cartItems) {
     const cfg = getConfig();
+
+    if (!(await ensureShopLive(cfg))) {
+      return { ok: false, reason: 'shop_password' };
+    }
+
     const token = cfg.storefrontAccessToken;
 
     if (token && isConfigured(cfg)) {
       try {
         const sf = await checkoutViaStorefront(cfg, cartItems);
         if (sf.ok && sf.url) {
-          maybeWarnPasswordStore(cfg);
           window.location.href = sf.url;
           return sf;
         }
@@ -136,7 +221,6 @@
     const result = buildCartCheckout(cfg, cartItems);
 
     if (result.ok && result.url) {
-      maybeWarnPasswordStore(cfg);
       window.location.href = result.url;
       return result;
     }
@@ -167,22 +251,18 @@
     return result;
   }
 
-  const PASSWORD_HINT_KEY = 'payday_shopify_password_hint_v1';
-
-  /** Dev-Shops mit „Opening soon“ / Passwortseite — kein Code-Bug. */
-  function maybeWarnPasswordStore(cfg) {
-    try {
-      if (localStorage.getItem(PASSWORD_HINT_KEY)) return;
-      localStorage.setItem(PASSWORD_HINT_KEY, '1');
-    } catch {
-      return;
+  async function shopLiveStatusLine(cfg) {
+    cfg = cfg || getConfig();
+    if (!isConfigured(cfg)) return null;
+    const locked = await isShopPasswordLocked(cfg.shopDomain);
+    if (locked) {
+      return {
+        locked: true,
+        text: 'Shop: Opening soon (Passwort) — Checkout blockiert bis Passwortschutz AUS',
+        adminUrl: adminPreferencesUrl(cfg.shopDomain),
+      };
     }
-    const domain = cfg?.shopDomain || '';
-    console.info(
-      '[Payday Deck Shop] Wenn Shopify „Opening soon“ oder eine Passwortseite zeigt: ' +
-        'Admin → Online Store → Preferences → Passwortschutz deaktivieren (Shop für Käufer öffnen). Domain:',
-      domain
-    );
+    return { locked: false, text: 'Shop: live (kein Passwortschutz)' };
   }
 
   function statusLine() {
@@ -201,6 +281,9 @@
     buildCartCheckout,
     goToCheckout,
     statusLine,
+    shopLiveStatusLine,
+    isShopPasswordLocked,
+    adminPreferencesUrl,
     resolveVariantId,
     getConfig,
   };

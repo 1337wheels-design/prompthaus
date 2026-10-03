@@ -465,7 +465,9 @@
         <p class="product-card__desc">${p.description}</p>
         ${p.tombola > 0 ? `<p class="product-card__tombola">+ ${p.tombola} Tombola-Lose</p>` : ''}
         <p class="product-card__price">${p.price}</p>
-        <button class="btn btn--primary" data-handle="${p.handle}" type="button">${p.handle === 'payday-deck' ? 'Konfigurieren' : 'Kaufen'}</button>
+        ${p.handle === 'payday-deck'
+          ? `<a class="btn btn--primary" href="${p.configuratorUrl || cfg.deckShopUrl || '../deck-shop/'}">Konfigurieren</a>`
+          : `<button class="btn btn--primary" data-handle="${p.handle}" type="button">Kaufen</button>`}
       </article>
     `).join('');
 

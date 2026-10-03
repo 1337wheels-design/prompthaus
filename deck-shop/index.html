@@ -399,6 +399,15 @@
 
       updateUI();
       requestAnimationFrame(tick);
+      // Fallback falls rAF nach Navigation (z. B. von shop/) stockt
+      setTimeout(() => {
+        if (!state.introRunning || state.phase !== 'intro') return;
+        state.introRunning = false;
+        state.phase = 'swipe';
+        state.swipeCount = 0;
+        setProgressBar(INTRO_PROGRESS_SHARE, false);
+        updateUI();
+      }, INTRO_DURATION_MS + 400);
     }
 
     function handleNavStep(direction) {

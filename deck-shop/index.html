@@ -81,6 +81,18 @@
     .cart-panel__info strong { color: var(--purple); }
     .checkout-btn { padding: 10px 20px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--purple); background: rgba(167, 139, 250, 0.15); color: var(--purple); cursor: pointer; font-family: inherit; white-space: nowrap; }
     @media (max-width: 480px) { .deck-grid { grid-template-columns: repeat(2, 1fr); } }
+    .shopify-status {
+      font-size: 8px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 6px 12px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 8, 18, 0.85);
+    }
+    .shopify-status--ready { color: var(--accent); }
+    .shopify-status a { color: var(--purple); }
   </style>
 </head>
 <body>
@@ -96,6 +108,7 @@
       <button class="cart-btn" id="cart-toggle" type="button">Warenkorb (0)</button>
     </div>
   </nav>
+  <p class="shopify-status" id="shopify-status" aria-live="polite"></p>
 
   <header class="deck-hero">
     <h1 class="deck-hero__title">Payday SS26 Deck Shop</h1>
@@ -171,6 +184,7 @@
   <script src="deck-inventory.js"></script>
   <script src="deck-renderer.js"></script>
   <script src="config.js"></script>
+  <script src="shopify-checkout.js"></script>
   <script>
     const INV = window.PAYDAY_DECK_INVENTORY;
     const R = window.PaydayDeckRenderer;
@@ -653,15 +667,29 @@
     }
 
     document.getElementById('checkout-btn').addEventListener('click', () => {
-      const cfg = window.PAYDAY_SHOP || {};
-      const domain = cfg.shopDomain;
-      const handle = cfg.productHandle || 'payday-deck';
-      if (domain && !domain.includes('YOUR-STORE')) {
-        window.location.href = 'https://' + domain + '/products/' + handle;
-      } else {
-        alert('Shopify noch nicht verbunden.\n\nDeine Auswahl wurde gespeichert.\nKonfiguration: deck-shop/config.js');
-      }
+      window.PAYDAY_SHOPIFY_CHECKOUT.goToCheckout(state.cart);
     });
+
+    (function renderShopifyStatus() {
+      const el = document.getElementById('shopify-status');
+      const SH = window.PAYDAY_SHOPIFY_CHECKOUT;
+      if (!el || !SH) return;
+      el.textContent = SH.statusLine();
+      if (SH.isConfigured()) {
+        const cfg = window.PAYDAY_SHOP || {};
+        const mapped = Object.values(cfg.deckVariants || {}).filter((v) => v && v.variantId).length;
+        if (mapped > 0) el.classList.add('shopify-status--ready');
+        else {
+          el.innerHTML =
+            'Shopify-Domain gesetzt — <strong>Variant-IDs</strong> in ' +
+            '<a href="config.js">config.js</a> eintragen (CSV: shopify/products.csv)';
+        }
+      } else {
+        el.innerHTML =
+          'Checkout: shopify/SETUP.md · ' +
+          '<code>deck-shop/config.js</code>';
+      }
+    })();
 
     document.getElementById('cart-toggle').addEventListener('click', () => {
       document.getElementById('cart-panel').classList.toggle('visible');

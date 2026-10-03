@@ -270,6 +270,39 @@
       border-top: 1px solid var(--border);
     }
 
+    /* ── Shop ── */
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .product-card {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      padding: 18px 16px;
+    }
+    .product-card__title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .product-card__desc { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+    .product-card__price { font-size: 13px; color: var(--gold); margin-bottom: 12px; }
+    .product-card__tombola { font-size: 9px; color: rgba(0, 200, 176, 0.75); margin-bottom: 8px; }
+    .shop-notice {
+      margin-top: 20px;
+      padding: 14px;
+      border: 1px dashed var(--border);
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .shop-notice code { color: var(--gold); }
+
     @media (max-width: 560px) {
       .site-nav__links { display: none; }
       .schedule__slot { grid-template-columns: 1fr; }
@@ -277,6 +310,7 @@
       .hero__stats { grid-template-columns: 1fr; gap: 12px; }
     }
   </style>
+  <link rel="preconnect" href="https://sdks.shopifycdn.com">
 </head>
 <body>
 
@@ -287,8 +321,11 @@
       <li><a href="#schedule">Zeitplan</a></li>
       <li><a href="#cards">Karten</a></li>
       <li><a href="#scroll-carousel">Aufdecken</a></li>
+      <li><a href="#shop">Shop</a></li>
       <li><a href="#sponsors">Sponsoren</a></li>
+      <li><a href="../deck-shop/">Deck Shop</a></li>
     </ul>
+    <a class="site-nav__cart" id="cart-link" href="#shop">Warenkorb</a>
   </nav>
 
   <header class="hero" id="event">
@@ -303,6 +340,7 @@
       <a href="#scroll-carousel" class="btn btn--primary">Karten aufdecken</a>
       <a href="#cards" class="btn btn--ghost">Karten-Galerie</a>
       <a href="#schedule" class="btn btn--ghost">Zeitplan</a>
+      <a href="../deck-shop/" class="btn btn--ghost">Deck Shop</a>
     </div>
     <dl class="hero__stats">
       <div><dt>Cash Prize</dt><dd>500€</dd></div>
@@ -357,6 +395,19 @@
     </div>
   </section>
 
+  <section class="section section--dark" id="shop">
+    <div class="section__inner">
+      <h2 class="section__title">Shop</h2>
+      <p class="section__sub">Tickets · Packs · Payday Decks · Shopify Checkout</p>
+      <div class="shop-grid" id="shop-grid"></div>
+      <p class="shop-notice" id="shop-notice">
+        Shopify-Shop noch nicht verbunden. Nach Store-Erstellung
+        <code>shop/config.js</code> und <code>deck-shop/config.js</code> anpassen —
+        Import: <code>shopify/products.csv</code> · Anleitung: <code>shopify/SETUP.md</code>
+      </p>
+    </div>
+  </section>
+
   <section class="section section--mid portal-target" id="sponsors">
     <div class="section__inner">
       <h2 class="section__title">Sponsoren</h2>
@@ -377,6 +428,7 @@
     Üpark Payday 2026 · Skatepark Bremen Überseestadt · DSGVO: Gewinnerdaten nur mit Opt-in
   </footer>
 
+  <script src="config.js"></script>
   <script src="scroll-carousel.js"></script>
   <script>
     const SCHEDULE = [
@@ -400,8 +452,62 @@
       </article>
     `).join('');
 
+    const cfg = window.PAYDAY_SHOP || {};
+
     // Gallery iframe
-    document.getElementById('gallery-frame').src = '../cards/index.html';
+    document.getElementById('gallery-frame').src = cfg.galleryBaseUrl || '../cards/index.html';
+
+    const products = cfg.products || [];
+    const shopGrid = document.getElementById('shop-grid');
+    shopGrid.innerHTML = products.map(p => `
+      <article class="product-card" data-handle="${p.handle}">
+        <h3 class="product-card__title">${p.title}</h3>
+        <p class="product-card__desc">${p.description}</p>
+        ${p.tombola > 0 ? `<p class="product-card__tombola">+ ${p.tombola} Tombola-Lose</p>` : ''}
+        <p class="product-card__price">${p.price}</p>
+        <button class="btn btn--primary" data-handle="${p.handle}" type="button">${p.handle === 'payday-deck' ? 'Konfigurieren' : 'Kaufen'}</button>
+      </article>
+    `).join('');
+
+    const shopDomain = cfg.shopDomain;
+    const isConfigured = shopDomain && !shopDomain.includes('YOUR-STORE');
+    const cartLink = document.getElementById('cart-link');
+    const shopNotice = document.getElementById('shop-notice');
+
+    if (isConfigured) {
+      cartLink.href = `https://${shopDomain}/cart`;
+      shopNotice.style.display = 'none';
+      document.querySelectorAll('.product-card button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const handle = btn.dataset.handle;
+          const product = products.find(x => x.handle === handle);
+          if (handle === 'payday-deck') {
+            window.location.href = product?.configuratorUrl || cfg.deckShopUrl || '../deck-shop/';
+            return;
+          }
+          if (product?.variantId) {
+            window.location.href = `https://${shopDomain}/cart/${product.variantId}:1`;
+          } else {
+            window.location.href = `https://${shopDomain}/products/${handle}`;
+          }
+        });
+      });
+    } else {
+      cartLink.addEventListener('click', e => {
+        e.preventDefault();
+        shopNotice.scrollIntoView({ behavior: 'smooth' });
+      });
+      document.querySelectorAll('.product-card button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const handle = btn.dataset.handle;
+          if (handle === 'payday-deck') {
+            window.location.href = cfg.deckShopUrl || '../deck-shop/';
+            return;
+          }
+          shopNotice.scrollIntoView({ behavior: 'smooth' });
+        });
+      });
+    }
   </script>
 </body>
 </html>

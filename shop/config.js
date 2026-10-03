@@ -3,7 +3,7 @@
  * Deck-Konfigurator: ../deck-shop/ (eigene config.js + Variant-Map)
  */
 window.PAYDAY_SHOP = {
-  shopDomain: 'YOUR-STORE.myshopify.com',
+  shopDomain: 'xwk1u9-6z.myshopify.com',
   storefrontAccessToken: '',
   galleryBaseUrl: '../cards/index.html',
   deckShopUrl: '../deck-shop/',

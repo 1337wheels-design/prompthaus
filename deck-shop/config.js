@@ -10,7 +10,7 @@
  * Docs: shopify/SETUP.md (Hybrid Option C)
  */
 window.PAYDAY_SHOP = {
-  shopDomain: 'YOUR-STORE.myshopify.com',
+  shopDomain: 'xwk1u9-6z.myshopify.com',
 
   /** Optional: Storefront API für erweiterten Headless-Cart (Hydrogen) */
   storefrontAccessToken: '',

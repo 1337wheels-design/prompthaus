@@ -205,7 +205,7 @@
   <script src="config.js"></script>
   <script src="config.local.js" onerror="void 0"></script>
   <script src="shopify-connect.js?v=20260303-id-only"></script>
-  <script src="shopify-checkout.js?v=20260303-password-hint"></script>
+  <script src="shopify-checkout.js?v=20260303-live-check"></script>
   <script>
     const INV = window.PAYDAY_DECK_INVENTORY;
     const R = window.PaydayDeckRenderer;
@@ -720,7 +720,9 @@
 
       SH.shopLiveStatusLine?.(cfg).then((live) => {
         if (!live || !el) return;
+        el.querySelector('#shopify-live-status')?.remove();
         const extra = document.createElement('div');
+        extra.id = 'shopify-live-status';
         extra.style.marginTop = '4px';
         extra.style.fontSize = '9px';
         if (live.locked) {

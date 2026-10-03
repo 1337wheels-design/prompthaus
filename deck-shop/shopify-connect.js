@@ -4,6 +4,7 @@
  */
 (function (global) {
   const STORAGE_KEY = 'payday_shopify_runtime';
+  const CONNECT_SCRIPT_VERSION = '2026.03.03-storefront-id-only';
   const API_VERSION = '2024-10';
 
   function readRuntime() {
@@ -131,9 +132,10 @@
             value="${rt.storefrontAccessToken || ''}">
         </label>
         <p class="shopify-connect__hint">
-          Token: Shopify Admin → Settings → Apps → Develop apps → Storefront API → Token mit
-          <code>unauthenticated_read_product_listings</code> + Checkout/Cart Scopes.
+          Token: Headless → Storefront → <strong>Public access token</strong> (nicht Private/Admin).
+          Scopes: <code>unauthenticated_read_product_listings</code> + Cart/Checkout.
         </p>
+        <p class="shopify-connect__hint shopify-connect__version" id="sc-version"></p>
         <div class="shopify-connect__actions">
           <button type="button" class="shopify-connect__btn shopify-connect__btn--primary" id="sc-sync">Verbinden &amp; Varianten laden</button>
           <button type="button" class="shopify-connect__btn" id="sc-clear">Verbindung löschen</button>
@@ -149,6 +151,10 @@
 
     const panel = root.querySelector('.shopify-connect__panel');
     const log = root.querySelector('#sc-log');
+    const ver = root.querySelector('#sc-version');
+    if (ver) {
+      ver.textContent = `Verbindungs-Script: ${CONNECT_SCRIPT_VERSION}`;
+    }
 
     function open() {
       root.classList.add('is-open');
@@ -199,6 +205,7 @@
   }
 
   global.PAYDAY_SHOPIFY_CONNECT = {
+    CONNECT_SCRIPT_VERSION,
     STORAGE_KEY,
     readRuntime,
     writeRuntime,

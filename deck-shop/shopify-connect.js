@@ -59,17 +59,19 @@
       `query ProductVariant($handle: String!) {
         product(handle: $handle) {
           variants(first: 1) {
-            nodes { id legacyResourceId }
+            nodes { id }
           }
         }
       }`,
       { handle }
     );
     const node = data?.product?.variants?.nodes?.[0];
-    if (!node) return null;
+    if (!node?.id) return null;
+    const gid = String(node.id);
+    const numericId = gid.includes('/') ? gid.split('/').pop() : gid;
     return {
-      variantId: node.legacyResourceId || node.id.split('/').pop(),
-      variantGid: node.id,
+      variantId: numericId,
+      variantGid: gid,
     };
   }
 

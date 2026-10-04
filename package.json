@@ -11,6 +11,7 @@
     "test:supabase": "node scripts/deck-supabase-smoke-test.mjs",
     "test:desktop": "node scripts/deck-shop-desktop-test.mjs",
     "test:desktop:headless": "HEADLESS=1 node scripts/deck-shop-desktop-test.mjs",
+    "playwright:install": "playwright install chromium && playwright install-deps chromium",
     "supabase:link": "supabase link --project-ref yoeehrdsrfwolzdtgmel",
     "supabase:db:push": "supabase db push",
     "supabase:deploy:reservation": "supabase functions deploy reservation-api --project-ref yoeehrdsrfwolzdtgmel",

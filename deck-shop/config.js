@@ -12,7 +12,10 @@
 window.PAYDAY_SHOP = {
   shopDomain: 'xwk1u9-6z.myshopify.com',
 
-  /** Nach Checkout / „Weiter einkaufen“ zurück zum Deck Shop (GitHub Pages). */
+  /**
+   * Fallback Return-URL (CLI/Tests). Im Browser überschreibt shopify-checkout.js
+   * mit der aktuellen Origin + /…/deck-shop/ (GitHub Pages oder Vercel).
+   */
   checkoutReturnUrl: 'https://1337wheels-design.github.io/prompthaus/deck-shop/',
 
   /**

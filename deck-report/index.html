@@ -150,6 +150,7 @@
     const ORIGIN = 'https://1337wheels-design.github.io';
     const SHOPIFY = 'xwk1u9-6z.myshopify.com';
     const PAGES_SHOP = 'https://1337wheels-design.github.io/prompthaus/deck-shop/';
+    const VERCEL_SHOP = 'https://payday.vercel.app/deck-shop/';
     const SYNC = 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/shop-sync';
 
     let refreshTimer;
@@ -195,7 +196,8 @@
         ['Supabase Functions', items.supabaseFunctions],
         ['SQL Editor', items.supabaseSql],
         ['Tabellen', items.supabaseTables],
-        ['Deck Shop', items.deckShop || PAGES_SHOP],
+        ['Deck Shop (Pages)', items.deckShop || PAGES_SHOP],
+        ['Deck Shop (Vercel)', items.vercelDeckShop || VERCEL_SHOP],
         ['Shopify Admin', items.shopifyAdmin || `https://${SHOPIFY}/admin`],
       ]
         .filter(([, u]) => u)
@@ -340,6 +342,25 @@
           card('GitHub Pages Shop', ok ? '200 OK' : '—', pagesSnap ? 'Snapshot' : esc(pages.error || ''), ok)
         );
         if (!ok) overall = 'degraded';
+      }
+
+      const vercel = await tryProbe(() => fetch(VERCEL_SHOP, { method: 'HEAD' }));
+      if (!vercel.error && vercel.status != null) {
+        const ok = vercel.status === 200;
+        cards.push(card('Vercel Shop', ok ? '200 OK' : `HTTP ${vercel.status}`, 'Live HEAD', ok));
+        if (!ok) overall = 'degraded';
+      } else {
+        const vercelSnap = panelFromSnapshot('vercel_deck_shop');
+        const ok = vercelSnap?.http === 200;
+        cards.push(
+          card(
+            'Vercel Shop',
+            ok ? '200 OK' : vercelSnap ? `HTTP ${vercelSnap.http}` : '—',
+            vercelSnap ? 'Snapshot' : esc(vercel.error || 'Noch nicht deployed'),
+            ok
+          )
+        );
+        if (vercelSnap && !ok) overall = 'degraded';
       }
 
       if (!av && panelFromSnapshot('supabase_reservation')?.availability) {

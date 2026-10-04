@@ -19,6 +19,8 @@ const SYNC =
 const PAGES_SHOP =
   process.env.DECK_SHOP_URL ||
   'https://1337wheels-design.github.io/prompthaus/deck-shop/';
+const VERCEL_SHOP =
+  process.env.VERCEL_DECK_SHOP_URL || 'https://payday.vercel.app/deck-shop/';
 const SHOPIFY = process.env.SHOPIFY_SHOP_DOMAIN || 'xwk1u9-6z.myshopify.com';
 const ORIGIN = 'https://1337wheels-design.github.io';
 const SUPABASE_PROJECT = 'yoeehrdsrfwolzdtgmel';
@@ -73,6 +75,13 @@ panels.push(
   })
 );
 
+panels.push(
+  await probe('vercel_deck_shop', async () => {
+    const res = await fetch(VERCEL_SHOP, { redirect: 'manual' });
+    return { http: res.status, url: VERCEL_SHOP };
+  })
+);
+
 const reservation = panels.find((p) => p.name === 'supabase_reservation');
 const shopSync = panels.find((p) => p.name === 'supabase_shop_sync');
 const degraded = panels.some((p) => !p.ok);
@@ -86,6 +95,7 @@ const snapshot = {
     supabaseSql: `https://supabase.com/dashboard/project/${SUPABASE_PROJECT}/sql/new`,
     supabaseTables: `https://supabase.com/dashboard/project/${SUPABASE_PROJECT}/editor`,
     deckShop: PAGES_SHOP,
+    vercelDeckShop: VERCEL_SHOP,
     shopifyAdmin: `https://${SHOPIFY}/admin`,
   },
 };
@@ -127,7 +137,7 @@ bericht.sections = [
     id: 'ingress',
     title: 'Eingangsverhalten (Supabase Edge)',
     paragraphs: [
-      'Browser-Traffic von GitHub Pages trifft auf die Edge Function **reservation-api** (CORS nur für 1337wheels-design.github.io).',
+      'Browser-Traffic von **GitHub Pages**, **payday.vercel.app** und Vercel-Previews (`*.vercel.app`) trifft auf **reservation-api** / **shop-sync** (shared `deck-cors.ts`; optional Secret `DECK_SHOP_ALLOWED_ORIGINS`).',
       'Stufe-1-Limits zählen pro **IP** und **sessionId** in `deck_rate_limit_buckets` (Postgres). Typische Live-Last: GET `/v1/availability` alle 75 s pro Tab.',
       'Drop-Tests von **einer IP** ohne Limit-Abschaltung stoßen schnell an **sync-burst** (8/10 s) und **40 sync/min/IP** — im Dashboard SQL Editor siehe `supabase/sql/ingress-dashboard.sql`.',
     ],

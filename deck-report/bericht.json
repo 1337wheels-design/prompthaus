@@ -5,8 +5,8 @@
       "id": "executive",
       "title": "Kurzfassung",
       "paragraphs": [
-        "Stand 4.10.2026, 23:24:30 (Europe/Berlin): Gesamtstatus **OK**.",
-        "Reservierungs-API aktiv (Rate-Limit **stufe1**). Freie Einheiten gesamt: **49**.",
+        "Stand 5.10.2026, 00:10:17 (Europe/Berlin): Gesamtstatus **OK**.",
+        "Reservierungs-API aktiv (Rate-Limit **stufe1**). Freie Einheiten gesamt: **0**.",
         "Shop-Sync ist konfiguriert (Shopify Storefront → Postgres)."
       ]
     },
@@ -14,7 +14,7 @@
       "id": "ingress",
       "title": "Eingangsverhalten (Supabase Edge)",
       "paragraphs": [
-        "Browser-Traffic von GitHub Pages trifft auf die Edge Function **reservation-api** (CORS nur für 1337wheels-design.github.io).",
+        "Browser-Traffic von **GitHub Pages**, **payday.vercel.app** und Vercel-Previews (`*.vercel.app`) trifft auf **reservation-api** / **shop-sync** (shared `deck-cors.ts`; optional Secret `DECK_SHOP_ALLOWED_ORIGINS`).",
         "Stufe-1-Limits zählen pro **IP** und **sessionId** in `deck_rate_limit_buckets` (Postgres). Typische Live-Last: GET `/v1/availability` alle 75 s pro Tab.",
         "Drop-Tests von **einer IP** ohne Limit-Abschaltung stoßen schnell an **sync-burst** (8/10 s) und **40 sync/min/IP** — im Dashboard SQL Editor siehe `supabase/sql/ingress-dashboard.sql`."
       ]
@@ -43,11 +43,11 @@
       ]
     }
   ],
-  "generatedAt": "2026-10-04T21:24:30.205Z",
+  "generatedAt": "2026-10-04T22:10:17.435Z",
   "liveSummary": {
     "overall": "ok",
     "rateLimit": "stufe1",
-    "totalAvail": 49,
+    "totalAvail": 0,
     "shopSyncConfigured": true
   }
 }

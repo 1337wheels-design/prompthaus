@@ -3,22 +3,9 @@
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
-const API_VERSION = '2024-10';
-const ALLOWED_ORIGINS = [
-  'https://1337wheels-design.github.io',
-  'http://localhost',
-  'http://127.0.0.1',
-];
+import { corsHeaders } from '../deck-cors.ts';
 
-function corsHeaders(origin: string | null): HeadersInit {
-  const allow =
-    origin && ALLOWED_ORIGINS.some((p) => origin === p || origin.startsWith(p));
-  return {
-    'Access-Control-Allow-Origin': allow ? origin! : ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-}
+const API_VERSION = '2024-10';
 
 function routePath(pathname: string): string {
   if (pathname.endsWith('/health')) return '/health';

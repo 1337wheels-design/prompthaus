@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
+import { corsHeaders } from '../deck-cors.ts';
 import {
   clientIp,
   enforceRateLimits,
@@ -7,22 +8,6 @@ import {
 } from './rate-limit.ts';
 
 const DEFAULT_TTL_MS = 300_000;
-const ALLOWED_ORIGINS = [
-  'https://1337wheels-design.github.io',
-  'http://localhost',
-  'http://127.0.0.1',
-];
-
-function corsHeaders(origin: string | null): HeadersInit {
-  const allow =
-    origin && ALLOWED_ORIGINS.some((p) => origin === p || origin.startsWith(p));
-  return {
-    'Access-Control-Allow-Origin': allow ? origin! : ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
-    'Access-Control-Max-Age': '86400',
-  };
-}
 
 function jsonResponse(status: number, body: unknown, origin: string | null) {
   return new Response(JSON.stringify(body), {

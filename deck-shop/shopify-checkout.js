@@ -54,8 +54,23 @@
 
   const DEFAULT_DECK_SHOP_URL = 'https://1337wheels-design.github.io/prompthaus/deck-shop/';
 
+  /** GitHub Pages (/prompthaus/deck-shop/) oder Vercel (/deck-shop/) — vor statischem config-Fallback. */
+  function detectDeckShopReturnFromLocation() {
+    try {
+      const loc = global.location;
+      if (!loc?.origin || !loc.pathname) return null;
+      const m = loc.pathname.match(/^(.*\/deck-shop\/)/);
+      if (m) return loc.origin + m[1];
+    } catch {
+      /* ignore */
+    }
+    return null;
+  }
+
   function deckShopReturnUrl(cfg) {
     cfg = cfg || getConfig();
+    const detected = detectDeckShopReturnFromLocation();
+    if (detected) return detected;
     const configured = cfg.checkoutReturnUrl || cfg.deckShopUrl;
     if (configured && String(configured).trim()) {
       return String(configured).trim().replace(/\/?$/, '/');

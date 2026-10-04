@@ -62,11 +62,11 @@ npx supabase inspect db table-stats --project-ref yoeehrdsrfwolzdtgmel
 ## 4. Technisches Ingress-Modell
 
 ```
-Browser (GitHub Pages)
-  Origin: https://1337wheels-design.github.io
+Browser (GitHub Pages / Vercel / localhost)
+  Origin: 1337wheels-design.github.io · payday.vercel.app · *.vercel.app
        │
        ▼
-Supabase Edge ─ reservation-api
+Supabase Edge ─ reservation-api (+ shop-sync, deck-cors.ts)
   ├─ OPTIONS → 204 CORS
   ├─ GET /health
   ├─ GET /v1/availability  → deck_availability (+ rate buckets)
@@ -96,8 +96,10 @@ IP für Limits: clientIp() — bevorzugt CF-Connecting-IP, sonst **letzter** Hop
 
 ## 6. Repo-Hilfen
 
-| Befehl | Zweck |
-|--------|--------|
+| Befehl / URL | Zweck |
+|--------------|--------|
+| **[deck-report UI](../deck-report/)** (Pages: `/prompthaus/deck-report/`) | Bericht + Live-Metriken, Auto-Refresh |
+| `npm run ops:report:build` | `bericht.json` + `snapshot.json` aktualisieren |
 | `npm run test:rate-limit` | Live-Check 429 (Burst innerhalb 60 s) |
 | `npm run ops:status` | Health + Availability + Sync ohne DB |
 | `npm run test:drop-sim-25` | Koordinierter Lasttest (Prod-Limits beachten) |

@@ -5,9 +5,25 @@
   const RES =
     'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/reservation-api';
   const SYNC = 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/shop-sync';
-  const ORIGIN = 'https://1337wheels-design.github.io';
+  const FALLBACK_ORIGIN = 'https://1337wheels-design.github.io';
+  const PROBE_ORIGIN = (function () {
+    try {
+      if (global.location?.origin) return global.location.origin;
+    } catch {
+      /* ignore */
+    }
+    return FALLBACK_ORIGIN;
+  })();
   const SHOPIFY = 'xwk1u9-6z.myshopify.com';
-  const PAGES_SHOP = new URL('./', global.location.href).href;
+  const PAGES_SHOP = (function () {
+    try {
+      const m = global.location.pathname.match(/^(.*\/deck-shop\/)/);
+      if (m) return global.location.origin + m[1];
+    } catch {
+      /* ignore */
+    }
+    return new URL('./', global.location.href).href;
+  })();
 
   function esc(s) {
     const d = document.createElement('div');
@@ -28,9 +44,11 @@
     const panels = [];
     panels.push(
       await probe('reservation', async () => {
-        const h = await fetch(`${RES}/health`, { headers: { Origin: ORIGIN } }).then((r) => r.json());
+        const h = await fetch(`${RES}/health`, { headers: { Origin: PROBE_ORIGIN } }).then((r) =>
+          r.json()
+        );
         const a = await fetch(`${RES}/v1/availability?sessionId=dev-vitals`, {
-          headers: { Origin: ORIGIN },
+          headers: { Origin: PROBE_ORIGIN },
         }).then((r) => r.json());
         const av = a.availability || {};
         return {
@@ -43,7 +61,9 @@
     );
     panels.push(
       await probe('shop_sync', async () => {
-        const h = await fetch(`${SYNC}/health`, { headers: { Origin: ORIGIN } }).then((r) => r.json());
+        const h = await fetch(`${SYNC}/health`, { headers: { Origin: PROBE_ORIGIN } }).then((r) =>
+          r.json()
+        );
         return { configured: h.configured, checks: h.checks };
       })
     );
@@ -88,7 +108,7 @@
           return `<tr><td>Shop-Sync</td><td>${p.configured ? 'OK' : '—'}</td><td>${p.checks ? esc(JSON.stringify(p.checks)) : ''}</td></tr>`;
         }
         if (p.name === 'pages') {
-          return `<tr><td>GitHub Pages Shop</td><td>${p.http}</td><td>HEAD ${esc(PAGES_SHOP)}</td></tr>`;
+          return `<tr><td>Deck Shop (Host)</td><td>${p.http}</td><td>HEAD ${esc(PAGES_SHOP)}</td></tr>`;
         }
         if (p.name === 'shopify') {
           return `<tr><td>Shopify</td><td>—</td><td>${esc(p.note || '')}</td></tr>`;

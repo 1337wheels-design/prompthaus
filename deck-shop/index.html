@@ -124,11 +124,12 @@
     .cart-panel__info { font-size: 10px; color: var(--text-muted); flex: 1; min-width: 140px; }
     .cart-panel__info strong { color: var(--purple); }
     .cart-panel__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .cart-clear-btn {
+    .cart-collapse-btn {
       padding: 10px 14px; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
       border: 1px solid var(--border); background: transparent; color: var(--text-muted);
       cursor: pointer; font-family: inherit;
     }
+    .cart-collapse-btn:hover { color: var(--purple); border-color: rgba(167, 139, 250, 0.35); }
     .checkout-btn { padding: 10px 20px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--purple); background: rgba(167, 139, 250, 0.15); color: var(--purple); cursor: pointer; font-family: inherit; white-space: nowrap; }
     @media (max-width: 480px) { .deck-grid { grid-template-columns: repeat(2, 1fr); } }
     .shopify-status {
@@ -254,7 +255,7 @@
     <div class="cart-panel__foot">
       <div class="cart-panel__info" id="cart-info">Kein Deck im Warenkorb</div>
       <div class="cart-panel__actions">
-        <button class="cart-clear-btn" id="cart-clear" type="button">Leeren</button>
+        <button class="cart-collapse-btn" id="cart-collapse" type="button" aria-label="Warenkorb einklappen">Hochklappen</button>
         <button class="checkout-btn" id="checkout-btn" type="button">Zur Kasse</button>
       </div>
     </div>
@@ -826,18 +827,15 @@
       document.getElementById('cart-toggle').textContent = 'Warenkorb (' + n + ')';
       document.getElementById('cart-panel-title').textContent = 'Warenkorb (' + n + ')';
       const info = document.getElementById('cart-info');
-      const clearBtn = document.getElementById('cart-clear');
       const checkoutBtn = document.getElementById('checkout-btn');
       renderCartLines();
       if (n === 0) {
         info.textContent = 'Kein Deck im Warenkorb';
-        if (clearBtn) clearBtn.disabled = true;
         if (checkoutBtn) checkoutBtn.disabled = true;
         setCartPanelOpen(false);
         persistCart();
         return;
       }
-      if (clearBtn) clearBtn.disabled = false;
       if (checkoutBtn) checkoutBtn.disabled = false;
       const total = state.cart.reduce((s, i) => s + i.price, 0);
       info.innerHTML = 'Summe: <strong>' + total + ',00 €</strong> · ' + n + ' Position' + (n > 1 ? 'en' : '');
@@ -902,10 +900,11 @@
       const panel = document.getElementById('cart-panel');
       setCartPanelOpen(!panel.classList.contains('expanded'));
     });
-    document.getElementById('cart-close')?.addEventListener('click', () => setCartPanelOpen(false));
-    document.getElementById('cart-clear')?.addEventListener('click', () => {
-      if (state.cart.length && confirm('Warenkorb wirklich leeren?')) clearCart();
-    });
+    function collapseCartPanel() {
+      setCartPanelOpen(false);
+    }
+    document.getElementById('cart-close')?.addEventListener('click', collapseCartPanel);
+    document.getElementById('cart-collapse')?.addEventListener('click', collapseCartPanel);
 
     catalog = INV.buildCatalog(state.stock);
     loadCartFromStorage();

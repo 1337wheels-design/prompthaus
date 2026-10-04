@@ -99,7 +99,9 @@ snapshot.panels.push(
 );
 
 const vercelPanel = snapshot.panels.find((p) => p.name === 'vercel_deck_shop');
-const coreOk = snapshot.panels.every((p) => p.ok && p.name !== 'vercel_deck_shop');
+const coreOk = snapshot.panels.every((p) =>
+  p.name === 'vercel_deck_shop' ? true : p.ok
+);
 const vercelReady = vercelPanel?.ready === true;
 const degraded = !coreOk;
 snapshot.overall = !coreOk ? 'degraded' : vercelReady ? 'ok' : 'ok_pages_only';

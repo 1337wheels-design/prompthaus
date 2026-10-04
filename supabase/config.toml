@@ -1,0 +1,14 @@
+# Supabase CLI — project-ref: yoeehrdsrfwolzdtgmel
+# Region beim Projekt-Anlegen: EU (Frankfurt) wählen.
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
+
+[functions.reservation-api]
+verify_jwt = false
+
+[functions.shop-sync]
+verify_jwt = false

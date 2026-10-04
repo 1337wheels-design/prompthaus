@@ -1,22 +1,13 @@
 /**
- * Üpark Payday — Shopify Konfiguration
- *
- * Nach Shop-Erstellung anpassen:
- * 1. shopDomain: dein-store.myshopify.com
- * 2. storefrontAccessToken: Storefront API (nur für Headless/JS-Storefront)
- * 3. buyButtonComponents: IDs aus Shopify Admin → Buy Button
+ * Üpark Payday — Shopify Konfiguration (Event-Landing shop/)
+ * Deck-Konfigurator: ../deck-shop/ (eigene config.js + Variant-Map)
  */
 window.PAYDAY_SHOP = {
-  // Option C/D: Hybrid oder Buy Button
-  shopDomain: 'YOUR-STORE.myshopify.com',
-
-  // GitHub Pages Basis-URL (ohne trailing slash)
-  galleryBaseUrl: '../cards/index.html',
-
-  // Storefront API (Option B — optional)
+  shopDomain: 'xwk1u9-6z.myshopify.com',
   storefrontAccessToken: '',
+  galleryBaseUrl: '../cards/index.html',
+  deckShopUrl: '../deck-shop/',
 
-  // Produkte für statische Karten-Darstellung (Preise aus products.csv)
   products: [
     {
       handle: 'event-ticket',
@@ -24,51 +15,51 @@ window.PAYDAY_SHOP = {
       price: '15,00 €',
       description: 'Einlass + Basic Pack',
       tombola: 0,
-      variantId: null, // Shopify Variant ID nach Import
+      variantId: 67670520004893,
     },
     {
       handle: 'single-pack',
       title: 'Single Pack',
       price: '8,00 €',
-      description: '1 Sponsor-Karte',
+      description: '1 Sponsor-Karte · 1 Tombola-Los',
       tombola: 1,
-      variantId: null,
+      variantId: 67670520725789,
     },
     {
       handle: 'double-pack',
       title: 'Double Pack',
       price: '18,00 €',
-      description: '2 Sponsor-Karten',
+      description: '2 Karten · 3 Tombola-Lose',
       tombola: 3,
-      variantId: null,
+      variantId: 67670521512221,
     },
     {
       handle: 'triple-pack',
       title: 'Triple Pack',
       price: '35,00 €',
-      description: '3 Karten + Bonus',
+      description: '3 Karten + Bonus · 7 Lose',
       tombola: 7,
-      variantId: null,
+      variantId: 67670521577757,
     },
     {
       handle: 'payday-deck',
-      title: 'Payday Deck',
-      price: '89,00 €',
-      description: 'Custom Camo Deck',
+      title: 'Payday Deck SS26',
+      price: '59,00 € inkl. Griptape',
+      description: '6 Designs · 8.38″ & 8.5″ · Konfigurator',
       tombola: 0,
       variantId: null,
+      configuratorUrl: '../deck-shop/',
     },
     {
       handle: 'art-print-attitude',
-      title: 'Art Print',
+      title: 'Art Print Attitude',
       price: '25,00 €',
-      description: 'Attitude Bremen, limitiert',
+      description: 'Limitiert · A3',
       tombola: 0,
-      variantId: null,
+      variantId: 67670529179933,
     },
   ],
 
-  // Buy Button component IDs (aus Shopify Admin kopieren)
   buyButtonComponents: {
     'event-ticket': null,
     'single-pack': null,

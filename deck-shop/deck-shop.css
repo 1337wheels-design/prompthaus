@@ -160,6 +160,74 @@
   overflow: visible;
 }
 
+.asset-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  background: rgba(10, 8, 18, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  min-height: 200px;
+  pointer-events: none;
+}
+
+.asset-loader.is-hidden {
+  display: none;
+}
+
+.asset-loader__glyph {
+  width: 48px;
+  height: 72px;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  background: linear-gradient(180deg, rgba(167, 139, 250, 0.12), rgba(10, 8, 18, 0.9));
+  animation: asset-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes asset-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1); box-shadow: 0 0 20px rgba(232, 121, 249, 0.25); }
+}
+
+.asset-loader__tag {
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--purple-dim);
+}
+
+.asset-loader__name {
+  font-family: var(--font-display);
+  font-size: clamp(14px, 4vw, 18px);
+  letter-spacing: 0.08em;
+  color: var(--purple);
+  text-transform: uppercase;
+  min-height: 1.4em;
+  animation: asset-name-in 0.35s ease;
+}
+
+@keyframes asset-name-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.asset-loader__sub {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.preview-frame.is-interactive {
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
 .preview-frame--swipe-left { animation: swipe-left 0.28s ease; }
 .preview-frame--swipe-right { animation: swipe-right 0.28s ease; }
 .preview-frame--intro-swipe { animation: intro-swipe 0.08s ease; }
@@ -219,14 +287,15 @@
 }
 
 .design-nav {
-  display: none;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
   margin-top: 12px;
 }
 
-.design-nav.is-visible {
-  display: flex;
+.design-nav.is-hidden {
+  display: none;
 }
 
 .design-nav__btn {

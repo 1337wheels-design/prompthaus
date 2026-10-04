@@ -108,9 +108,20 @@
     global.dispatchEvent(new CustomEvent('payday-shopify-updated'));
   }
 
+  function isDevMode() {
+    try {
+      return new URLSearchParams(global.location.search).get('dev') === '1';
+    } catch {
+      return false;
+    }
+  }
+
   function mountConnectUI(options) {
+    if (!isDevMode()) {
+      return { open() {}, close() {} };
+    }
     const root = document.getElementById('shopify-connect');
-    if (!root) return;
+    if (!root) return { open() {}, close() {} };
 
     const rt = readRuntime();
     const base = global.PAYDAY_SHOP || {};
@@ -197,7 +208,7 @@
 
     document.getElementById('shopify-connect-open')?.addEventListener('click', open);
 
-    if (options?.openOnLoad || location.hash === '#shopify-connect') {
+    if (isDevMode() && (options?.openOnLoad || location.hash === '#shopify-connect')) {
       setTimeout(open, 400);
     }
 

@@ -182,12 +182,15 @@
   let logoImg = null;
   const illustrationImgs = [];
 
-  function loadAssets(basePath) {
+  function loadAssets(basePath, onProgress) {
     basePath = basePath || '../decks/';
+    const emit = typeof onProgress === 'function' ? onProgress : () => {};
     return new Promise((resolve) => {
       let logoDone = false;
       let illusLoaded = 0;
       const total = ILLUSTRATIONS.length;
+
+      emit({ kind: 'asset', name: 'payday_logo_aligned', label: 'LOGO ALIGN' });
 
       const logo = new Image();
       logo.onload = () => { logoImg = logo; logoDone = true; tryResolve(); };
@@ -195,6 +198,7 @@
       logo.src = basePath + 'payday_logo_aligned.png';
 
       ILLUSTRATIONS.forEach((ill, i) => {
+        emit({ kind: 'illus', name: ill.name, label: ill.name });
         const img = new Image();
         illustrationImgs[i] = img;
         img.onload = () => { illusLoaded++; tryResolve(); };

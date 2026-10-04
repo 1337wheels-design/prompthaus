@@ -147,6 +147,8 @@
     .shopify-status--locked { color: #fbbf24; }
     .shopify-status a { color: var(--purple); }
     .shopify-connect-btn { font-size: 9px; letter-spacing: 0.12em; color: var(--accent); border: 1px solid rgba(232, 121, 249, 0.35); padding: 6px 10px; background: transparent; cursor: pointer; font-family: inherit; text-transform: uppercase; }
+    body.dev-mode .nav__dev-only { display: inline-block; }
+    body.dev-mode #shopify-status.nav__dev-only { display: block; }
     .shopify-connect { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
     .shopify-connect.is-open { display: flex; }
     .shopify-connect__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.72); }
@@ -173,11 +175,11 @@
     </div>
     <div class="nav__right">
       <span class="nav__stock" id="nav-stock">50 verfügbar</span>
-      <button type="button" class="shopify-connect-btn" id="shopify-connect-open">Shopify</button>
+      <button type="button" class="shopify-connect-btn nav__dev-only" id="shopify-connect-open" hidden>Shopify</button>
       <button class="cart-btn" id="cart-toggle" type="button">Warenkorb (0)</button>
     </div>
   </nav>
-  <p class="shopify-status" id="shopify-status" aria-live="polite"></p>
+  <p class="shopify-status nav__dev-only" id="shopify-status" aria-live="polite" hidden></p>
 
   <header class="deck-hero">
     <h1 class="deck-hero__title">Payday SS26 Deck Shop</h1>
@@ -201,7 +203,13 @@
         <div class="zone zone--preview">
           <p class="zone__label">Live-Vorschau</p>
           <div class="preview-frame" id="preview-frame">
-            <canvas id="preview-canvas" width="400" height="1400" title="Design wechseln"></canvas>
+            <div class="asset-loader" id="asset-loader" aria-live="polite">
+              <div class="asset-loader__glyph" aria-hidden="true"></div>
+              <span class="asset-loader__tag">Board-Archiv</span>
+              <p class="asset-loader__name" id="asset-loader-name">payday_CHROME</p>
+              <p class="asset-loader__sub" id="asset-loader-sub">Artefakte werden geladen…</p>
+            </div>
+            <canvas id="preview-canvas" width="400" height="1400" title="Tippen oder wischen zum Weiter"></canvas>
           </div>
           <p class="preview-nav-hint" id="preview-nav-hint" hidden>← Wischen →</p>
           <div class="design-nav" id="design-nav">
@@ -273,6 +281,16 @@
     const R = window.PaydayDeckRenderer;
     const previewCanvas = document.getElementById('preview-canvas');
     const previewFrame = document.getElementById('preview-frame');
+    const assetLoader = document.getElementById('asset-loader');
+    const assetLoaderName = document.getElementById('asset-loader-name');
+    const assetLoaderSub = document.getElementById('asset-loader-sub');
+
+    const DEV_MODE = new URLSearchParams(location.search).get('dev') === '1';
+    if (DEV_MODE) {
+      document.body.classList.add('dev-mode');
+      document.getElementById('shopify-connect-open').hidden = false;
+      document.getElementById('shopify-status').hidden = false;
+    }
 
     const state = {
       phase: 'loading',
@@ -289,21 +307,68 @@
       introRunning: false,
     };
 
-    const SWIPE_MIN = 48;
+    const SWIPE_MIN = 40;
+    const TAP_MAX_MOVE = 14;
     const INTRO_DURATION_MS = 1000;
     const SWIPES_REQUIRED = 3;
     const INTRO_PROGRESS_SHARE = 25;
     let pointerStartX = 0;
     let pointerStartY = 0;
     let pointerActive = false;
+    let pointerTargetEl = null;
     let suppressTapUntil = 0;
-
-    function usesDesktopNav() {
-      return window.matchMedia('(min-width: 900px)').matches;
-    }
+    let loadTickerTimer = null;
 
     function navVerb() {
-      return usesDesktopNav() ? 'Klicken' : 'Wischen';
+      return 'Wischen / Tippen / Weiter';
+    }
+
+    function boardArtifactQueue() {
+      const names = [];
+      INV.DESIGNS.forEach((d) => {
+        const meta = INV.getBoardMeta(d);
+        if (meta?.source) names.push(meta.source);
+      });
+      R.ILLUSTRATIONS.forEach((ill) => names.push(ill.name));
+      names.push('payday_logo_aligned');
+      return names;
+    }
+
+    function setLoaderName(name, sub) {
+      if (!assetLoaderName) return;
+      assetLoaderName.textContent = name;
+      if (sub && assetLoaderSub) assetLoaderSub.textContent = sub;
+    }
+
+    function showAssetLoader(show) {
+      assetLoader?.classList.toggle('is-hidden', !show);
+      previewFrame?.classList.toggle('is-interactive', !show && !state.unlocked);
+    }
+
+    function startLoadTicker() {
+      const queue = boardArtifactQueue();
+      let i = 0;
+      setLoaderName(queue[0] || 'payday_CHROME', 'Artefakte werden geladen…');
+      loadTickerTimer = setInterval(() => {
+        i = (i + 1) % queue.length;
+        setLoaderName(queue[i], 'Board-Archiv · ' + (i + 1) + '/' + queue.length);
+      }, 420);
+    }
+
+    function stopLoadTicker() {
+      if (loadTickerTimer) clearInterval(loadTickerTimer);
+      loadTickerTimer = null;
+    }
+
+    function preloadBoardThumbs(onName) {
+      const tasks = INV.DESIGNS.map((design) => () => new Promise((resolve) => {
+        const meta = INV.getBoardMeta(design);
+        onName(meta.source);
+        const img = new Image();
+        img.onload = img.onerror = () => resolve();
+        img.src = INV.thumbUrl(design);
+      }));
+      return tasks.reduce((p, task) => p.then(task), Promise.resolve());
     }
 
     function currentDesign() { return INV.DESIGNS[state.designIndex]; }
@@ -493,37 +558,68 @@
       }, INTRO_DURATION_MS + 400);
     }
 
-    function handleNavStep(direction) {
-      const dx = direction < 0 ? -80 : 80;
-      handleSwipe(dx);
+    function skipIntroToSwipe() {
+      if (!state.introRunning && state.phase !== 'intro') return;
+      state.introRunning = false;
+      state.phase = 'swipe';
+      state.swipeCount = 0;
+      setProgressBar(INTRO_PROGRESS_SHARE, false);
+      updateUI();
     }
 
-    function handleSwipe(dx) {
-      if (state.introRunning) return;
-      if (state.unlocked) {
-        shiftDesign(dx < 0 ? 1 : -1);
-        flashSwipe(dx, false);
-        updateUI();
-        return;
-      }
-      if (state.phase !== 'swipe') return;
-
+    function registerUnlockStep(direction) {
+      const dx = direction < 0 ? -80 : 80;
       shiftDesign(dx < 0 ? 1 : -1);
       flashSwipe(dx, false);
       state.swipeCount += 1;
       setProgressBar(progressPercent(), false);
       updateProgressLabel();
       updateSwipeDots();
-
       const prog = document.getElementById('click-progress');
       const left = SWIPES_REQUIRED - state.swipeCount;
       prog.textContent = left > 0 ? left + '× ' + navVerb() + ' bis Shop' : 'Shop wird freigeschaltet…';
-
       if (state.swipeCount >= SWIPES_REQUIRED) {
         setTimeout(unlockShop, 180);
       } else {
         updateUI();
       }
+    }
+
+    function handleUnlockAdvance(direction) {
+      if (state.phase === 'loading') return;
+      if (state.unlocked) {
+        shiftDesign(direction > 0 ? -1 : 1);
+        flashSwipe(direction > 0 ? 80 : -80, false);
+        updateUI();
+        return;
+      }
+      if (state.introRunning || state.phase === 'intro') {
+        skipIntroToSwipe();
+        return;
+      }
+      if (state.phase === 'swipe') {
+        registerUnlockStep(direction);
+      }
+    }
+
+    function handleNavStep(direction) {
+      handleUnlockAdvance(direction);
+    }
+
+    function handleSwipe(dx) {
+      if (state.phase === 'loading') return;
+      if (state.unlocked) {
+        shiftDesign(dx < 0 ? 1 : -1);
+        flashSwipe(dx, false);
+        updateUI();
+        return;
+      }
+      if (state.introRunning || state.phase === 'intro') {
+        skipIntroToSwipe();
+        return;
+      }
+      if (state.phase !== 'swipe') return;
+      registerUnlockStep(dx < 0 ? 1 : -1);
     }
 
     function updateUI() {
@@ -533,12 +629,13 @@
       const title = document.getElementById('phase-title');
       const hint = document.getElementById('phase-hint');
 
-      const isDesktop = usesDesktopNav();
-      const navActive = state.phase === 'swipe' || state.unlocked;
+      const navActive = state.phase === 'swipe' || state.phase === 'intro' || state.unlocked;
       const sidebar = document.querySelector('.configurator__sidebar');
-      if (sidebar) sidebar.classList.toggle('configurator__sidebar--swipeable', !isDesktop && navActive);
+      if (sidebar) sidebar.classList.toggle('configurator__sidebar--swipeable', navActive && !state.unlocked);
 
-      document.getElementById('design-nav').classList.toggle('is-visible', isDesktop && navActive);
+      const designNav = document.getElementById('design-nav');
+      designNav.classList.toggle('is-hidden', state.phase === 'loading');
+      previewFrame?.classList.toggle('is-interactive', state.phase !== 'loading' && !state.unlocked);
       document.getElementById('zone-progress').classList.toggle('is-done', state.unlocked);
       document.getElementById('zone-controls').classList.toggle('is-hidden', state.unlocked);
 
@@ -556,9 +653,7 @@
         const left = SWIPES_REQUIRED - state.swipeCount;
         badge.textContent = 'Schritt ' + (state.swipeCount + 1) + ' von ' + SWIPES_REQUIRED;
         title.textContent = design.name;
-        hint.textContent = isDesktop
-          ? 'Weiter / Zurück klicken — ' + left + '× bis der Shop freigeschaltet wird.'
-          : 'In der Sidebar wischen — ' + left + '× bis der Shop freigeschaltet wird.';
+        hint.textContent = left + '× bis Shop — Wischen, Tippen aufs Deck oder „Weiter“.';
         prog.textContent = left + '× ' + navVerb() + ' bis Shop';
       } else {
         badge.textContent = 'Shop offen';
@@ -568,11 +663,16 @@
       }
 
       const navHint = document.getElementById('preview-nav-hint');
-      if (isDesktop || state.unlocked || state.phase === 'loading' || state.phase === 'intro') {
+      if (state.unlocked || state.phase === 'loading') {
         navHint.hidden = true;
-      } else {
+      } else if (state.phase === 'intro') {
         navHint.hidden = false;
-        navHint.textContent = 'Sidebar: ← Wischen →';
+        navHint.textContent = 'Tippen / Weiter überspringt die Vorschau';
+      } else if (state.phase === 'swipe') {
+        navHint.hidden = false;
+        navHint.textContent = '← Wischen · Tippen · Weiter →';
+      } else {
+        navHint.hidden = true;
       }
 
       setProgressBar(progressPercent(), state.introRunning);
@@ -617,29 +717,48 @@
         || target.closest('a');
     }
 
-    function bindSwipe(el) {
+    function bindPreviewInteraction(el) {
       el.addEventListener('pointerdown', (e) => {
-        if (usesDesktopNav() || state.introRunning) return;
+        if (state.phase === 'loading') return;
         if (isSwipeExcludedTarget(e.target)) return;
         pointerActive = true;
+        pointerTargetEl = el;
         pointerStartX = e.clientX;
         pointerStartY = e.clientY;
       });
       el.addEventListener('pointerup', (e) => {
-        if (!pointerActive || usesDesktopNav()) return;
+        if (!pointerActive || pointerTargetEl !== el) return;
         pointerActive = false;
+        if (isSwipeExcludedTarget(e.target)) return;
         const dx = e.clientX - pointerStartX;
         const dy = e.clientY - pointerStartY;
-        if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy)) return;
-        handleSwipe(dx);
+        if (Math.abs(dx) >= SWIPE_MIN && Math.abs(dx) > Math.abs(dy)) {
+          handleSwipe(dx);
+          suppressTapUntil = Date.now() + 300;
+          return;
+        }
+        if (Math.abs(dx) <= TAP_MAX_MOVE && Math.abs(dy) <= TAP_MAX_MOVE && Date.now() > suppressTapUntil) {
+          handleUnlockAdvance(1);
+        }
       });
-      el.addEventListener('pointercancel', () => { pointerActive = false; });
+      el.addEventListener('pointercancel', () => {
+        pointerActive = false;
+        pointerTargetEl = null;
+      });
     }
 
-    bindSwipe(document.querySelector('.configurator__sidebar'));
+    bindPreviewInteraction(document.querySelector('.configurator__sidebar'));
+    bindPreviewInteraction(previewFrame);
     document.getElementById('nav-prev').addEventListener('click', () => handleNavStep(-1));
     document.getElementById('nav-next').addEventListener('click', () => handleNavStep(1));
-    window.matchMedia('(min-width: 900px)').addEventListener('change', () => updateUI());
+    document.addEventListener('keydown', (e) => {
+      if (state.unlocked || state.phase === 'loading') return;
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        handleUnlockAdvance(1);
+      }
+      if (e.key === 'ArrowLeft') handleUnlockAdvance(-1);
+    });
 
     let catalog = [];
 
@@ -854,6 +973,11 @@
       const el = document.getElementById('shopify-status');
       const SH = window.PAYDAY_SHOPIFY_CHECKOUT;
       if (!el || !SH) return;
+      if (!DEV_MODE) {
+        el.textContent = '';
+        el.classList.remove('shopify-status--ready', 'shopify-status--locked');
+        return;
+      }
       el.classList.remove('shopify-status--ready', 'shopify-status--locked');
       const cfg = SH.getConfig ? SH.getConfig() : window.PAYDAY_SHOP || {};
       el.textContent = SH.statusLine();
@@ -861,7 +985,7 @@
       if (SH.isConfigured() && mapped > 0) {
         el.classList.add('shopify-status--ready');
       } else if (SH.isConfigured()) {
-        el.innerHTML = 'Domain gesetzt — <button type="button" id="shopify-status-sync" style="font:inherit;color:var(--accent);cursor:pointer;border:none;background:none;text-decoration:underline">Varianten laden</button> (Shopify-Button)';
+        el.innerHTML = 'Domain gesetzt — <button type="button" id="shopify-status-sync" style="font:inherit;color:var(--accent);cursor:pointer;border:none;background:none;text-decoration:underline">Varianten laden</button> (Dev)';
       } else {
         el.innerHTML = 'Shopify: <button type="button" id="shopify-status-open" style="font:inherit;color:var(--purple);cursor:pointer;border:none;background:none;text-decoration:underline">Jetzt verbinden</button>';
       }
@@ -891,7 +1015,7 @@
     }
 
     const connectUI = window.PAYDAY_SHOPIFY_CONNECT?.mountConnectUI({
-      openOnLoad: location.hash === '#shopify-connect',
+      openOnLoad: DEV_MODE && location.hash === '#shopify-connect',
     });
     window.addEventListener('payday-shopify-updated', renderShopifyStatus);
     renderShopifyStatus();
@@ -913,17 +1037,34 @@
     updateStockLabels();
     updateCart(false);
 
-    R.loadAssets('../decks/').then(() => {
+    state.phase = 'loading';
+    showAssetLoader(true);
+    startLoadTicker();
+    updateUI();
+
+    const onAssetProgress = (ev) => {
+      const label = ev.label || ev.name || '…';
+      setLoaderName(label, ev.kind === 'illus' ? 'Illustration · ' + label : 'Generator · ' + label);
+    };
+
+    Promise.all([
+      R.loadAssets('../decks/', onAssetProgress),
+      preloadBoardThumbs((name) => setLoaderName(name, 'Board-JPEG · ' + name)),
+    ]).then(() => {
+      stopLoadTicker();
+      setLoaderName(INV.getBoardMeta(currentDesign()).source, 'Shop wird vorbereitet…');
       state.rendererReady = true;
       state.designIndex = 0;
       state.visitedDesigns.clear();
       state.visitedDesigns.add(currentDesign().id);
-      updateUI();
+      showAssetLoader(false);
       runIntroAnimation();
     }).catch(() => {
+      stopLoadTicker();
+      showAssetLoader(false);
       state.rendererReady = false;
       state.phase = 'swipe';
-      document.getElementById('phase-hint').textContent = 'Generator lädt… Bitte kurz warten.';
+      document.getElementById('phase-hint').textContent = 'Generator teilweise geladen — Shop trotzdem freischaltbar.';
       updateUI();
     });
   </script>

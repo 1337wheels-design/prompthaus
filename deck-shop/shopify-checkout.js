@@ -269,7 +269,7 @@
   function statusLine() {
     const cfg = getConfig();
     if (!isConfigured(cfg)) {
-      return 'Shopify: nicht verbunden — Button „Shopify“ oben rechts';
+      return 'Shopify: nicht verbunden — ?dev=1 für Setup';
     }
     const mapped = Object.values(cfg.deckVariants || {}).filter((v) => v && v.variantId).length;
     const total = Object.keys(cfg.deckVariants || {}).length;

@@ -5,10 +5,21 @@
   const SESSION_KEY = 'payday_reserve_session_id';
   const DEFAULT_TTL_MS = 5 * 60 * 1000;
 
+  function isLocalDevHost() {
+    try {
+      const h = global.location?.hostname || '';
+      return h === 'localhost' || h === '127.0.0.1' || h.endsWith('.local');
+    } catch {
+      return false;
+    }
+  }
+
   function getConfig() {
     const shop = global.PAYDAY_SHOP || {};
     const params = new URLSearchParams(global.location?.search || '');
-    const fromQuery = params.get('reserveApi') || params.get('reservationApi');
+    const fromQuery = isLocalDevHost()
+      ? params.get('reserveApi') || params.get('reservationApi')
+      : null;
     const apiBase = (fromQuery || shop.reservationApiUrl || '').replace(/\/$/, '');
     return {
       apiBase,
@@ -51,6 +62,15 @@
       credentials: 'omit',
     });
     const json = await res.json().catch(() => ({}));
+    if (res.status === 429) {
+      return {
+        status: res.status,
+        ok: false,
+        reason: json.reason || 'rate_limited',
+        retryAfterSeconds: json.retryAfterSeconds,
+        ...json,
+      };
+    }
     return { status: res.status, ...json };
   }
 

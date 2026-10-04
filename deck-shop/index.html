@@ -275,7 +275,7 @@
   <script src="deck-renderer.js"></script>
   <script src="config.js"></script>
   <script src="config.local.js" onerror="void 0"></script>
-  <script src="deck-reservations.js?v=20260404-reserve"></script>
+  <script src="deck-reservations.js?v=20260404-bot1"></script>
   <script src="shopify-connect.js?v=20260303-id-only"></script>
   <script src="shopify-storefront-catalog.js?v=20260404-catalog"></script>
   <script src="shopify-checkout.js?v=20260404-harden"></script>
@@ -1033,7 +1033,11 @@
         alert(
           sync.reason === 'insufficient'
             ? 'Gerade nicht mehr verfügbar (andere Session oder Reservierung abgelaufen).'
-            : 'Reservierung fehlgeschlagen — bitte erneut versuchen.'
+            : sync.reason === 'rate_limited'
+              ? 'Zu viele Anfragen — bitte ' +
+                (sync.retryAfterSeconds ? sync.retryAfterSeconds + ' Sek. ' : '') +
+                'warten und erneut versuchen.'
+              : 'Reservierung fehlgeschlagen — bitte erneut versuchen.'
         );
         return;
       }

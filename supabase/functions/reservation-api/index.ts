@@ -1,4 +1,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
+import {
+  clientIp,
+  enforceRateLimits,
+  rulesForPath,
+  sanitizeSessionId,
+} from './rate-limit.ts';
 
 const DEFAULT_TTL_MS = 300_000;
 const ALLOWED_ORIGINS = [
@@ -21,7 +27,11 @@ function corsHeaders(origin: string | null): HeadersInit {
 function jsonResponse(status: number, body: unknown, origin: string | null) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8', ...corsHeaders(origin) },
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      ...corsHeaders(origin),
+    },
   });
 }
 
@@ -36,6 +46,30 @@ function ttlSeconds(): number {
   const raw = Deno.env.get('DECK_RESERVE_TTL_SECONDS');
   const n = raw ? Number(raw) : DEFAULT_TTL_MS / 1000;
   return Number.isFinite(n) && n >= 30 ? Math.floor(n) : DEFAULT_TTL_MS / 1000;
+}
+
+async function applyRateLimit(
+  supabase: ReturnType<typeof createClient>,
+  req: Request,
+  path: string,
+  sessionId: string | null,
+  origin: string | null
+): Promise<Response | null> {
+  const ip = clientIp(req);
+  const rules = rulesForPath(path, ip, sessionId);
+  const verdict = await enforceRateLimits(supabase, rules);
+  if (!verdict.ok) {
+    return jsonResponse(
+      429,
+      {
+        ok: false,
+        reason: 'rate_limited',
+        retryAfterSeconds: verdict.retryAfterSeconds,
+      },
+      origin
+    );
+  }
+  return null;
 }
 
 Deno.serve(async (req) => {
@@ -61,10 +95,29 @@ Deno.serve(async (req) => {
 
   try {
     if (req.method === 'GET' && path === '/health') {
-      return jsonResponse(200, { ok: true, backend: 'supabase', ttlMs: ttlSec * 1000 }, origin);
+      const { error: rlErr } = await supabase.rpc('deck_rate_limit_check', {
+        p_bucket_key: 'health:probe',
+        p_window_seconds: 60,
+        p_max_hits: 1000,
+      });
+      return jsonResponse(
+        200,
+        {
+          ok: true,
+          backend: 'supabase',
+          ttlMs: ttlSec * 1000,
+          rateLimit: Deno.env.get('DECK_RATE_LIMIT_DISABLED') === 'true' ? 'disabled' : 'stufe1',
+          rateLimitDb: rlErr ? { ok: false } : { ok: true },
+        },
+        origin
+      );
     }
 
     if (req.method === 'GET' && path === '/v1/availability') {
+      const sessionId = sanitizeSessionId(url.searchParams.get('sessionId') || '');
+      const blocked = await applyRateLimit(supabase, req, path, sessionId, origin);
+      if (blocked) return blocked;
+
       const { data, error } = await supabase.rpc('deck_availability');
       if (error) throw error;
       return jsonResponse(
@@ -76,7 +129,14 @@ Deno.serve(async (req) => {
 
     if (req.method === 'POST' && (path === '/v1/cart/sync' || path === '/v1/cart/heartbeat')) {
       const body = await req.json().catch(() => ({}));
-      const sessionId = String(body.sessionId ?? '');
+      const sessionId = sanitizeSessionId(String(body.sessionId ?? ''));
+      if (!sessionId) {
+        return jsonResponse(400, { ok: false, reason: 'invalid_session' }, origin);
+      }
+
+      const blocked = await applyRateLimit(supabase, req, path, sessionId, origin);
+      if (blocked) return blocked;
+
       const lines = Array.isArray(body.lines) ? body.lines : [];
       const rpc =
         path === '/v1/cart/heartbeat' ? 'deck_heartbeat_cart' : 'deck_sync_cart';
@@ -93,7 +153,14 @@ Deno.serve(async (req) => {
 
     if (req.method === 'POST' && path === '/v1/cart/release') {
       const body = await req.json().catch(() => ({}));
-      const sessionId = String(body.sessionId ?? '');
+      const sessionId = sanitizeSessionId(String(body.sessionId ?? ''));
+      if (!sessionId) {
+        return jsonResponse(400, { ok: false, reason: 'invalid_session' }, origin);
+      }
+
+      const blocked = await applyRateLimit(supabase, req, path, sessionId, origin);
+      if (blocked) return blocked;
+
       const { data, error } = await supabase.rpc('deck_release_session', {
         p_session_id: sessionId,
       });

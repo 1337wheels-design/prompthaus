@@ -87,13 +87,23 @@
     } catch {
       return rawUrl;
     }
-    if (u.hostname.endsWith('.myshopify.com') && /^\/cart\//.test(u.pathname)) {
-      u.searchParams.set('checkout', '');
-    }
+    const isCartPermalink =
+      u.hostname.endsWith('.myshopify.com') && /^\/cart\//.test(u.pathname);
+
+    // URLSearchParams.set('checkout','') → checkout= — Shopify antwortet mit HTTP 400.
+    u.searchParams.delete('checkout');
     if (!u.searchParams.has('return_to')) {
       u.searchParams.set('return_to', returnUrl);
     }
-    return u.toString();
+
+    let out = u.origin + u.pathname;
+    const qs = u.searchParams.toString();
+    if (isCartPermalink) {
+      out += qs ? `?checkout&${qs}` : '?checkout';
+    } else if (qs) {
+      out += `?${qs}`;
+    }
+    return out;
   }
 
   function resolveProductUrl(cfg, item) {

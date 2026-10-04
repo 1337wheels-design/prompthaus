@@ -11,34 +11,43 @@ Postgres (EU) für **5-Min-Reservierungen**, später **Shopify-Bestand-Sync** un
 2. **Region: Frankfurt (eu-central-1)** (oder nächste EU-Region)
 3. Datenbank-Passwort sicher speichern
 
-## 2. Schema deployen
+## 2. Supabase CLI (ohne globale Installation)
 
-Mit [Supabase CLI](https://supabase.com/docs/guides/cli):
+Im **Repo-Root** (nach `git pull`):
 
 ```bash
-npm install -g supabase
-supabase login
-supabase link --project-ref DEIN_PROJECT_REF
-supabase db push
+npm install
+npx supabase --version   # sollte z. B. 2.x anzeigen
 ```
 
-Oder SQL aus `supabase/migrations/20260404180000_deck_shop.sql` im Dashboard → **SQL Editor** ausführen.
+Falls `supabase: command not found`: **nicht** `supabase …` alone — immer **`npx supabase …`** aus dem Projektordner, oder `npm install -g supabase`.
 
-## 3. Edge Functions deployen
+## 3. Schema deployen
 
 ```bash
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY=... # wird oft automatisch gesetzt
-supabase secrets set DECK_RESERVE_TTL_SECONDS=300
+npx supabase login
+npx supabase link --project-ref yoeehrdsrfwolzdtgmel
+npx supabase db push
+```
+
+**Ohne CLI:** SQL aus `supabase/migrations/20260404180000_deck_shop.sql` im Dashboard → **SQL Editor** → Run.
+
+## 4. Edge Functions deployen
+
+```bash
+npx supabase secrets set DECK_RESERVE_TTL_SECONDS=300
 
 # Shop-Sync (optional):
-supabase secrets set SHOPIFY_SHOP_DOMAIN=xwk1u9-6z.myshopify.com
-supabase secrets set SHOPIFY_STOREFRONT_TOKEN=shpat_...
-supabase secrets set DECK_SKU_HANDLE_MAP_JSON="$(cat deck-shop/deck-sku-handle-map.json)"
-supabase secrets set DECK_SYNC_CRON_SECRET=lange-zufallszeichenkette
+npx supabase secrets set SHOPIFY_SHOP_DOMAIN=xwk1u9-6z.myshopify.com
+npx supabase secrets set SHOPIFY_STOREFRONT_TOKEN=dein_storefront_public_token
+npx supabase secrets set DECK_SKU_HANDLE_MAP_JSON="$(cat deck-shop/deck-sku-handle-map.json)"
+npx supabase secrets set DECK_SYNC_CRON_SECRET=lange-zufallszeichenkette
 
-supabase functions deploy reservation-api --project-ref DEIN_PROJECT_REF
-supabase functions deploy shop-sync --project-ref DEIN_PROJECT_REF
+npx supabase functions deploy reservation-api --project-ref yoeehrdsrfwolzdtgmel
+npx supabase functions deploy shop-sync --project-ref yoeehrdsrfwolzdtgmel
 ```
+
+Kurz via npm-Scripts (Repo-Root): `npm run supabase:deploy:reservation`
 
 **Reservierungs-URL für den Deck Shop:**
 

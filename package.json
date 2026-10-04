@@ -8,7 +8,11 @@
   },
   "scripts": {
     "test:reservations": "node scripts/deck-reservation-test.mjs",
-    "test:supabase": "node scripts/deck-supabase-smoke-test.mjs"
+    "test:supabase": "node scripts/deck-supabase-smoke-test.mjs",
+    "supabase:link": "supabase link --project-ref yoeehrdsrfwolzdtgmel",
+    "supabase:db:push": "supabase db push",
+    "supabase:deploy:reservation": "supabase functions deploy reservation-api --project-ref yoeehrdsrfwolzdtgmel",
+    "supabase:deploy:shop-sync": "supabase functions deploy shop-sync --project-ref yoeehrdsrfwolzdtgmel"
   },
   "repository": {
     "type": "git",
@@ -23,5 +27,8 @@
   "homepage": "https://github.com/1337wheels-design/prompthaus#readme",
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2"
+  },
+  "devDependencies": {
+    "supabase": "^2.119.0"
   }
 }

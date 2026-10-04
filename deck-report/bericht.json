@@ -1,0 +1,53 @@
+{
+  "title": "Deck Shop — Ops-Bericht",
+  "sections": [
+    {
+      "id": "executive",
+      "title": "Kurzfassung",
+      "paragraphs": [
+        "Stand 5.10.2026, 00:52:54 (Europe/Berlin): Gesamtstatus **OK**.",
+        "Reservierungs-API aktiv (Rate-Limit **stufe1**). Freie Einheiten gesamt: **0**.",
+        "Shop-Sync ist konfiguriert (Shopify Storefront → Postgres)."
+      ]
+    },
+    {
+      "id": "ingress",
+      "title": "Eingangsverhalten (Supabase Edge)",
+      "paragraphs": [
+        "Browser-Traffic von **GitHub Pages**, **payday.vercel.app** und Vercel-Previews (`*.vercel.app`) trifft auf **reservation-api** / **shop-sync** (shared `deck-cors.ts`; optional Secret `DECK_SHOP_ALLOWED_ORIGINS`).",
+        "Stufe-1-Limits zählen pro **IP** und **sessionId** in `deck_rate_limit_buckets` (Postgres). Typische Live-Last: GET `/v1/availability` alle 75 s pro Tab.",
+        "Drop-Tests von **einer IP** ohne Limit-Abschaltung stoßen schnell an **sync-burst** (8/10 s) und **40 sync/min/IP** — im Dashboard SQL Editor siehe `supabase/sql/ingress-dashboard.sql`."
+      ]
+    },
+    {
+      "id": "drop-test",
+      "title": "Letzte Drop-Simulation (Referenz)",
+      "paragraphs": [
+        "Szenario **empty**: 25 parallele Syncs, ~49 Einheiten auf `drop-user-*` Sessions — danach gestaffeltes Release über 60 s.",
+        "Rate-Limit-Secret wurde danach **unset**; Produktion wieder **stufe1** (429 ab ~81 Availability-Requests/Session/Minute)."
+      ],
+      "bullets": [
+        "25×200 beim Drop (Limit kurz aus)",
+        "0 aktive drop-Holds nach Cleanup/Release",
+        "~93 Rate-Limit-Buckets nach Testphase (inspect db table-stats)"
+      ]
+    },
+    {
+      "id": "actions",
+      "title": "Empfohlene Checks am Event-Tag",
+      "bullets": [
+        "Supabase → Edge Functions → reservation-api → Logs (429 vs 409 vs 5xx)",
+        "SQL Editor: Top-Buckets + aktive Holds (ingress-dashboard.sql)",
+        "CLI: npm run ops:status / npm run test:go-live",
+        "Cron shop-sync alle 3–5 min (POST + DECK_SYNC_CRON_SECRET)"
+      ]
+    }
+  ],
+  "generatedAt": "2026-10-04T22:52:54.272Z",
+  "liveSummary": {
+    "overall": "ok",
+    "rateLimit": "stufe1",
+    "totalAvail": 0,
+    "shopSyncConfigured": true
+  }
+}

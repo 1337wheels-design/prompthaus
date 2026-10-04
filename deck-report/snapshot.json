@@ -1,0 +1,68 @@
+{
+  "at": "2026-10-04T22:52:54.272Z",
+  "overall": "ok",
+  "panels": [
+    {
+      "name": "supabase_reservation",
+      "ok": true,
+      "rateLimit": "stufe1",
+      "rateLimitDb": {
+        "ok": true
+      },
+      "ttlMs": 300000,
+      "availability": {
+        "neon-838": 0,
+        "neon-850": 0,
+        "night-838": 0,
+        "night-850": 0,
+        "arctic-838": 0,
+        "arctic-850": 0,
+        "chrome-838": 0,
+        "chrome-850": 0,
+        "payday-camo-838": 0,
+        "payday-camo-850": 0,
+        "payday-linear-838": 0,
+        "payday-linear-850": 0
+      },
+      "totalAvail": 0
+    },
+    {
+      "name": "supabase_shop_sync",
+      "ok": true,
+      "configured": true,
+      "checks": {
+        "shopDomain": true,
+        "storefrontToken": true,
+        "skuMap": true,
+        "skuMapInvalid": false,
+        "cronSecret": true
+      }
+    },
+    {
+      "name": "shopify_storefront",
+      "ok": true,
+      "storefrontHttp": 200,
+      "passwordLocked": false
+    },
+    {
+      "name": "github_pages_deck_shop",
+      "ok": true,
+      "http": 200,
+      "url": "https://1337wheels-design.github.io/prompthaus/deck-shop/"
+    },
+    {
+      "name": "vercel_deck_shop",
+      "ok": true,
+      "http": 404,
+      "url": "https://1337wheels-design-payday.vercel.app/deck-shop/"
+    }
+  ],
+  "links": {
+    "supabaseFunctions": "https://supabase.com/dashboard/project/yoeehrdsrfwolzdtgmel/functions",
+    "supabaseSql": "https://supabase.com/dashboard/project/yoeehrdsrfwolzdtgmel/sql/new",
+    "supabaseTables": "https://supabase.com/dashboard/project/yoeehrdsrfwolzdtgmel/editor",
+    "deckShop": "https://1337wheels-design.github.io/prompthaus/deck-shop/",
+    "vercelDeckShop": "https://1337wheels-design-payday.vercel.app/deck-shop/",
+    "shopifyAdmin": "https://xwk1u9-6z.myshopify.com/admin"
+  }
+}

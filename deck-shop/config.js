@@ -13,6 +13,29 @@ window.PAYDAY_SHOP = {
   shopDomain: 'xwk1u9-6z.myshopify.com',
 
   /**
+   * Fallback Return-URL (CLI/Tests). Im Browser überschreibt shopify-checkout.js
+   * mit der aktuellen Origin + /…/deck-shop/ (GitHub Pages oder Vercel).
+   */
+  checkoutReturnUrl: 'https://1337wheels-design.github.io/prompthaus/deck-shop/',
+
+  /**
+   * Inventar-Holds (5 Min) — Supabase Edge Function (Option B) oder Node-Proxy.
+   * Live: https://DEIN_PROJECT_REF.supabase.co/functions/v1/reservation-api
+   * Lokal: http://127.0.0.1:8791 oder ?reserveApi=…
+   * Setup: supabase/SETUP.md
+   */
+  reservationApiUrl: 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/reservation-api',
+
+  /** Reservierungs-TTL in ms (Default serverseitig: 5 Min). */
+  reservationTtlMs: 5 * 60 * 1000,
+
+  /**
+   * Stufe A: leichtes Availability-Polling (nur reservation-api, kein Shopify-Sync).
+   * Ergänzt shop-sync-Cron — z. B. 75 s; Tab im Hintergrund pausiert.
+   */
+  availabilityPollMs: 75 * 1000,
+
+  /**
    * Storefront Public Token — für Live-Bestand/Preise (shopify-storefront-catalog.js).
    * Headless-App → Storefront API. Öffentlich im Browser OK (kein Admin-shpat).
    * Alternativ: ?dev=1 → Shopify-Modal oder config.local.js

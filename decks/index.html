@@ -135,6 +135,11 @@ canvas {
 </style>
 </head>
 <body>
+<script>
+  if (new URLSearchParams(location.search).get('dev') !== '1') {
+    location.replace('../deck-shop/' + (location.search || ''));
+  }
+</script>
 
 <header class="site-header">
   <h1>PAYDAY DECKS</h1>

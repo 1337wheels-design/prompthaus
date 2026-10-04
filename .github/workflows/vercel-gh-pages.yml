@@ -1,0 +1,41 @@
+# Deployt den Stand von Branch gh-pages nach Vercel (Projekt „payday“).
+# Unabhängig vom GitHub-Default-Branch main — Vercel übernimmt GitHub Pages nicht automatisch.
+#
+# Secrets (Repo → Settings → Secrets → Actions):
+#   VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+# IDs: lokal `vercel link` → .vercel/project.json (nicht committen)
+
+name: Deploy gh-pages to Vercel
+
+on:
+  push:
+    branches: [gh-pages]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-payday-gh-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Pull Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Vercel (production)
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          CI: 'true'
+        run: node scripts/vercel-redeploy-payday.mjs

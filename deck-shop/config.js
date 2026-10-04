@@ -16,8 +16,10 @@ window.PAYDAY_SHOP = {
   checkoutReturnUrl: 'https://1337wheels-design.github.io/prompthaus/deck-shop/',
 
   /**
-   * Inventar-Holds (5 Min) — Basis-URL des Reservation-Servers (scripts/deck-reservation-server.mjs).
-   * Lokal: http://127.0.0.1:8791 — im Shop z. B. ?reserveApi=http://127.0.0.1:8791
+   * Inventar-Holds (5 Min) — Supabase Edge Function (Option B) oder Node-Proxy.
+   * Live: https://DEIN_PROJECT_REF.supabase.co/functions/v1/reservation-api
+   * Lokal: http://127.0.0.1:8791 oder ?reserveApi=…
+   * Setup: supabase/SETUP.md
    */
   reservationApiUrl: '',
 

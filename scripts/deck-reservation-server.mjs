@@ -1,21 +1,18 @@
 #!/usr/bin/env node
 /**
- * Payday Deck Shop — 5-Min-Inventar-Reservierung (HTTP API)
- *
- * Usage:
- *   node scripts/deck-reservation-server.mjs [port]
- *   PAYDAY_RESERVE_PORT=8791 node scripts/deck-reservation-server.mjs
+ * Payday Deck Shop — Reservierungs-HTTP-API
+ * Backend: Supabase (Option B) wenn SUPABASE_* gesetzt, sonst In-Memory (lokal).
  */
 import http from 'http';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { DeckReservationStore, DEFAULT_TTL_MS } from './deck-reservation-store.mjs';
+import { createSupabaseReservationBackend } from './deck-reservation-supabase.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const stockPath = join(__dirname, '../deck-shop/reservation-base-stock.json');
 const baseStock = JSON.parse(readFileSync(stockPath, 'utf8'));
-const store = new DeckReservationStore(baseStock, DEFAULT_TTL_MS);
 
 const PORT = Number(process.env.PAYDAY_RESERVE_PORT || process.argv[2] || 8791);
 const ALLOWED_ORIGIN_PREFIXES = [
@@ -23,6 +20,52 @@ const ALLOWED_ORIGIN_PREFIXES = [
   'http://localhost',
   'http://127.0.0.1',
 ];
+
+function useSupabase() {
+  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
+const memoryStore = new DeckReservationStore(baseStock, DEFAULT_TTL_MS);
+let supabaseBackend = null;
+if (useSupabase()) {
+  supabaseBackend = createSupabaseReservationBackend();
+}
+
+function backendKind() {
+  return supabaseBackend ? 'supabase' : 'memory';
+}
+
+async function getAvailability(sessionId) {
+  if (supabaseBackend) return supabaseBackend.getAvailability(sessionId);
+  return memoryStore.getAvailability(sessionId);
+}
+
+async function syncSession(sessionId, lines) {
+  if (supabaseBackend) return supabaseBackend.syncSession(sessionId, lines);
+  return memoryStore.syncSession(sessionId, lines);
+}
+
+async function clearSession(sessionId) {
+  if (supabaseBackend) {
+    const data = await supabaseBackend.clearSession(sessionId);
+    return data?.availability ?? {};
+  }
+  memoryStore.clearSession(sessionId);
+  return memoryStore.getAvailability(sessionId);
+}
+
+async function heartbeat(sessionId, lines) {
+  if (supabaseBackend) return supabaseBackend.heartbeat(sessionId, lines);
+  const sync = memoryStore.syncSession(sessionId, lines);
+  if (!sync.ok) return sync;
+  memoryStore.touchSession(sessionId);
+  return {
+    ok: true,
+    ttlMs: DEFAULT_TTL_MS,
+    expiresAt: Date.now() + DEFAULT_TTL_MS,
+    availability: memoryStore.getAvailability(sessionId),
+  };
+}
 
 function corsHeaders(origin) {
   const allow =
@@ -60,10 +103,11 @@ const server = http.createServer(async (req, res) => {
   }
 
   const url = new URL(req.url || '/', `http://${req.headers.host}`);
+  const ttlMs = supabaseBackend?.ttlMs ?? DEFAULT_TTL_MS;
 
   try {
     if (req.method === 'GET' && url.pathname === '/health') {
-      sendJson(res, 200, { ok: true, ttlMs: DEFAULT_TTL_MS }, origin);
+      sendJson(res, 200, { ok: true, backend: backendKind(), ttlMs }, origin);
       return;
     }
 
@@ -72,11 +116,7 @@ const server = http.createServer(async (req, res) => {
       sendJson(
         res,
         200,
-        {
-          ok: true,
-          ttlMs: DEFAULT_TTL_MS,
-          availability: store.getAvailability(sessionId),
-        },
+        { ok: true, ttlMs, availability: await getAvailability(sessionId) },
         origin
       );
       return;
@@ -86,7 +126,7 @@ const server = http.createServer(async (req, res) => {
       const body = await readJson(req);
       const sessionId = String(body.sessionId || '');
       const lines = Array.isArray(body.lines) ? body.lines : [];
-      const result = store.syncSession(sessionId, lines);
+      const result = await syncSession(sessionId, lines);
       sendJson(res, result.ok ? 200 : 409, result, origin);
       return;
     }
@@ -94,13 +134,8 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && url.pathname === '/v1/cart/release') {
       const body = await readJson(req);
       const sessionId = String(body.sessionId || '');
-      store.clearSession(sessionId);
-      sendJson(
-        res,
-        200,
-        { ok: true, availability: store.getAvailability(sessionId) },
-        origin
-      );
+      const availability = await clearSession(sessionId);
+      sendJson(res, 200, { ok: true, availability }, origin);
       return;
     }
 
@@ -108,23 +143,8 @@ const server = http.createServer(async (req, res) => {
       const body = await readJson(req);
       const sessionId = String(body.sessionId || '');
       const lines = Array.isArray(body.lines) ? body.lines : [];
-      const sync = store.syncSession(sessionId, lines);
-      if (!sync.ok) {
-        sendJson(res, 409, sync, origin);
-        return;
-      }
-      store.touchSession(sessionId);
-      sendJson(
-        res,
-        200,
-        {
-          ok: true,
-          ttlMs: DEFAULT_TTL_MS,
-          expiresAt: Date.now() + DEFAULT_TTL_MS,
-          availability: store.getAvailability(sessionId),
-        },
-        origin
-      );
+      const result = await heartbeat(sessionId, lines);
+      sendJson(res, result.ok ? 200 : 409, result, origin);
       return;
     }
 
@@ -136,8 +156,10 @@ const server = http.createServer(async (req, res) => {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   server.listen(PORT, () => {
-    console.log(`[deck-reservation] listening on http://127.0.0.1:${PORT} (TTL ${DEFAULT_TTL_MS / 1000}s)`);
+    console.log(
+      `[deck-reservation] http://127.0.0.1:${PORT} backend=${backendKind()} ttl=${ttlMs / 1000}s`
+    );
   });
 }
 
-export { server, store, PORT };
+export { server, memoryStore as store, PORT };

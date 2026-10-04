@@ -1,0 +1,27 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "Planungsrepository für das **Üpark Payday 2026** Skateboarding-Event.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test:reservations": "node scripts/deck-reservation-test.mjs",
+    "test:supabase": "node scripts/deck-supabase-smoke-test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1337wheels-design/prompthaus.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/1337wheels-design/prompthaus/issues"
+  },
+  "homepage": "https://github.com/1337wheels-design/prompthaus#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.2"
+  }
+}

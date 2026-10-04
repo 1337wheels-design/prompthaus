@@ -3,7 +3,9 @@
  * Unit + HTTP tests for 5-minute deck reservations.
  */
 import { DeckReservationStore } from './deck-reservation-store.mjs';
-import { server, store, PORT } from './deck-reservation-server.mjs';
+import { server, store } from './deck-reservation-server.mjs';
+
+let testPort = Number(process.env.PAYDAY_RESERVE_TEST_PORT || 0);
 
 const results = [];
 function record(id, ok, detail) {
@@ -12,7 +14,7 @@ function record(id, ok, detail) {
 }
 
 async function jsonFetch(path, opts = {}) {
-  const res = await fetch(`http://127.0.0.1:${PORT}${path}`, opts);
+  const res = await fetch(`http://127.0.0.1:${testPort}${path}`, opts);
   const body = await res.json().catch(() => ({}));
   return { status: res.status, body };
 }
@@ -38,7 +40,13 @@ async function jsonFetch(path, opts = {}) {
 }
 
 await new Promise((resolve, reject) => {
-  server.listen(PORT, '127.0.0.1', (err) => (err ? reject(err) : resolve()));
+  server.listen(testPort || 0, '127.0.0.1', (err) => {
+    if (err) reject(err);
+    else {
+      testPort = server.address().port;
+      resolve();
+    }
+  });
 });
 
 try {

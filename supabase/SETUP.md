@@ -1,5 +1,8 @@
 # Deck Shop — Supabase (Option B)
 
+**Projekt-URL:** `https://yoeehrdsrfwolzdtgmel.supabase.co`  
+**Reservierungs-API (nach Deploy):** `https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/reservation-api`
+
 Postgres (EU) für **5-Min-Reservierungen**, später **Shopify-Bestand-Sync** und Sync-Logs.
 
 ## 1. Projekt anlegen

@@ -21,7 +21,7 @@ window.PAYDAY_SHOP = {
    * Lokal: http://127.0.0.1:8791 oder ?reserveApi=…
    * Setup: supabase/SETUP.md
    */
-  reservationApiUrl: '',
+  reservationApiUrl: 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/reservation-api',
 
   /** Reservierungs-TTL in ms (Default serverseitig: 5 Min). */
   reservationTtlMs: 5 * 60 * 1000,

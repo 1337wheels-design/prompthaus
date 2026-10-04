@@ -13,6 +13,13 @@ function readCronSecret() {
     );
     process.exit(1);
   }
+  if (/^[a-f0-9]{32}$/i.test(raw)) {
+    console.error(
+      'DECK_SYNC_CRON_SECRET sieht aus wie der SHOPIFY_STOREFRONT_TOKEN (32 Hex).\n' +
+        'Das Cron-Secret ist ein anderes, längeres Secret aus npm run supabase:shop-sync:setup.'
+    );
+    process.exit(1);
+  }
   return raw;
 }
 
@@ -43,8 +50,22 @@ if (!health.json?.configured) {
 }
 
 if (process.argv.includes('--sync')) {
+  if (!SECRET) {
+    console.error(
+      '\nFür --sync: export DECK_SYNC_CRON_SECRET="<hex aus npm run supabase:shop-sync:setup>"\n' +
+        '(Nicht der Storefront-Token — nur shop-sync Cron/Authorization.)'
+    );
+    process.exit(1);
+  }
   const sync = await post();
   console.log('\nsync', sync.status, JSON.stringify(sync.json, null, 2));
+  if (sync.status === 401) {
+    console.error(
+      '\n401 unauthorized: Secret in Supabase ≠ DECK_SYNC_CRON_SECRET in deiner Shell.\n' +
+        'Neu setzen: npm run supabase:shop-sync:setup — dann die ausgegebene Zeile exportieren.'
+    );
+    process.exit(1);
+  }
   if (!sync.json?.ok) process.exit(1);
   const chrome = sync.json?.applied?.availability?.['chrome-838'];
   if (typeof chrome === 'number') {

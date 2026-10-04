@@ -53,19 +53,28 @@ Upload bevorzugt **lokale JPGs** (Base64); falls eine Datei fehlt, wird die **Gi
 
 Grafiken aus PDFs neu erzeugen: `python3 scripts/extract-board-assets.py` (benötigt PyMuPDF + Pillow).
 
-### Ohne API-Token: CSV-Import (Bulk Medien)
+### Ohne API-Token: CSV-Reimport (vollständig)
 
-Wenn Admin-Credentials in der Cloud noch fehlen, aber du im Browser eingeloggt bist:
+**Nicht** `deck-media-update.csv` allein verwenden — dort steht jeder Handle **zweimal** ohne Produktdaten → Fehler *„handle can only be used once“*.
+
+Stattdessen:
 
 ```bash
-python3 scripts/shopify-setup.py export-deck-images-csv
+python3 scripts/shopify-setup.py export-products-full-csv
 ```
 
-Erzeugt `shopify/import/deck-media-update.csv` (24 Zeilen: je Produkt preview + thumb von GitHub Pages).
+Erzeugt `shopify/import/products-full-reimport.csv`:
+
+- **17 Hauptzeilen** (Ticket, Packs, 12 Decks, Art Print) mit allen Pflichtfeldern
+- **12 Zusatzbild-Zeilen** (nur `URL handle` + `Product image URL` + Alt-Text) für das zweite Deck-Bild
+- Spalten nach aktuellem Shopify-Format (`URL handle`, `Product image URL`, …)
+
+Import:
 
 1. [Products → Import](https://admin.shopify.com/store/xwk1u9-6z/products/import)
-2. CSV hochladen → **bestehende Produkte anhand Handle aktualisieren**
-3. Nach Import: ein Produkt öffnen und Medien-Reihenfolge prüfen (1 = Preview, 2 = Thumb)
+2. `products-full-reimport.csv` hochladen
+3. **Overwrite products with matching handles** aktivieren (Update, kein Duplikat-Anlegen)
+4. Danach: `python3 scripts/shopify-setup.py sync-config` (neue Variant-IDs → `config.local.js`)
 
 Preise parallel per **Bulk edit** auf 59,00 € oder `sync-prices` mit API.
 ```

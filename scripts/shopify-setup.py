@@ -16,7 +16,8 @@ Aufruf:
   python3 scripts/shopify-setup.py sync-config
   python3 scripts/shopify-setup.py sync-prices   # Preise aus CSV → bestehende Varianten
   python3 scripts/shopify-setup.py sync-images   # Deck thumb + preview → Shopify-Produkte
-  python3 scripts/shopify-setup.py export-deck-images-csv  # CSV für Admin → Import
+  python3 scripts/shopify-setup.py export-deck-images-csv  # nur Medien (veraltet — Handle-Falle)
+  python3 scripts/shopify-setup.py export-products-full-csv  # vollständiger Reimport
   python3 scripts/shopify-setup.py verify-deck-assets  # Lokale JPGs vs. deck-media.json
   python3 scripts/shopify-setup.py all
 """
@@ -556,6 +557,14 @@ def main():
         import subprocess
 
         subprocess.run([sys.executable, str(ROOT / "scripts" / "generate-deck-images-csv.py")], check=True)
+        return
+    if cmd == "export-products-full-csv":
+        import subprocess
+
+        subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "generate-products-full-reimport-csv.py")],
+            check=True,
+        )
         return
     domain, token = require_env()
     if cmd == "import-products":

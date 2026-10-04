@@ -1230,7 +1230,13 @@ let logEditorTimer = null;
 function scheduleEditorConfigLog() {
   clearTimeout(logEditorTimer);
   logEditorTimer = setTimeout(() => {
-    window.PAYDAY_CONFIG_LOG?.push({ label: 'Editor', design: editorConfigLabel(), size: camoStyle || 'blob', cart: '—' });
+    window.PAYDAY_CONFIG_LOG?.push({
+      source: 'editor',
+      label: 'Editor',
+      design: editorConfigLabel(),
+      size: camoStyle || 'blob',
+      cart: '—',
+    });
     window.PAYDAY_CONFIG_LOG?.renderList('editor-config-log');
   }, 400);
 }

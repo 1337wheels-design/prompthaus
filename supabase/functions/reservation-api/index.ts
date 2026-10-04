@@ -121,13 +121,52 @@ Deno.serve(async (req) => {
       const blocked = await applyRateLimit(supabase, req, path, sessionId, origin);
       if (blocked) return blocked;
 
-      const { data, error } = await supabase.rpc('deck_availability');
+      const { data, error } = await supabase.rpc('deck_stock_snapshot');
       if (error) throw error;
+      const snap = (data as Record<string, unknown>) ?? {};
       return jsonResponse(
         200,
-        { ok: true, ttlMs: ttlSec * 1000, availability: data ?? {} },
+        {
+          ok: true,
+          ttlMs: ttlSec * 1000,
+          availability: snap.availability ?? {},
+          baseStock: snap.baseStock ?? {},
+        },
         origin
       );
+    }
+
+    if (req.method === 'GET' && path === '/v1/config/history') {
+      const sessionId = sanitizeSessionId(url.searchParams.get('sessionId') || '');
+      if (!sessionId) {
+        return jsonResponse(400, { ok: false, reason: 'invalid_session' }, origin);
+      }
+      const blocked = await applyRateLimit(supabase, req, path, sessionId, origin);
+      if (blocked) return blocked;
+      const { data, error } = await supabase.rpc('deck_config_history', {
+        p_session_id: sessionId,
+      });
+      if (error) throw error;
+      return jsonResponse(200, data, origin);
+    }
+
+    if (req.method === 'POST' && path === '/v1/config/record') {
+      const body = await req.json().catch(() => ({}));
+      const sessionId = sanitizeSessionId(String(body.sessionId ?? ''));
+      if (!sessionId) {
+        return jsonResponse(400, { ok: false, reason: 'invalid_session' }, origin);
+      }
+      const blocked = await applyRateLimit(supabase, req, path, sessionId, origin);
+      if (blocked) return blocked;
+      const source = body.source === 'editor' ? 'editor' : 'shop';
+      const { data, error } = await supabase.rpc('deck_config_record', {
+        p_session_id: sessionId,
+        p_source: source,
+        p_label: String(body.label ?? '').slice(0, 512),
+        p_payload: body.payload ?? {},
+      });
+      if (error) throw error;
+      return jsonResponse(200, data, origin);
     }
 
     if (req.method === 'POST' && (path === '/v1/cart/sync' || path === '/v1/cart/heartbeat')) {

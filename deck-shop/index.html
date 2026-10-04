@@ -172,6 +172,7 @@
     .config-log__list { margin: 0; padding-left: 16px; font-size: 10px; color: var(--text-muted); max-height: 160px; overflow-y: auto; }
     .config-log__list time { color: var(--text-muted); margin-right: 6px; }
     .config-log__sid, .config-log__empty { font-size: 9px; color: var(--text-muted); word-break: break-all; }
+    .config-log__top { font-size: 10px; color: var(--accent); margin: 0 0 8px; }
     .nav__links .nav__dev-menu { display: none; }
     body.dev-mode .nav__links .nav__dev-menu { display: inline; }
     .shopify-connect { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -308,8 +309,8 @@
   <script src="deck-renderer.js"></script>
   <script src="config.js"></script>
   <script src="config.local.js" onerror="void 0"></script>
-  <script src="deck-reservations.js?v=20260404-stufe-a"></script>
-  <script src="session-config-log.js?v=20260405"></script>
+  <script src="deck-reservations.js?v=20260405-base-stock"></script>
+  <script src="session-config-log.js?v=20260405b"></script>
   <script src="dev-vitals.js?v=20260405"></script>
   <script src="shopify-connect.js?v=20260303-id-only"></script>
   <script src="shopify-storefront-catalog.js?v=20260404-catalog"></script>
@@ -373,6 +374,7 @@
       const d = currentDesign?.();
       const size = INV.SIZES?.[state.sizeIndex];
       window.PAYDAY_CONFIG_LOG?.push({
+        source: 'shop',
         label: reason,
         design: d ? d.name || d.id : null,
         size: size ? size.label || size.id : null,
@@ -394,6 +396,7 @@
       storefrontSyncAt: null,
       storefrontPrefetchDone: false,
       reservationAvailability: null,
+      baseStock: null,
       reservationsActive: false,
       filterDesign: null,
       filterSize: null,
@@ -474,10 +477,34 @@
       return Boolean(window.PAYDAY_RESERVATIONS?.isEnabled?.());
     }
 
-    function applyReservationAvailability(availability) {
+    function applyReservationAvailability(detail) {
+      const availability =
+        detail && detail.availability && typeof detail.availability === 'object'
+          ? detail.availability
+          : detail;
       if (!availability || typeof availability !== 'object') return;
       state.reservationAvailability = { ...availability };
+      if (detail?.baseStock && typeof detail.baseStock === 'object') {
+        state.baseStock = { ...detail.baseStock };
+        Object.keys(state.baseStock).forEach((sku) => {
+          state.stock[sku] = state.baseStock[sku];
+        });
+        rebuildCatalogFromState();
+      }
       state.reservationsActive = true;
+    }
+
+    function displayBaseStock(skuId, item) {
+      if (state.baseStock && skuId in state.baseStock) return Math.max(0, Number(state.baseStock[skuId]) || 0);
+      const fromItem = item?.stock ?? state.stock[skuId];
+      return Math.max(0, Number(fromItem) || 0);
+    }
+
+    function formatAvailabilityLabel(avail, base) {
+      if (avail <= 0) return 'Ausverkauft';
+      const denom = Math.max(base, avail);
+      if (denom <= 0) return `${avail} verfügbar`;
+      return `${avail} von ${denom} verfügbar`;
     }
 
     function availableStock(skuId) {
@@ -500,14 +527,17 @@
       try {
         if (state.cart.length) {
           const sync = await PR.syncCart(state.cart);
-          if (sync.ok && sync.availability) applyReservationAvailability(sync.availability);
-          else if (!sync.ok) {
+          if (sync.ok && sync.availability) {
+            applyReservationAvailability({ availability: sync.availability, baseStock: sync.baseStock });
+          } else if (!sync.ok) {
             state.cart = [];
             persistCart();
           }
         } else {
           const res = await PR.fetchAvailability();
-          if (res.ok && res.availability) applyReservationAvailability(res.availability);
+          if (res.ok && res.availability) {
+            applyReservationAvailability({ availability: res.availability, baseStock: res.baseStock });
+          }
         }
         PR.startHeartbeat(() => state.cart);
       } catch (err) {
@@ -516,7 +546,9 @@
     }
 
     function updateStockLabels() {
-      const total = INV.totalStock(state.stock);
+      const total = state.reservationsActive && state.reservationAvailability
+        ? Object.values(state.reservationAvailability).reduce((s, n) => s + (Number(n) || 0), 0)
+        : INV.totalStock(state.stock);
       const live = state.storefrontLive ? ' · Shopify live' : '';
       const text = `${total} verfügbar${live}`;
       document.getElementById('nav-stock').textContent = text;
@@ -1058,7 +1090,7 @@
 
         const stockEl = document.createElement('div');
         stockEl.className = 'deck-card__stock' + (avail <= 2 ? ' low' : '') + (avail === 0 ? ' out' : '');
-        stockEl.textContent = avail === 0 ? 'Ausverkauft' : avail + ' von ' + item.stock + ' verfügbar';
+        stockEl.textContent = formatAvailabilityLabel(avail, displayBaseStock(item.id, item));
 
         const price = document.createElement('div');
         price.className = 'deck-card__price';
@@ -1257,7 +1289,10 @@
     });
 
     window.addEventListener('payday-reservation-updated', (ev) => {
-      applyReservationAvailability(ev.detail?.availability);
+      applyReservationAvailability({
+        availability: ev.detail?.availability,
+        baseStock: ev.detail?.baseStock,
+      });
       if (state.unlocked) renderShopGrid();
     });
 

@@ -106,5 +106,21 @@ export function rulesForPath(
     return rules;
   }
 
+  if (path === '/v1/config/history') {
+    rules.push({ bucket: ipKey, windowSeconds: 60, maxHits: 60 });
+    if (sessionId) {
+      rules.push({ bucket: `sess:${sessionId}:/v1/config/history`, windowSeconds: 60, maxHits: 40 });
+    }
+    return rules;
+  }
+
+  if (path === '/v1/config/record') {
+    rules.push({ bucket: ipKey, windowSeconds: 60, maxHits: 30 });
+    if (sessionId) {
+      rules.push({ bucket: `sess:${sessionId}:/v1/config/record`, windowSeconds: 60, maxHits: 20 });
+    }
+    return rules;
+  }
+
   return rules;
 }

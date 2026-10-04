@@ -116,7 +116,9 @@
         const res = await request('/v1/cart/heartbeat', { sessionId, lines });
         if (res.ok && res.availability) {
           global.dispatchEvent(
-            new CustomEvent('payday-reservation-updated', { detail: { availability: res.availability } })
+            new CustomEvent('payday-reservation-updated', {
+              detail: { availability: res.availability, baseStock: res.baseStock },
+            })
           );
         }
       } catch {
@@ -133,7 +135,9 @@
     const res = await request('/v1/cart/sync', { sessionId, lines });
     if (res.ok && res.availability) {
       global.dispatchEvent(
-        new CustomEvent('payday-reservation-updated', { detail: { availability: res.availability } })
+        new CustomEvent('payday-reservation-updated', {
+          detail: { availability: res.availability, baseStock: res.baseStock },
+        })
       );
     }
     return res;
@@ -168,7 +172,11 @@
         if (res.ok && res.availability) {
           global.dispatchEvent(
             new CustomEvent('payday-reservation-updated', {
-              detail: { availability: res.availability, source: 'poll' },
+              detail: {
+                availability: res.availability,
+                baseStock: res.baseStock,
+                source: 'poll',
+              },
             })
           );
         } else if (res.status === 429 || res.reason === 'rate_limited') {
@@ -196,7 +204,9 @@
     const res = await request('/v1/cart/release', { sessionId });
     if (res.ok && res.availability) {
       global.dispatchEvent(
-        new CustomEvent('payday-reservation-updated', { detail: { availability: res.availability } })
+        new CustomEvent('payday-reservation-updated', {
+          detail: { availability: res.availability, baseStock: res.baseStock },
+        })
       );
     }
     return res;

@@ -14,7 +14,8 @@ import { existsSync } from 'fs';
 
 const REPO = '1337wheels-design/prompthaus';
 const GITHUB_OWNER_ID = '262473948';
-const PRODUCTION_BRANCH = 'gh-pages';
+/** Vercel default; gh-pages bleibt für GitHub Pages. */
+const PRODUCTION_BRANCH = process.env.VERCEL_PRODUCTION_BRANCH || 'main';
 const PROJECT_NAME = 'payday';
 const SHOP_URL = `https://${PROJECT_NAME}.vercel.app/deck-shop/`;
 
@@ -53,7 +54,7 @@ console.log(`
 
 --- Projekt „payday“ existiert schon / Git beim Erstellen nicht verbunden ---
 
-Vercel übernimmt NICHT die GitHub-Pages-Branch-Einstellung. Default ist main — Deck Shop liegt auf gh-pages.
+Deck Shop liegt auf main (Merge aus gh-pages). GitHub Pages kann weiter gh-pages nutzen (beide Branches sync).
 
 Dashboard: Projekt payday → Settings → Git → Repository verbinden
          → Settings → Environments → Production → Branch: ${PRODUCTION_BRANCH}

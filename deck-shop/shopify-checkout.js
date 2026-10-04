@@ -358,7 +358,7 @@
     if (result.reason === 'missing_variants' && cartItems.length === 1) {
       const fallback = resolveProductUrl(cfg, cartItems[0]);
       if (fallback) {
-        redirectToCheckout(withCheckoutReturn(fallback, cfg), cartItems);
+        redirectToCheckout(fallback, cartItems);
         return { ok: true, url: fallback, fallback: true };
       }
     }

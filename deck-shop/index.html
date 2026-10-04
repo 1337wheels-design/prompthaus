@@ -1306,6 +1306,20 @@
       }
     });
 
+    window.addEventListener('payday-checkout-started', () => {
+      clearCart();
+    });
+
+    window.addEventListener('pageshow', () => {
+      try {
+        if (!sessionStorage.getItem('payday_checkout_pending')) return;
+        sessionStorage.removeItem('payday_checkout_pending');
+        clearCart();
+      } catch {
+        /* ignore */
+      }
+    });
+
     function renderShopifyStatus() {
       const el = document.getElementById('shopify-status');
       const SH = window.PAYDAY_SHOPIFY_CHECKOUT;

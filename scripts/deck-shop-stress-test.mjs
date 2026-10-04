@@ -161,6 +161,11 @@ async function run() {
         out.one.ok && out.one.url.includes('67670522429725:2'),
         out.one.url || JSON.stringify(out.one)
       );
+      record(
+        'S5_no_checkout_equals',
+        out.one.ok && !out.one.url.includes('checkout='),
+        out.one.url || 'no url'
+      );
       record('S5_missing_variant', out.bad.reason === 'missing_variants', out.bad.reason);
     } catch (e) {
       record('S5_checkout_build', false, e.message);

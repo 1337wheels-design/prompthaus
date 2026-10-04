@@ -277,7 +277,30 @@
   <script src="config.local.js" onerror="void 0"></script>
   <script src="shopify-connect.js?v=20260303-id-only"></script>
   <script src="shopify-storefront-catalog.js?v=20260404-catalog"></script>
-  <script src="shopify-checkout.js?v=20260404-checkout-flag"></script>
+  <script src="shopify-checkout.js?v=20260404-harden"></script>
+  <script>
+    (function hardenPaydayCheckoutUrls() {
+      const SH = window.PAYDAY_SHOPIFY_CHECKOUT;
+      if (!SH) return;
+      const fix =
+        SH.sanitizeCheckoutUrl?.bind(SH) ||
+        function (u) {
+          return String(u || '')
+            .replace(/([?&])checkout=(?=&|$)/g, '$1checkout')
+            .replace(/checkout=&/g, 'checkout&');
+        };
+      const wrapReturn = SH.withCheckoutReturn?.bind(SH);
+      if (wrapReturn) {
+        SH.withCheckoutReturn = (raw, cfg) => fix(wrapReturn(raw, cfg));
+      }
+      const build = SH.buildCartCheckout.bind(SH);
+      SH.buildCartCheckout = (cfg, items) => {
+        const r = build(cfg, items);
+        if (r?.url) r.url = fix(wrapReturn ? wrapReturn(r.url, cfg) : r.url);
+        return r;
+      };
+    })();
+  </script>
   <script>
     const INV = window.PAYDAY_DECK_INVENTORY;
     const R = window.PaydayDeckRenderer;
@@ -973,6 +996,11 @@
 
     function clearCart() {
       state.cart = [];
+      try {
+        localStorage.setItem('payday_deck_cart', '[]');
+      } catch {
+        /* ignore */
+      }
       updateCart(false);
       renderShopGrid();
     }
@@ -1068,8 +1096,17 @@
 
     document.getElementById('checkout-btn').addEventListener('click', async () => {
       const items = state.cart.slice();
-      const result = await window.PAYDAY_SHOPIFY_CHECKOUT.goToCheckout(items);
-      if (result?.ok) clearCart();
+      if (!items.length) return;
+      const btn = document.getElementById('checkout-btn');
+      if (btn) btn.disabled = true;
+      try {
+        const result = await window.PAYDAY_SHOPIFY_CHECKOUT.goToCheckout(items);
+        if (result?.ok) clearCart();
+        else if (btn) btn.disabled = state.cart.length === 0;
+      } catch (err) {
+        console.error('[deck-shop] checkout', err);
+        if (btn) btn.disabled = state.cart.length === 0;
+      }
     });
 
     window.addEventListener('payday-checkout-started', () => {

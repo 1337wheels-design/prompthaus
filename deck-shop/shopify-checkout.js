@@ -72,38 +72,64 @@
     return DEFAULT_DECK_SHOP_URL;
   }
 
-  /** Checkout-URL: direkt zur Kasse + Rückkehr zum Deck Shop statt Shopify-Storefront. */
+  /** Shopify HTTP 400 bei checkout= (leerer Wert). */
+  function sanitizeCheckoutUrl(url) {
+    return String(url || '')
+      .replace(/([?&])checkout=(?=&|$)/g, '$1checkout')
+      .replace(/\?checkout=&/g, '?checkout&')
+      .replace(/&checkout=&/g, '&checkout&');
+  }
+
+  function isMyshopifyCartPermalink(href) {
+    return /(^|\/\/)[^/]+\.myshopify\.com\/cart\//i.test(href);
+  }
+
+  /** String-basiert — kein stilles Fallback wenn URL-API fehlt. */
   function withCheckoutReturn(rawUrl, cfg) {
     if (!rawUrl) return rawUrl;
     cfg = cfg || getConfig();
     const returnUrl = deckShopReturnUrl(cfg);
-    let href = String(rawUrl);
+    let href = sanitizeCheckoutUrl(String(rawUrl));
     if (href.startsWith('/')) {
       href = `https://${normalizeDomain(cfg.shopDomain)}${href}`;
     }
-    let u;
-    try {
-      u = new URL(href);
-    } catch {
-      return rawUrl;
-    }
-    const isCartPermalink =
-      u.hostname.endsWith('.myshopify.com') && /^\/cart\//.test(u.pathname);
 
-    // URLSearchParams.set('checkout','') → checkout= — Shopify antwortet mit HTTP 400.
-    u.searchParams.delete('checkout');
-    if (!u.searchParams.has('return_to')) {
-      u.searchParams.set('return_to', returnUrl);
+    const UrlCtor = global.URL;
+    if (UrlCtor) {
+      try {
+        const u = new UrlCtor(href);
+        const isCartPermalink =
+          u.hostname.endsWith('.myshopify.com') && /^\/cart\//.test(u.pathname);
+        u.searchParams.delete('checkout');
+        if (!u.searchParams.has('return_to')) {
+          u.searchParams.set('return_to', returnUrl);
+        }
+        let out = u.origin + u.pathname;
+        const qs = u.searchParams.toString();
+        if (isCartPermalink) {
+          out += qs ? `?checkout&${qs}` : '?checkout';
+        } else if (qs) {
+          out += `?${qs}`;
+        }
+        return sanitizeCheckoutUrl(out);
+      } catch {
+        /* string fallback below */
+      }
     }
 
-    let out = u.origin + u.pathname;
-    const qs = u.searchParams.toString();
-    if (isCartPermalink) {
-      out += qs ? `?checkout&${qs}` : '?checkout';
-    } else if (qs) {
-      out += `?${qs}`;
+    if (!isMyshopifyCartPermalink(href)) {
+      return href;
     }
-    return out;
+    let out = href.split('?')[0];
+    const enc = encodeURIComponent(returnUrl);
+    if (!/[?&]return_to=/.test(href)) {
+      out += `?checkout&return_to=${enc}`;
+    } else if (!/[?&]checkout(?:[=&]|$)/.test(href)) {
+      out += (href.includes('?') ? '&' : '?') + 'checkout';
+    } else {
+      out = href;
+    }
+    return sanitizeCheckoutUrl(out);
   }
 
   function resolveProductUrl(cfg, item) {
@@ -280,8 +306,9 @@
   }
 
   function redirectToCheckout(url, cartItems) {
+    const target = sanitizeCheckoutUrl(withCheckoutReturn(url, getConfig()));
     notifyCheckoutRedirect(cartItems);
-    window.location.href = url;
+    window.location.assign(target);
   }
 
   async function goToCheckout(cartItems) {
@@ -369,6 +396,7 @@
     buildCartCheckout,
     deckShopReturnUrl,
     withCheckoutReturn,
+    sanitizeCheckoutUrl,
     goToCheckout,
     statusLine,
     shopLiveStatusLine,

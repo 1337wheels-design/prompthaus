@@ -55,6 +55,9 @@ async function applyRateLimit(
   sessionId: string | null,
   origin: string | null
 ): Promise<Response | null> {
+  if (Deno.env.get('DECK_RATE_LIMIT_DISABLED') === 'true') {
+    return null;
+  }
   const ip = clientIp(req);
   const rules = rulesForPath(path, ip, sessionId);
   const verdict = await enforceRateLimits(supabase, rules);

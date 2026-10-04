@@ -12,6 +12,8 @@ const SYNC =
 const PAGES_SHOP =
   process.env.DECK_SHOP_URL ||
   'https://1337wheels-design.github.io/prompthaus/deck-shop/';
+const VERCEL_SHOP =
+  process.env.VERCEL_DECK_SHOP_URL || 'https://payday.vercel.app/deck-shop/';
 const SHOPIFY = process.env.SHOPIFY_SHOP_DOMAIN || 'xwk1u9-6z.myshopify.com';
 const ORIGIN = 'https://1337wheels-design.github.io';
 const jsonOut = process.argv.includes('--json');
@@ -79,6 +81,13 @@ snapshot.panels.push(
 );
 
 snapshot.panels.push(
+  await probe('vercel_deck_shop', async () => {
+    const res = await fetch(VERCEL_SHOP, { redirect: 'manual' });
+    return { http: res.status, url: VERCEL_SHOP, ready: res.status === 200 };
+  })
+);
+
+snapshot.panels.push(
   await probe('github_config_public', async () => {
     const url =
       'https://raw.githubusercontent.com/1337wheels-design/prompthaus/gh-pages/deck-shop/config.js';
@@ -89,8 +98,11 @@ snapshot.panels.push(
   })
 );
 
-const degraded = snapshot.panels.some((p) => !p.ok);
-snapshot.overall = degraded ? 'degraded' : 'ok';
+const vercelPanel = snapshot.panels.find((p) => p.name === 'vercel_deck_shop');
+const coreOk = snapshot.panels.every((p) => p.ok && p.name !== 'vercel_deck_shop');
+const vercelReady = vercelPanel?.ready === true;
+const degraded = !coreOk;
+snapshot.overall = !coreOk ? 'degraded' : vercelReady ? 'ok' : 'ok_pages_only';
 
 if (jsonOut) {
   console.log(JSON.stringify(snapshot, null, 2));

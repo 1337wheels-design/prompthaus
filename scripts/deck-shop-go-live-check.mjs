@@ -3,8 +3,11 @@
 const RES =
   'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/reservation-api';
 const SYNC = 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/shop-sync';
-const SHOP = 'https://1337wheels-design.github.io/prompthaus/deck-shop/';
-const ORIGIN = 'https://1337wheels-design.github.io';
+const SHOP =
+  process.env.DECK_SHOP_URL ||
+  'https://1337wheels-design.github.io/prompthaus/deck-shop/';
+const ORIGIN =
+  process.env.DECK_SHOP_ORIGIN?.trim() || new URL(SHOP).origin;
 
 const results = [];
 function ok(id, pass, detail) {
@@ -42,8 +45,12 @@ if (cron) {
 const root = await fetch('https://xwk1u9-6z.myshopify.com/', { redirect: 'manual' });
 ok('shopify_not_password', root.status === 200, `GET / → ${root.status}`);
 
-const pages = await fetch(SHOP, { redirect: 'manual' });
-ok('deck_shop_pages', pages.status === 200, String(pages.status));
+const shopRes = await fetch(SHOP, { redirect: 'manual' });
+ok(
+  'deck_shop_deploy',
+  shopRes.status === 200,
+  `${shopRes.status} ${SHOP} (Origin probe: ${ORIGIN})`
+);
 
 const failed = results.filter((r) => !r.pass);
 console.log(`\nGo-live check: ${results.length - failed.length}/${results.length}`);

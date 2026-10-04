@@ -38,11 +38,11 @@ npx supabase secrets set SHOPIFY_STOREFRONT_TOKEN="…" --project-ref yoeehrdsrf
 
 Optional denselben Token in `deck-shop/config.local.js` → `storefrontAccessToken` für Live-Preise im Browser (gitignored).
 
-## Cron (empfohlen: alle 5 Min)
+## Cron (Stufe A: alle 3–5 Min)
 
 Dashboard → [Edge Functions → shop-sync → Schedules](https://supabase.com/dashboard/project/yoeehrdsrfwolzdtgmel/functions)
 
-- Schedule: `*/5 * * * *`
+- Schedule: **`*/3 * * * *`** oder **`*/5 * * * *`**
 - HTTP **POST** auf Function-URL
 - Header: `Authorization: Bearer <DECK_SYNC_CRON_SECRET>`
 

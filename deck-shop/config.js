@@ -27,6 +27,12 @@ window.PAYDAY_SHOP = {
   reservationTtlMs: 5 * 60 * 1000,
 
   /**
+   * Stufe A: leichtes Availability-Polling (nur reservation-api, kein Shopify-Sync).
+   * Ergänzt shop-sync-Cron — z. B. 75 s; Tab im Hintergrund pausiert.
+   */
+  availabilityPollMs: 75 * 1000,
+
+  /**
    * Storefront Public Token — für Live-Bestand/Preise (shopify-storefront-catalog.js).
    * Headless-App → Storefront API. Öffentlich im Browser OK (kein Admin-shpat).
    * Alternativ: ?dev=1 → Shopify-Modal oder config.local.js

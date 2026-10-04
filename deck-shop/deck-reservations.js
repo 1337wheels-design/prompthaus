@@ -25,6 +25,7 @@
       apiBase,
       enabled: Boolean(apiBase),
       ttlMs: shop.reservationTtlMs || DEFAULT_TTL_MS,
+      availabilityPollMs: shop.availabilityPollMs || 75 * 1000,
     };
   }
 
@@ -82,10 +83,14 @@
       `${cfg.apiBase}/v1/availability?sessionId=${encodeURIComponent(sessionId)}`,
       { credentials: 'omit' }
     );
-    return res.json();
+    const json = await res.json().catch(() => ({}));
+    return { status: res.status, ...json };
   }
 
   let heartbeatTimer = null;
+  let availabilityPollTimer = null;
+  let availabilityPollBackoffUntil = 0;
+  let availabilityPollVisHook = null;
 
   function stopHeartbeat() {
     if (heartbeatTimer) {
@@ -134,6 +139,55 @@
     return res;
   }
 
+  function stopAvailabilityPolling() {
+    if (availabilityPollTimer) {
+      clearInterval(availabilityPollTimer);
+      availabilityPollTimer = null;
+    }
+    if (availabilityPollVisHook) {
+      document.removeEventListener('visibilitychange', availabilityPollVisHook);
+      availabilityPollVisHook = null;
+    }
+  }
+
+  /** Stufe A — globale Holds/Basisbestand nach shop-sync-Cron im UI nachziehen. */
+  function startAvailabilityPolling(options) {
+    stopAvailabilityPolling();
+    const cfg = getConfig();
+    if (!cfg.enabled) return;
+    const intervalMs = Math.max(45000, options?.intervalMs ?? cfg.availabilityPollMs ?? 75000);
+    const isActive =
+      typeof options?.isActive === 'function' ? options.isActive : () => true;
+
+    const tick = async () => {
+      if (Date.now() < availabilityPollBackoffUntil) return;
+      if (!isActive()) return;
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+      try {
+        const res = await fetchAvailability();
+        if (res.ok && res.availability) {
+          global.dispatchEvent(
+            new CustomEvent('payday-reservation-updated', {
+              detail: { availability: res.availability, source: 'poll' },
+            })
+          );
+        } else if (res.status === 429 || res.reason === 'rate_limited') {
+          const sec = Number(res.retryAfterSeconds) || 60;
+          availabilityPollBackoffUntil = Date.now() + sec * 1000;
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+
+    availabilityPollTimer = setInterval(tick, intervalMs);
+    availabilityPollVisHook = () => {
+      if (document.visibilityState === 'visible') tick();
+    };
+    document.addEventListener('visibilitychange', availabilityPollVisHook);
+    tick();
+  }
+
   async function releaseCart() {
     const cfg = getConfig();
     if (!cfg.enabled) return { ok: true, disabled: true };
@@ -158,5 +212,7 @@
     releaseCart,
     startHeartbeat,
     stopHeartbeat,
+    startAvailabilityPolling,
+    stopAvailabilityPolling,
   };
 })(window);

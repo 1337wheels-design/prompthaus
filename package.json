@@ -14,6 +14,8 @@
     "test:walkthrough": "node scripts/deck-shop-guided-walkthrough.mjs",
     "test:fake-order-inventory": "node scripts/deck-shop-fake-order-inventory.mjs",
     "test:rate-limit": "node scripts/deck-reservation-rate-limit-test.mjs",
+    "test:go-live": "node scripts/deck-shop-go-live-check.mjs",
+    "test:go-live": "node scripts/deck-shop-go-live-check.mjs",
     "playwright:install": "playwright install chromium && playwright install-deps chromium",
     "supabase:link": "supabase link --project-ref yoeehrdsrfwolzdtgmel",
     "supabase:db:push": "supabase db push",

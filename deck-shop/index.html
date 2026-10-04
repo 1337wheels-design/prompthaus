@@ -275,7 +275,7 @@
   <script src="deck-renderer.js"></script>
   <script src="config.js"></script>
   <script src="config.local.js" onerror="void 0"></script>
-  <script src="deck-reservations.js?v=20260404-bot1"></script>
+  <script src="deck-reservations.js?v=20260404-stufe-a"></script>
   <script src="shopify-connect.js?v=20260303-id-only"></script>
   <script src="shopify-storefront-catalog.js?v=20260404-catalog"></script>
   <script src="shopify-checkout.js?v=20260404-harden"></script>
@@ -867,6 +867,9 @@
       updateUI();
       refreshStorefrontCatalog({ force: true });
       startStorefrontPolling();
+      window.PAYDAY_RESERVATIONS?.startAvailabilityPolling?.({
+        isActive: () => state.unlocked,
+      });
     }
 
     function isSwipeExcludedTarget(target) {

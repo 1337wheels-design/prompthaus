@@ -6,6 +6,19 @@ Offizielle Doku: [Vercel MCP](https://vercel.com/docs/agent-resources/vercel-mcp
 
 Cloud Agents nutzen MCP **nicht** automatisch aus `.cursor/mcp.json` im Repo. Du musst den Server im **Cursor-Dashboard** verbinden und **einmal OAuth** abschließen. Erst in **neuen Runs** stehen Vercel-Tools (Deployments, Redeploy, Logs) zur Verfügung.
 
+## Desktop vs. Cloud Agent
+
+| Wo MCP verbunden | Gilt für |
+|------------------|----------|
+| **Cursor IDE** (Settings → MCP, grün/connected) | **Lokaler** Agent / Composer in der App |
+| **[cursor.com/agents](https://cursor.com/agents) → MCP** oder **Plugins & MCPs** | **Cloud Agent**-Runs |
+
+„Connected MCP“ nur in der **Desktop-App** reicht **nicht** für **diesen** Cloud-Run — hier bleibt `Vercel` oft `needsAuth`.
+
+**Lokal (MCP connected):** Chat: *Redeploy Vercel project payday production from branch main for 1337wheels-design/prompthaus.*
+
+**Cloud:** MCP unten am Dashboard verbinden → **neuen** Agent-Run starten.
+
 ## Einrichtung (Cloud Agent)
 
 1. [cursor.com/agents](https://cursor.com/agents) → **MCP** (Dropdown) **oder** Dashboard → **Plugins & MCPs** (Team)

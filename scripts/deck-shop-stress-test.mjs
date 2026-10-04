@@ -1,7 +1,28 @@
 #!/usr/bin/env node
 /**
  * Deck Shop stress tests (Playwright) — discovery-driven scenarios.
+ *
+ * Discovery map (event-day risks):
+ * | ID  | Risiko / Flow                         | Erwartung                          |
+ * |-----|---------------------------------------|------------------------------------|
+ * | S1  | Intro → Unlock → Shop sichtbar        | #shop-section.is-unlocked          |
+ * | S2  | Kaputtes localStorage                 | Warenkorb (0), kein Crash          |
+ * | S3  | Warenkorb UI: add/remove/collapse     | Panel expanded → Hochklappen       |
+ * | S4  | Spam-Klick „In den Warenkorb“         | Stock-Cap, disabled buttons        |
+ * | S5  | Checkout-URL (Permalink-Aggregation)  | empty/missing/2× gleiche SKU       |
+ * | S6  | Shopify Passwortschutz                | nicht locked wenn Shop live        |
+ * | S7  | Permalink → Checkout-Redirect         | /checkouts/, kein /password        |
+ * | S8  | Mobile Swipe-Unlock                   | iPhone 13 viewport                 |
+ * | S9  | Filter-Chips spam                     | 1–12 Karten, kein DOM-Leak         |
+ * | S10 | Storefront API chrome-838             | Produkt + qty                      |
+ * | S11 | Warenkorb über Reload                 | localStorage persist               |
+ * | S12 | Checkout disabled bei leerem Warenkorb| #checkout-btn disabled             |
+ * | S13 | Zwei verschiedene SKUs + Summe        | 2 Positionen, Summe 118 €          |
+ * | S14 | cart-close vs collapse                | beide klappen ein                  |
+ * | S15 | Deep-Link #shopify-connect            | Connect-UI mount ohne Crash        |
+ *
  * Usage: node scripts/deck-shop-stress-test.mjs [baseUrl]
+ * Env: SHOPIFY_STOREFRONT_TOKEN (optional, für S10)
  */
 import { chromium, devices } from 'playwright';
 import { writeFileSync } from 'fs';
@@ -30,6 +51,23 @@ async function waitForShop(page, timeoutMs = 90000) {
     await page.waitForTimeout(400);
   }
   await page.waitForSelector('#shop-section.is-unlocked', { timeout: 45000 });
+}
+
+async function ensureCartExpanded(page) {
+  const st = await page.evaluate(() => {
+    const panel = document.getElementById('cart-panel');
+    return {
+      visible: panel?.classList.contains('visible'),
+      expanded: panel?.classList.contains('expanded'),
+      n: document.getElementById('cart-toggle')?.textContent,
+    };
+  });
+  if (!st.visible || st.n === 'Warenkorb (0)') return st;
+  if (!st.expanded) {
+    await page.click('#cart-toggle');
+    await page.waitForSelector('#cart-panel.expanded', { timeout: 8000 });
+  }
+  return st;
 }
 
 async function run() {
@@ -81,14 +119,15 @@ async function run() {
       await page.waitForTimeout(300);
       let count = await page.evaluate(() => document.getElementById('cart-toggle')?.textContent);
       record('S3_add_to_cart', /Warenkorb \(1\)/.test(count || ''), count);
-      await page.click('#cart-toggle');
-      await page.waitForSelector('#cart-panel.expanded', { timeout: 5000 });
+      await page.waitForSelector('#cart-panel.visible', { timeout: 8000 });
+      await ensureCartExpanded(page);
       await page.click('.cart-line__remove');
       await page.waitForTimeout(200);
       count = await page.evaluate(() => document.getElementById('cart-toggle')?.textContent);
       record('S3_remove_line', /Warenkorb \(0\)/.test(count || ''), count);
       await addBtn.click();
-      await page.click('#cart-toggle');
+      await page.waitForTimeout(300);
+      await ensureCartExpanded(page);
       await page.click('#cart-collapse');
       const expanded = await page.evaluate(() => document.getElementById('cart-panel')?.classList.contains('expanded'));
       record('S3_collapse_bottom', !expanded, expanded ? 'still expanded' : 'collapsed');
@@ -104,11 +143,6 @@ async function run() {
     const page = await browser.newPage();
     try {
       await waitForShop(page);
-      const sku = await page.evaluate(() => {
-        const btn = document.querySelector('.deck-card__add:not([disabled])');
-        const card = btn?.closest('.deck-card');
-        return card?.querySelector('.deck-card__meta')?.textContent;
-      });
       for (let i = 0; i < 15; i++) {
         await page.locator('.deck-card__add:not([disabled])').first().click({ timeout: 2000 }).catch(() => {});
       }
@@ -162,8 +196,10 @@ async function run() {
     try {
       await page.goto(BASE, { waitUntil: 'domcontentloaded' });
       await page.waitForFunction(() => window.PAYDAY_SHOPIFY_CHECKOUT?.isShopPasswordLocked);
-      const locked = await page.evaluate((domain) =>
-        window.PAYDAY_SHOPIFY_CHECKOUT.isShopPasswordLocked(domain), SHOP_DOMAIN);
+      const locked = await page.evaluate(
+        (domain) => window.PAYDAY_SHOPIFY_CHECKOUT.isShopPasswordLocked(domain),
+        SHOP_DOMAIN
+      );
       record('S6_shop_not_password_locked', locked === false, locked ? 'still password locked' : 'live');
     } catch (e) {
       record('S6_shop_not_password_locked', false, e.message);
@@ -176,15 +212,17 @@ async function run() {
   {
     const page = await browser.newPage();
     try {
-      const resp = await page.goto(`https://${SHOP_DOMAIN}/cart/67670522429725:1`, {
+      await page.goto(`https://${SHOP_DOMAIN}/cart/67670522429725:1`, {
         waitUntil: 'domcontentloaded',
         timeout: 60000,
       });
       const url = page.url();
       const ok = url.includes('/checkouts/') && !url.includes('/password');
-      const stock = url.includes('stock-problems') || (await page.locator('body').innerText()).includes('Out of stock');
+      const stock =
+        url.includes('stock-problems') ||
+        (await page.locator('body').innerText()).includes('Out of stock');
       record('S7_checkout_redirect', ok, url.split('?')[0]);
-      record('S7_inventory_note', true, stock ? 'Shopify: out of stock on variant (expected until restock)' : 'checkout reachable');
+      record('S7_inventory_note', true, stock ? 'Shopify: out of stock on variant' : 'checkout reachable');
     } catch (e) {
       record('S7_checkout_redirect', false, e.message);
     } finally {
@@ -225,7 +263,11 @@ async function run() {
     try {
       await waitForShop(page);
       for (let i = 0; i < 20; i++) {
-        await page.locator('#filter-size button').nth(i % 3).click({ timeout: 2000 }).catch(() => {});
+        await page
+          .locator('#filter-size button')
+          .nth(i % 3)
+          .click({ timeout: 2000 })
+          .catch(() => {});
       }
       const cards = await page.locator('.deck-card').count();
       record('S9_filter_spam', cards >= 1 && cards <= 12, `visible cards: ${cards}`);
@@ -240,25 +282,140 @@ async function run() {
   {
     const page = await browser.newPage();
     try {
-      const token = process.env.SHOPIFY_STOREFRONT_TOKEN || '7289423bd90d977d284ba8f7b65acbd3';
-      const data = await page.evaluate(async ({ domain, token }) => {
-        const res = await fetch(`https://${domain}/api/2024-10/graphql.json`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': token,
+      const token = process.env.SHOPIFY_STOREFRONT_TOKEN;
+      if (!token) {
+        record('S10_storefront_product', true, 'skipped (no SHOPIFY_STOREFRONT_TOKEN in env)');
+      } else {
+        const data = await page.evaluate(
+          async ({ domain, token }) => {
+            const res = await fetch(`https://${domain}/api/2024-10/graphql.json`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Shopify-Storefront-Access-Token': token,
+              },
+              body: JSON.stringify({
+                query:
+                  '{ product(handle: "payday-deck-chrome-838") { availableForSale variants(first:1){ nodes { quantityAvailable } } } }',
+              }),
+            });
+            return res.json();
           },
-          body: JSON.stringify({
-            query: '{ product(handle: "payday-deck-chrome-838") { availableForSale variants(first:1){ nodes { quantityAvailable } } } }',
-          }),
-        });
-        return res.json();
-      }, { domain: SHOP_DOMAIN, token });
-      const p = data?.data?.product;
-      const qty = p?.variants?.nodes?.[0]?.quantityAvailable;
-      record('S10_storefront_product', Boolean(p), `availableForSale=${p?.availableForSale} qty=${qty}`);
+          { domain: SHOP_DOMAIN, token }
+        );
+        const p = data?.data?.product;
+        const qty = p?.variants?.nodes?.[0]?.quantityAvailable;
+        record('S10_storefront_product', Boolean(p), `availableForSale=${p?.availableForSale} qty=${qty}`);
+      }
     } catch (e) {
       record('S10_storefront_product', false, e.message);
+    } finally {
+      await page.close();
+    }
+  }
+
+  // --- S11: Cart persistence across reload ---
+  {
+    const page = await browser.newPage();
+    try {
+      await waitForShop(page);
+      await page.locator('.deck-card__add:not([disabled])').first().click({ timeout: 10000 });
+      await page.waitForTimeout(200);
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.waitForTimeout(2000);
+      const after = await page.evaluate(() => ({
+        toggle: document.getElementById('cart-toggle')?.textContent,
+        raw: localStorage.getItem('payday_deck_cart'),
+      }));
+      const ok = /Warenkorb \(1\)/.test(after.toggle || '') && (after.raw || '').includes('"id"');
+      record('S11_cart_reload', ok, after.toggle || 'no toggle');
+    } catch (e) {
+      record('S11_cart_reload', false, e.message);
+    } finally {
+      await page.close();
+    }
+  }
+
+  // --- S12: Checkout disabled when empty ---
+  {
+    const page = await browser.newPage();
+    try {
+      await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+      await page.evaluate(() => localStorage.removeItem('payday_deck_cart'));
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.waitForTimeout(1500);
+      const disabled = await page.evaluate(() => document.getElementById('checkout-btn')?.disabled);
+      record('S12_checkout_disabled_empty', disabled === true, String(disabled));
+    } catch (e) {
+      record('S12_checkout_disabled_empty', false, e.message);
+    } finally {
+      await page.close();
+    }
+  }
+
+  // --- S13: Two distinct line items + total ---
+  {
+    const page = await browser.newPage();
+    try {
+      await waitForShop(page);
+      const adds = page.locator('.deck-card__add:not([disabled])');
+      const n = await adds.count();
+      if (n >= 2) {
+        await adds.nth(0).click();
+        await page.waitForTimeout(150);
+        await adds.nth(1).click();
+      } else {
+        await adds.first().click();
+      }
+      await page.waitForTimeout(200);
+      await ensureCartExpanded(page);
+      const info = await page.evaluate(() => ({
+        cart: document.getElementById('cart-toggle')?.textContent,
+        sum: document.getElementById('cart-info')?.textContent,
+        lines: document.querySelectorAll('#cart-lines .cart-line').length,
+      }));
+      const ok =
+        info.lines >= 2 &&
+        /Warenkorb \(2\)/.test(info.cart || '') &&
+        (info.sum || '').includes('118');
+      record('S13_multi_sku_total', ok, JSON.stringify(info));
+    } catch (e) {
+      record('S13_multi_sku_total', false, e.message);
+    } finally {
+      await page.close();
+    }
+  }
+
+  // --- S14: cart-close collapses expanded panel ---
+  {
+    const page = await browser.newPage();
+    try {
+      await waitForShop(page);
+      await page.locator('.deck-card__add:not([disabled])').first().click({ timeout: 10000 });
+      await ensureCartExpanded(page);
+      await page.click('#cart-close');
+      const expanded = await page.evaluate(() => document.getElementById('cart-panel')?.classList.contains('expanded'));
+      record('S14_cart_close_collapse', !expanded, expanded ? 'still expanded' : 'collapsed');
+    } catch (e) {
+      record('S14_cart_close_collapse', false, e.message);
+    } finally {
+      await page.close();
+    }
+  }
+
+  // --- S15: Deep link #shopify-connect ---
+  {
+    const page = await browser.newPage();
+    try {
+      const url = BASE.includes('#') ? BASE.replace(/#.*$/, '') + '#shopify-connect' : BASE + '#shopify-connect';
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      await page.waitForTimeout(2000);
+      const hasModule = await page.evaluate(
+        () => Boolean(window.PAYDAY_SHOPIFY_CONNECT?.mountConnectUI) && Boolean(window.PAYDAY_SHOPIFY_CHECKOUT)
+      );
+      record('S15_shopify_connect_hash', hasModule, hasModule ? 'modules loaded' : 'missing modules');
+    } catch (e) {
+      record('S15_shopify_connect_hash', false, e.message);
     } finally {
       await page.close();
     }
@@ -268,7 +425,7 @@ async function run() {
 
   const passed = results.filter((r) => r.ok).length;
   const failed = results.filter((r) => !r.ok).length;
-  const summary = { base: BASE, passed, failed, total: results.length, results };
+  const summary = { base: BASE, passed, failed, total: results.length, results, ranAt: new Date().toISOString() };
   const outPath = '/opt/cursor/artifacts/deck-shop-stress-results.json';
   writeFileSync(outPath, JSON.stringify(summary, null, 2));
   console.log('\n---');

@@ -12,6 +12,9 @@
 window.PAYDAY_SHOP = {
   shopDomain: 'xwk1u9-6z.myshopify.com',
 
+  /** Nach Checkout / „Weiter einkaufen“ zurück zum Deck Shop (GitHub Pages). */
+  checkoutReturnUrl: 'https://1337wheels-design.github.io/prompthaus/deck-shop/',
+
   /**
    * Storefront Public Token — für Live-Bestand/Preise (shopify-storefront-catalog.js).
    * Headless-App → Storefront API. Öffentlich im Browser OK (kein Admin-shpat).

@@ -277,7 +277,7 @@
   <script src="config.local.js" onerror="void 0"></script>
   <script src="shopify-connect.js?v=20260303-id-only"></script>
   <script src="shopify-storefront-catalog.js?v=20260404-catalog"></script>
-  <script src="shopify-checkout.js?v=20260404-stress"></script>
+  <script src="shopify-checkout.js?v=20260404-return-cart"></script>
   <script>
     const INV = window.PAYDAY_DECK_INVENTORY;
     const R = window.PaydayDeckRenderer;
@@ -1066,8 +1066,24 @@
       setCartPanelOpen(stayExpanded);
     }
 
-    document.getElementById('checkout-btn').addEventListener('click', () => {
-      window.PAYDAY_SHOPIFY_CHECKOUT.goToCheckout(state.cart);
+    document.getElementById('checkout-btn').addEventListener('click', async () => {
+      const items = state.cart.slice();
+      const result = await window.PAYDAY_SHOPIFY_CHECKOUT.goToCheckout(items);
+      if (result?.ok) clearCart();
+    });
+
+    window.addEventListener('payday-checkout-started', () => {
+      clearCart();
+    });
+
+    window.addEventListener('pageshow', () => {
+      try {
+        if (!sessionStorage.getItem('payday_checkout_pending')) return;
+        sessionStorage.removeItem('payday_checkout_pending');
+        clearCart();
+      } catch {
+        /* ignore */
+      }
     });
 
     function renderShopifyStatus() {
@@ -1137,6 +1153,14 @@
 
     rebuildCatalogFromState();
     loadCartFromStorage();
+    try {
+      if (sessionStorage.getItem('payday_checkout_pending')) {
+        sessionStorage.removeItem('payday_checkout_pending');
+        state.cart = [];
+      }
+    } catch {
+      /* ignore */
+    }
 
     updateStockLabels();
     updateCart(false);

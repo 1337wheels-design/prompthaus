@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <script>
+    if (new URLSearchParams(location.search).get('dev') !== '1') {
+      location.replace('../deck-shop/');
+    }
+  </script>
+  <title>Deck Shop — Ops-Bericht</title>
+  <style>
+    :root {
+      --purple: #c4b5fd;
+      --purple-dim: rgba(167, 139, 250, 0.55);
+      --accent: #e879f9;
+      --ok: #4ade80;
+      --warn: #fbbf24;
+      --bad: #f87171;
+      --bg: #0a0812;
+      --panel: #100c1a;
+      --border: rgba(167, 139, 250, 0.22);
+      --text: #d0d0d2;
+      --text-muted: #a8a090;
+      --font-mono: 'Courier New', monospace;
+      --font-display: Impact, 'Arial Narrow', Arial, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 60% 40% at 30% 10%, rgba(120, 60, 180, 0.22) 0%, transparent 100%);
+      font-family: var(--font-mono);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 20px 16px 48px; }
+    header {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 12px; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px;
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 5vw, 28px);
+      letter-spacing: 0.06em;
+      color: var(--purple);
+      text-transform: uppercase;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px; border: 1px solid var(--border); border-radius: 4px;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .badge::before {
+      content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted);
+    }
+    .badge.ok::before { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+    .badge.degraded::before { background: var(--warn); }
+    .badge.fail::before { background: var(--bad); }
+    .meta { font-size: 10px; color: var(--text-muted); width: 100%; }
+    nav.links { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    nav.links a {
+      font-size: 10px; color: var(--purple); text-decoration: none;
+      border: 1px solid var(--border); padding: 6px 10px; border-radius: 3px;
+    }
+    nav.links a:hover { background: rgba(167, 139, 250, 0.12); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px;
+    }
+    .card h2 {
+      font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--purple-dim); margin-bottom: 10px;
+    }
+    .card .val { font-size: 20px; color: var(--purple); }
+    .card .sub { font-size: 10px; color: var(--text-muted); margin-top: 6px; }
+    .card.fail { border-color: rgba(248, 113, 113, 0.4); }
+    table.sku {
+      width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px;
+    }
+    table.sku th, table.sku td {
+      text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    table.sku th { color: var(--purple-dim); font-weight: normal; text-transform: uppercase; font-size: 9px; }
+    .report { margin-top: 32px; }
+    .report h2.section-title {
+      font-family: var(--font-display);
+      font-size: 16px; color: var(--accent); text-transform: uppercase;
+      letter-spacing: 0.05em; margin: 24px 0 12px;
+      padding-top: 16px; border-top: 1px solid var(--border);
+    }
+    .report h2.section-title:first-child { border-top: none; padding-top: 0; }
+    .report p { font-size: 12px; margin-bottom: 10px; color: var(--text); }
+    .report ul { margin: 0 0 12px 18px; font-size: 11px; color: var(--text-muted); }
+    .report li { margin-bottom: 4px; }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px;
+    }
+    button {
+      font-family: inherit; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+      background: transparent; color: var(--purple); border: 1px solid var(--border);
+      padding: 8px 14px; cursor: pointer; border-radius: 3px;
+    }
+    button:hover { background: rgba(167, 139, 250, 0.15); }
+    button:disabled { opacity: 0.5; cursor: wait; }
+    @media print {
+      body { background: #fff; color: #111; }
+      .toolbar, nav.links { display: none; }
+      .card { break-inside: avoid; border-color: #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Ops-Bericht</h1>
+        <p class="meta">Payday Deck Shop · Supabase · Shopify · GitHub Pages</p>
+      </div>
+      <span id="status-badge" class="badge">Lade…</span>
+      <p class="meta" id="timestamp">—</p>
+    </header>
+
+    <nav class="links" id="dash-links"></nav>
+    <p class="meta" style="margin-bottom:16px"><a href="profiles.html" style="color:var(--purple)">25 Drop-Profile &amp; Warenkörbe →</a></p>
+
+    <div class="toolbar">
+      <button type="button" id="btn-refresh">Live aktualisieren</button>
+      <button type="button" id="btn-print">Drucken / PDF</button>
+      <span class="meta" id="refresh-hint">Auto-Refresh 30 s</span>
+    </div>
+
+    <div class="grid" id="metrics"></div>
+
+    <div class="card">
+      <h2>Verfügbarkeit pro SKU</h2>
+      <table class="sku">
+        <thead><tr><th>SKU</th><th>Frei</th></tr></thead>
+        <tbody id="sku-body"></tbody>
+      </table>
+    </div>
+
+    <article class="report" id="bericht" aria-label="Bericht"></article>
+  </div>
+
+  <script>
+    const RES = 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/reservation-api';
+    const ORIGIN = 'https://1337wheels-design.github.io';
+    const SHOPIFY = 'xwk1u9-6z.myshopify.com';
+    const PAGES_SHOP = 'https://1337wheels-design.github.io/prompthaus/deck-shop/';
+    const VERCEL_SHOP = 'https://payday.vercel.app/deck-shop/';
+    const SYNC = 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/shop-sync';
+
+    let refreshTimer;
+    /** @type {object | null} */
+    let cachedSnapshot = null;
+
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function mdInline(s) {
+      return esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    }
+
+    function renderBericht(data) {
+      const el = document.getElementById('bericht');
+      if (!data?.sections?.length) {
+        el.innerHTML = '<p class="meta">Kein bericht.json — npm run ops:report:build ausführen.</p>';
+        return;
+      }
+      el.innerHTML = data.sections
+        .map((sec) => {
+          let html = `<h2 class="section-title">${esc(sec.title)}</h2>`;
+          (sec.paragraphs || []).forEach((p) => {
+            html += `<p>${mdInline(p)}</p>`;
+          });
+          if (sec.bullets?.length) {
+            html += '<ul>' + sec.bullets.map((b) => `<li>${mdInline(b)}</li>`).join('') + '</ul>';
+          }
+          return html;
+        })
+        .join('');
+    }
+
+    function renderLinks(links) {
+      const nav = document.getElementById('dash-links');
+      const items = links || {
+        supabaseFunctions: 'https://supabase.com/dashboard/project/yoeehrdsrfwolzdtgmel/functions',
+        supabaseSql: 'https://supabase.com/dashboard/project/yoeehrdsrfwolzdtgmel/sql/new',
+        deckShop: PAGES_SHOP,
+      };
+      nav.innerHTML = [
+        ['Supabase Functions', items.supabaseFunctions],
+        ['SQL Editor', items.supabaseSql],
+        ['Tabellen', items.supabaseTables],
+        ['Deck Shop (Pages)', items.deckShop || PAGES_SHOP],
+        ['Deck Shop (Vercel)', items.vercelDeckShop || VERCEL_SHOP],
+        ['Shopify Admin', items.shopifyAdmin || `https://${SHOPIFY}/admin`],
+      ]
+        .filter(([, u]) => u)
+        .map(([t, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`)
+        .join('');
+    }
+
+    function card(title, val, sub, ok) {
+      return `<div class="card${ok === false ? ' fail' : ''}">
+        <h2>${esc(title)}</h2>
+        <div class="val">${val}</div>
+        ${sub ? `<div class="sub">${sub}</div>` : ''}
+      </div>`;
+    }
+
+    function panelFromSnapshot(name) {
+      return cachedSnapshot?.panels?.find((p) => p.name === name) ?? null;
+    }
+
+    async function tryProbe(run) {
+      try {
+        return await run();
+      } catch (e) {
+        return { error: e instanceof Error ? e.message : String(e) };
+      }
+    }
+
+    async function liveProbe() {
+      const metrics = document.getElementById('metrics');
+      const badge = document.getElementById('status-badge');
+      const ts = document.getElementById('timestamp');
+      document.getElementById('btn-refresh').disabled = true;
+
+      let overall = 'ok';
+      const cards = [];
+      let av = null;
+
+      const health = await tryProbe(async () => {
+        const hRes = await fetch(`${RES}/health`, { headers: { Origin: ORIGIN } });
+        const h = await hRes.json();
+        return { hRes, h };
+      });
+      if (health.error) {
+        cards.push(card('Reservierung API', 'Fehler', esc(health.error), false));
+        overall = 'fail';
+      } else {
+        const { hRes, h } = health;
+        const rlOk = h.rateLimit === 'stufe1' && h.rateLimitDb?.ok;
+        cards.push(
+          card(
+            'Reservierung API',
+            h.rateLimit || '—',
+            `DB ${h.rateLimitDb?.ok ? 'OK' : 'Fehler'} · TTL ${(h.ttlMs / 1000) | 0}s`,
+            hRes.ok && h.ok
+          )
+        );
+        if (!hRes.ok || !h.ok) overall = 'degraded';
+        if (!rlOk && h.rateLimit !== 'disabled') overall = 'degraded';
+      }
+
+      const avail = await tryProbe(async () => {
+        const aRes = await fetch(`${RES}/v1/availability?sessionId=report-ui`, {
+          headers: { Origin: ORIGIN },
+        });
+        if (aRes.status === 429) {
+          return { rateLimited: true };
+        }
+        const a = await aRes.json();
+        return { aRes, a };
+      });
+      if (avail.error) {
+        cards.push(card('Freie Einheiten', '—', esc(avail.error), false));
+        overall = overall === 'ok' ? 'degraded' : overall;
+      } else if (avail.rateLimited) {
+        cards.push(card('Freie Einheiten', '429', 'Rate-Limit — später erneut', false));
+        overall = 'degraded';
+      } else {
+        av = avail.a.availability || {};
+        const total = Object.values(av).reduce((s, n) => s + (Number(n) || 0), 0);
+        cards.push(
+          card('Freie Einheiten', String(total), `chrome-838: ${av['chrome-838'] ?? '—'}`, avail.aRes.ok)
+        );
+        renderSkuTable(av);
+      }
+
+      const syncLive = await tryProbe(async () => {
+        const r = await fetch(`${SYNC}/health`, { headers: { Origin: ORIGIN } });
+        return { status: r.status, body: await r.json() };
+      });
+      if (!syncLive.error && syncLive.body?.configured != null) {
+        cards.push(
+          card(
+            'Shop-Sync',
+            syncLive.body.configured ? 'Konfiguriert' : 'Unvollständig',
+            'Live /health',
+            syncLive.body.configured
+          )
+        );
+        if (!syncLive.body.configured) overall = 'degraded';
+      } else {
+        const snap = panelFromSnapshot('supabase_shop_sync');
+        if (snap?.ok) {
+          cards.push(
+            card(
+              'Shop-Sync',
+              snap.configured ? 'Konfiguriert' : 'Prüfen',
+              'Snapshot (Browser-CORS)',
+              snap.configured
+            )
+          );
+        } else {
+          cards.push(card('Shop-Sync', '—', 'npm run ops:report:build', false));
+          overall = 'degraded';
+        }
+      }
+
+      const shopSnap = panelFromSnapshot('shopify_storefront');
+      if (shopSnap?.ok) {
+        const open = !shopSnap.passwordLocked;
+        cards.push(
+          card(
+            'Shopify Storefront',
+            open ? 'Offen' : 'Gesperrt',
+            `Snapshot · HTTP ${shopSnap.storefrontHttp}`,
+            open
+          )
+        );
+        if (!open) overall = 'degraded';
+      } else {
+        cards.push(card('Shopify', 'Snapshot fehlt', 'ops:report:build', false));
+      }
+
+      const pages = await tryProbe(() => fetch(PAGES_SHOP, { method: 'HEAD' }));
+      if (!pages.error && pages.status != null) {
+        const ok = pages.status === 200;
+        cards.push(card('GitHub Pages Shop', ok ? '200 OK' : `HTTP ${pages.status}`, 'Live HEAD', ok));
+        if (!ok) overall = 'degraded';
+      } else {
+        const pagesSnap = panelFromSnapshot('github_pages_deck_shop');
+        const ok = pagesSnap?.http === 200;
+        cards.push(
+          card('GitHub Pages Shop', ok ? '200 OK' : '—', pagesSnap ? 'Snapshot' : esc(pages.error || ''), ok)
+        );
+        if (!ok) overall = 'degraded';
+      }
+
+      const vercel = await tryProbe(() => fetch(VERCEL_SHOP, { method: 'HEAD' }));
+      if (!vercel.error && vercel.status != null) {
+        const ok = vercel.status === 200;
+        cards.push(card('Vercel Shop', ok ? '200 OK' : `HTTP ${vercel.status}`, 'Live HEAD', ok));
+        if (!ok) overall = 'degraded';
+      } else {
+        const vercelSnap = panelFromSnapshot('vercel_deck_shop');
+        const ok = vercelSnap?.http === 200;
+        cards.push(
+          card(
+            'Vercel Shop',
+            ok ? '200 OK' : vercelSnap ? `HTTP ${vercelSnap.http}` : '—',
+            vercelSnap ? 'Snapshot' : esc(vercel.error || 'Noch nicht deployed'),
+            ok
+          )
+        );
+        if (vercelSnap && !ok) overall = 'degraded';
+      }
+
+      if (!av && panelFromSnapshot('supabase_reservation')?.availability) {
+        renderSkuTable(panelFromSnapshot('supabase_reservation').availability);
+      }
+
+      metrics.innerHTML = cards.join('');
+      badge.textContent = overall === 'ok' ? 'Live OK' : overall === 'degraded' ? 'Eingeschränkt' : 'Fehler';
+      badge.className = 'badge ' + (overall === 'ok' ? 'ok' : overall === 'degraded' ? 'degraded' : 'fail');
+      ts.textContent = 'Live: ' + new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' }) + ' (Europe/Berlin)';
+
+      document.getElementById('btn-refresh').disabled = false;
+    }
+
+    function renderSkuTable(av) {
+      const tbody = document.getElementById('sku-body');
+      const rows = Object.keys(av)
+        .sort()
+        .map((sku) => {
+          const n = Number(av[sku]) || 0;
+          const low = n === 0 ? ' style="color:var(--bad)"' : n <= 2 ? ' style="color:var(--warn)"' : '';
+          return `<tr><td>${esc(sku)}</td><td${low}>${n}</td></tr>`;
+        });
+      tbody.innerHTML = rows.join('') || '<tr><td colspan="2">—</td></tr>';
+    }
+
+    async function loadStatic() {
+      const [bericht, snap] = await Promise.all([
+        fetch('bericht.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        fetch('snapshot.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      ]);
+      if (bericht) renderBericht(bericht);
+      cachedSnapshot = snap;
+      if (snap?.links) renderLinks(snap.links);
+      else renderLinks(null);
+      if (snap?.panels) {
+        const res = snap.panels.find((p) => p.name === 'supabase_reservation');
+        if (res?.availability) renderSkuTable(res.availability);
+        document.getElementById('timestamp').textContent =
+          (document.getElementById('timestamp').textContent || '') +
+          ' · Snapshot: ' +
+          new Date(snap.at).toLocaleString('de-DE', { timeZone: 'Europe/Berlin' });
+      }
+    }
+
+    document.getElementById('btn-refresh').addEventListener('click', () => {
+      liveProbe();
+      resetAutoRefresh();
+    });
+    document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+    function resetAutoRefresh() {
+      clearInterval(refreshTimer);
+      refreshTimer = setInterval(liveProbe, 30_000);
+    }
+
+    (async () => {
+      await loadStatic();
+      await liveProbe();
+      resetAutoRefresh();
+    })();
+  </script>
+</body>
+</html>

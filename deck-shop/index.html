@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payday Deck Shop — Generator &amp; Konfigurator</title>
+  <meta name="description" content="Payday Deck Shop — 6 SS26 Designs, Camo/Linear Generator, Größen 8.38″ und 8.5″.">
+  <link rel="stylesheet" href="deck-shop.css">
+  <style>
+    :root {
+      --purple: #c4b5fd;
+      --purple-dim: rgba(167, 139, 250, 0.55);
+      --purple-deep: #a78bfa;
+      --accent: #e879f9;
+      --bg: #0a0812;
+      --panel: #100c1a;
+      --border: rgba(167, 139, 250, 0.22);
+      --text: #d0d0d2;
+      --text-muted: #a8a090;
+      --font-mono: 'Courier New', monospace;
+      --font-display: Impact, 'Arial Narrow', Arial, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 60% 40% at 30% 10%, rgba(120, 60, 180, 0.22) 0%, transparent 100%),
+        radial-gradient(ellipse 50% 50% at 80% 90%, rgba(0,0,0,0.5) 0%, transparent 100%);
+      font-family: var(--font-mono);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      background: rgba(10, 8, 18, 0.92); position: sticky; top: 0; z-index: 50;
+    }
+    .nav__logo { font-family: var(--font-display); font-size: 16px; letter-spacing: 0.08em; color: var(--purple); text-decoration: none; text-transform: uppercase; }
+    .nav__links a { font-size: 9px; letter-spacing: 0.14em; color: var(--purple-dim); text-decoration: none; text-transform: uppercase; margin-left: 16px; }
+    .nav__links a:hover, .nav__links a.active { color: var(--purple); }
+    .nav__right { display: flex; align-items: center; gap: 8px; }
+    .cart-btn { font-size: 9px; letter-spacing: 0.12em; color: var(--purple); border: 1px solid var(--border); padding: 6px 12px; background: transparent; cursor: pointer; font-family: inherit; text-transform: uppercase; }
+    .phase-badge { display: inline-block; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(232, 121, 249, 0.35); padding: 5px 12px; }
+    .phase-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 0.06em; color: var(--purple); text-transform: uppercase; }
+    .phase-hint { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
+    .click-progress { font-size: 10px; letter-spacing: 0.14em; color: var(--purple-dim); text-transform: uppercase; }
+    .click-progress span { color: var(--purple); }
+    .gen-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: 220px; padding: 14px 28px; font-family: inherit; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; border: 1px solid var(--purple); background: rgba(167, 139, 250, 0.12); color: var(--purple); cursor: pointer; transition: background 0.15s, transform 0.1s; }
+    .gen-btn:hover { background: rgba(167, 139, 250, 0.22); }
+    .gen-btn:active { transform: scale(0.97); }
+    .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .gen-btn .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1.2s ease infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+    .round-dots { display: flex; gap: 8px; margin-top: 24px; }
+    .round-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--border); background: transparent; }
+    .round-dot.done { background: var(--accent); border-color: var(--accent); }
+    .round-dot.active { background: var(--purple); border-color: var(--purple); box-shadow: 0 0 8px rgba(196, 181, 253, 0.45); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+    .filter-chip { font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; padding: 6px 12px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+    .filter-chip:hover, .filter-chip.active { border-color: var(--purple); color: var(--purple); background: rgba(167, 139, 250, 0.08); }
+    .filter-chip.highlight { border-color: var(--accent); color: var(--accent); }
+    .deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+    .deck-card { border: 1px solid var(--border); background: var(--panel); padding: 12px 10px; text-align: center; cursor: pointer; transition: border-color 0.15s, transform 0.1s; }
+    .deck-card:hover { border-color: var(--purple); transform: translateY(-2px); }
+    .deck-card.selected { border-color: var(--accent); box-shadow: 0 0 12px rgba(232, 121, 249, 0.18); }
+    .deck-card__title { font-size: 9px; letter-spacing: 0.08em; color: var(--purple); text-transform: uppercase; margin-bottom: 2px; }
+    .deck-card__size { font-size: 8px; color: var(--text-muted); margin-bottom: 4px; }
+    .deck-card__price { font-size: 11px; line-height: 1.35; color: #d8b4fe; }
+    .deck-card__price-was { text-decoration: line-through; color: var(--text-muted); margin-right: 6px; font-size: 10px; }
+    .deck-card__stock { font-size: 8px; letter-spacing: 0.1em; margin-top: 4px; color: var(--accent); }
+    .deck-card__stock.low { color: #c084fc; }
+    .deck-card__stock.out { color: #c04a4a; }
+    .deck-card.sold-out { opacity: 0.45; }
+    .deck-card__add { margin-top: 8px; width: 100%; padding: 6px; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid var(--border); background: transparent; color: var(--purple); cursor: pointer; font-family: inherit; }
+    .deck-card__add:hover { background: rgba(167, 139, 250, 0.12); }
+    .deck-card__add:disabled { opacity: 0.35; cursor: not-allowed; }
+    .board-img--thumb { width: 70px; margin: 0 auto 8px; max-height: 245px; display: block; object-fit: contain; }
+    .cart-panel {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
+      background: rgba(10, 8, 18, 0.98); border-top: 1px solid var(--border);
+      padding: 0; display: none; flex-direction: column; max-height: min(70vh, 520px);
+    }
+    .cart-panel.visible { display: flex; }
+    .cart-panel.visible:not(.expanded) .cart-panel__head,
+    .cart-panel.visible:not(.expanded) .cart-panel__lines { display: none; }
+    .cart-panel.visible:not(.expanded) {
+      max-height: none; flex-direction: row; align-items: center;
+      padding: 12px 20px; gap: 16px;
+    }
+    .cart-panel.visible:not(.expanded) .cart-panel__foot {
+      border-top: none; padding: 0; flex: 1; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+    }
+    .cart-panel.visible:not(.expanded) #cart-collapse { display: none; }
+    .cart-panel.visible.expanded { display: flex; }
+    .cart-panel__head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid var(--border);
+      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--purple);
+    }
+    .cart-panel__close {
+      border: none; background: transparent; color: var(--text-muted); font-size: 20px;
+      line-height: 1; cursor: pointer; padding: 0 4px;
+    }
+    .cart-panel__lines {
+      list-style: none; margin: 0; padding: 8px 12px; overflow-y: auto; flex: 1;
+    }
+    .cart-line {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 8px 12px; align-items: center;
+      padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 10px;
+    }
+    .cart-line__title { color: var(--text); line-height: 1.35; }
+    .cart-line__meta { color: var(--text-muted); font-size: 9px; }
+    .cart-line__price { color: #d8b4fe; white-space: nowrap; }
+    .cart-line__remove {
+      border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+      font-family: inherit; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 6px 8px; cursor: pointer;
+    }
+    .cart-line__remove:hover { color: #fbbf24; border-color: rgba(251, 191, 36, 0.4); }
+    .cart-panel__foot {
+      padding: 10px 16px 14px; border-top: 1px solid var(--border);
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .cart-panel__info { font-size: 10px; color: var(--text-muted); flex: 1; min-width: 140px; }
+    .cart-panel__info strong { color: var(--purple); }
+    .cart-panel__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .cart-collapse-btn {
+      padding: 10px 14px; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+      border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+      cursor: pointer; font-family: inherit;
+    }
+    .cart-collapse-btn:hover { color: var(--purple); border-color: rgba(167, 139, 250, 0.35); }
+    .checkout-btn { padding: 10px 20px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--purple); background: rgba(167, 139, 250, 0.15); color: var(--purple); cursor: pointer; font-family: inherit; white-space: nowrap; }
+    @media (max-width: 480px) { .deck-grid { grid-template-columns: repeat(2, 1fr); } }
+    .shopify-status {
+      font-size: 8px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 6px 12px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 8, 18, 0.85);
+    }
+    .shopify-status--ready { color: var(--accent); }
+    .shopify-status--locked { color: #fbbf24; }
+    .shopify-status a { color: var(--purple); }
+    .shopify-connect-btn { font-size: 9px; letter-spacing: 0.12em; color: var(--accent); border: 1px solid rgba(232, 121, 249, 0.35); padding: 6px 10px; background: transparent; cursor: pointer; font-family: inherit; text-transform: uppercase; }
+    body.dev-mode .nav__dev-only { display: inline-block; }
+    body.dev-mode #shopify-status.nav__dev-only { display: block; }
+    body.dev-mode .dev-vitals-wrap { display: block; }
+    .dev-vitals-wrap { display: none; margin: 32px 20px 48px; max-width: 960px; margin-left: auto; margin-right: auto; }
+    .dev-vitals {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px;
+    }
+    .dev-vitals__head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .dev-vitals__head h2 { font-family: var(--font-display); font-size: 14px; color: var(--purple); letter-spacing: 0.08em; text-transform: uppercase; margin: 0; }
+    .dev-vitals__badge { font-size: 9px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 3px; }
+    .dev-vitals__badge--ok { color: #4ade80; }
+    .dev-vitals__badge--warn { color: #fbbf24; }
+    .dev-vitals__meta { font-size: 9px; color: var(--text-muted); margin: 0 0 10px; }
+    .dev-vitals__table { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 12px; }
+    .dev-vitals__table th, .dev-vitals__table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .dev-vitals__table th { color: var(--purple-dim); font-weight: normal; text-transform: uppercase; font-size: 8px; }
+    .dev-vitals__links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .dev-vitals__links a { font-size: 9px; color: var(--accent); }
+    .dev-vitals__refresh { font: inherit; font-size: 9px; padding: 4px 10px; cursor: pointer; background: transparent; border: 1px solid var(--border); color: var(--purple); margin-left: auto; }
+    .config-log { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .config-log h3 { font-size: 10px; color: var(--purple-dim); text-transform: uppercase; letter-spacing: 0.12em; margin: 0 0 8px; }
+    .config-log__list { margin: 0; padding-left: 16px; font-size: 10px; color: var(--text-muted); max-height: 160px; overflow-y: auto; }
+    .config-log__list time { color: var(--text-muted); margin-right: 6px; }
+    .config-log__sid, .config-log__empty { font-size: 9px; color: var(--text-muted); word-break: break-all; }
+    .config-log__top { font-size: 10px; color: var(--accent); margin: 0 0 8px; }
+    .nav__links .nav__dev-menu { display: none; }
+    body.dev-mode .nav__links .nav__dev-menu { display: inline; }
+    .shopify-connect { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .shopify-connect.is-open { display: flex; }
+    .shopify-connect__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.72); }
+    .shopify-connect__panel { position: relative; z-index: 1; width: min(440px, 100%); max-height: 90vh; overflow: auto; padding: 24px 22px; background: var(--panel); border: 1px solid var(--border); box-shadow: 0 24px 64px rgba(0,0,0,0.55); }
+    .shopify-connect__title { font-family: var(--font-display); font-size: 20px; letter-spacing: 0.06em; color: var(--purple); text-transform: uppercase; margin-bottom: 8px; }
+    .shopify-connect__lead, .shopify-connect__hint { font-size: 10px; line-height: 1.55; color: var(--text-muted); margin-bottom: 12px; }
+    .shopify-connect__field { display: block; margin-bottom: 14px; }
+    .shopify-connect__field span { display: block; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--purple-dim); margin-bottom: 6px; }
+    .shopify-connect__field input { width: 100%; padding: 10px 12px; font-family: inherit; font-size: 11px; border: 1px solid var(--border); background: #0a0812; color: var(--text); }
+    .shopify-connect__actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+    .shopify-connect__btn { padding: 10px 14px; font-family: inherit; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--border); background: transparent; color: var(--purple); cursor: pointer; }
+    .shopify-connect__btn--primary { border-color: var(--purple); background: rgba(167, 139, 250, 0.12); }
+    .shopify-connect__log { font-size: 10px; color: var(--accent); min-height: 1.4em; }
+    .shopify-connect__close { position: absolute; top: 10px; right: 12px; border: none; background: transparent; color: var(--text-muted); font-size: 22px; cursor: pointer; line-height: 1; }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav__logo">Payday Decks</a>
+    <div class="nav__links">
+      <a href="index.html" class="active">Shop</a>
+      <a href="../decks/editor.html" id="nav-configurator">Deck-Konfigurator</a>
+      <a href="../?dev=1" class="nav__dev-menu">Dev</a>
+    </div>
+    <div class="nav__right">
+      <span class="nav__stock" id="nav-stock">50 verfügbar</span>
+      <button type="button" class="shopify-connect-btn nav__dev-only" id="shopify-connect-open" hidden>Shopify</button>
+      <button class="cart-btn" id="cart-toggle" type="button">Warenkorb (0)</button>
+    </div>
+  </nav>
+  <p class="shopify-status nav__dev-only" id="shopify-status" aria-live="polite" hidden></p>
+
+  <header class="deck-hero">
+    <h1 class="deck-hero__title">Payday SS26 Deck Shop</h1>
+    <p class="deck-hero__sub">6 Designs · Camo &amp; Linear · 59&nbsp;€ inkl. Griptape</p>
+    <span class="deck-hero__stock" id="hero-stock">50 Decks · 8.38″ &amp; 8.5″</span>
+  </header>
+
+  <section class="configurator" id="configurator">
+    <div class="configurator__layout">
+      <aside class="configurator__sidebar">
+        <div class="zone zone--progress" id="zone-progress">
+          <p class="zone__label">Fortschritt</p>
+          <div class="unlock-progress" id="unlock-progress">
+            <div class="unlock-progress__track">
+              <div class="unlock-progress__fill" id="unlock-progress-fill"></div>
+            </div>
+            <span class="unlock-progress__label" id="unlock-progress-label">Vorschau startet…</span>
+          </div>
+        </div>
+
+        <div class="zone zone--preview">
+          <p class="zone__label">Live-Vorschau</p>
+          <div class="preview-frame" id="preview-frame">
+            <div class="asset-loader" id="asset-loader" aria-live="polite">
+              <div class="asset-loader__glyph" aria-hidden="true"></div>
+              <span class="asset-loader__tag">Board-Archiv</span>
+              <p class="asset-loader__name" id="asset-loader-name">payday_CHROME</p>
+              <p class="asset-loader__sub" id="asset-loader-sub">Artefakte werden geladen…</p>
+            </div>
+            <canvas id="preview-canvas" width="400" height="1400" title="Tippen oder wischen zum Weiter"></canvas>
+          </div>
+          <p class="preview-nav-hint" id="preview-nav-hint" hidden>← Wischen →</p>
+          <div class="design-nav" id="design-nav">
+            <button type="button" class="design-nav__btn" id="nav-prev" aria-label="Vorheriges Design">← Zurück</button>
+            <button type="button" class="design-nav__btn" id="nav-next" aria-label="Nächstes Design">Weiter →</button>
+          </div>
+        </div>
+
+        <div class="zone zone--designs">
+          <p class="zone__label">Design wählen</p>
+          <div class="design-strip" id="design-strip" aria-label="Design-Auswahl"></div>
+        </div>
+
+        <div class="zone zone--controls control-col" id="zone-controls">
+          <p class="zone__label">Freischaltung</p>
+          <div class="phase-badge" id="phase-badge">Lädt</div>
+          <h2 class="phase-title" id="phase-title">Payday Decks</h2>
+          <div class="pattern-pills" id="pattern-pills">
+            <span class="pattern-pill pattern-pill--camo" id="pill-camo">Camo</span>
+            <span class="pattern-pill pattern-pill--linear" id="pill-linear" style="display:none">Linear</span>
+          </div>
+          <p class="phase-hint" id="phase-hint">Alle Designs werden kurz vorgestellt…</p>
+          <p class="click-progress" id="click-progress">3× Wischen zum Freischalten</p>
+          <div class="round-dots" id="swipe-dots">
+            <div class="round-dot" id="dot-swipe-1" title="Schritt 1"></div>
+            <div class="round-dot" id="dot-swipe-2" title="Schritt 2"></div>
+            <div class="round-dot" id="dot-swipe-3" title="Schritt 3"></div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="configurator__shop" id="shop-section">
+        <header class="shop-header">
+          <h2>Verfügbare Decks</h2>
+          <p id="shop-subtitle">50 Decks · 6 Designs · 8.38″ &amp; 8.5″</p>
+        </header>
+        <div class="filter-bar" id="filter-size"></div>
+        <div class="filter-bar" id="filter-design"></div>
+        <div class="deck-grid" id="deck-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="dev-vitals-wrap" id="dev-vitals-wrap" aria-hidden="true">
+    <div class="dev-vitals" id="dev-vitals"></div>
+    <div class="config-log dev-vitals">
+      <h3>Letzte Konfigurationen (Session)</h3>
+      <div id="session-config-log"></div>
+    </div>
+  </div>
+
+  <div class="shopify-connect" id="shopify-connect" aria-hidden="true"></div>
+
+  <div class="cart-panel" id="cart-panel" aria-hidden="true">
+    <div class="cart-panel__head">
+      <span id="cart-panel-title">Warenkorb</span>
+      <button type="button" class="cart-panel__close" id="cart-close" aria-label="Warenkorb schließen">×</button>
+    </div>
+    <ul class="cart-panel__lines" id="cart-lines"></ul>
+    <div class="cart-panel__foot">
+      <div class="cart-panel__info" id="cart-info">Kein Deck im Warenkorb</div>
+      <div class="cart-panel__actions">
+        <button class="cart-collapse-btn" id="cart-collapse" type="button" aria-label="Warenkorb einklappen">Hochklappen</button>
+        <button class="checkout-btn" id="checkout-btn" type="button">Zur Kasse</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="deck-inventory.js"></script>
+  <script src="deck-renderer.js"></script>
+  <script src="config.js"></script>
+  <script src="config.local.js" onerror="void 0"></script>
+  <script src="deck-reservations.js?v=20260405-base-stock"></script>
+  <script src="session-config-log.js?v=20260405b"></script>
+  <script src="dev-vitals.js?v=20260405"></script>
+  <script src="shopify-connect.js?v=20260303-id-only"></script>
+  <script src="shopify-storefront-catalog.js?v=20260404-catalog"></script>
+  <script src="shopify-checkout.js?v=20260404-harden"></script>
+  <script>
+    (function hardenPaydayCheckoutUrls() {
+      const SH = window.PAYDAY_SHOPIFY_CHECKOUT;
+      if (!SH) return;
+      const fix =
+        SH.sanitizeCheckoutUrl?.bind(SH) ||
+        function (u) {
+          return String(u || '')
+            .replace(/([?&])checkout=(?=&|$)/g, '$1checkout')
+            .replace(/checkout=&/g, 'checkout&');
+        };
+      const wrapReturn = SH.withCheckoutReturn?.bind(SH);
+      if (wrapReturn) {
+        SH.withCheckoutReturn = (raw, cfg) => fix(wrapReturn(raw, cfg));
+      }
+      const build = SH.buildCartCheckout.bind(SH);
+      SH.buildCartCheckout = (cfg, items) => {
+        const r = build(cfg, items);
+        if (r?.url) r.url = fix(wrapReturn ? wrapReturn(r.url, cfg) : r.url);
+        return r;
+      };
+    })();
+  </script>
+  <script>
+    const INV = window.PAYDAY_DECK_INVENTORY;
+    const R = window.PaydayDeckRenderer;
+    const previewCanvas = document.getElementById('preview-canvas');
+    const previewFrame = document.getElementById('preview-frame');
+    const assetLoader = document.getElementById('asset-loader');
+    const assetLoaderName = document.getElementById('asset-loader-name');
+    const assetLoaderSub = document.getElementById('asset-loader-sub');
+
+    const DEV_MODE = new URLSearchParams(location.search).get('dev') === '1';
+    if (DEV_MODE) {
+      document.body.classList.add('dev-mode');
+      document.getElementById('shopify-connect-open').hidden = false;
+      document.getElementById('shopify-status').hidden = false;
+      const dv = document.getElementById('dev-vitals-wrap');
+      if (dv) dv.removeAttribute('aria-hidden');
+      window.PAYDAY_DEV_VITALS?.init?.();
+    }
+
+    function appendDevQuery(url) {
+      if (!DEV_MODE) return url;
+      try {
+        const u = new URL(url, location.href);
+        u.searchParams.set('dev', '1');
+        return u.pathname + u.search;
+      } catch {
+        return url;
+      }
+    }
+    const navCfg = document.getElementById('nav-configurator');
+    if (navCfg) navCfg.href = appendDevQuery(navCfg.getAttribute('href') || '../decks/editor.html');
+
+    function logShopConfig(reason) {
+      const d = currentDesign?.();
+      const size = INV.SIZES?.[state.sizeIndex];
+      window.PAYDAY_CONFIG_LOG?.push({
+        source: 'shop',
+        label: reason,
+        design: d ? d.name || d.id : null,
+        size: size ? size.label || size.id : null,
+        cart: state.cart.map((c) => c.id).join(', ') || 'leer',
+      });
+      if (DEV_MODE) window.PAYDAY_CONFIG_LOG?.renderList('session-config-log');
+    }
+
+    const state = {
+      phase: 'loading',
+      designIndex: 0,
+      sizeIndex: 0,
+      unlocked: false,
+      cart: [],
+      stock: INV.cloneStock(),
+      shopifyPrices: {},
+      shopifyCompareAt: {},
+      storefrontLive: false,
+      storefrontSyncAt: null,
+      storefrontPrefetchDone: false,
+      reservationAvailability: null,
+      baseStock: null,
+      reservationsActive: false,
+      filterDesign: null,
+      filterSize: null,
+      visitedDesigns: new Set(),
+      rendererReady: false,
+      swipeCount: 0,
+      introRunning: false,
+    };
+
+    const SWIPE_MIN = 40;
+    const TAP_MAX_MOVE = 14;
+    const INTRO_DURATION_MS = 1000;
+    const SWIPES_REQUIRED = 3;
+    const INTRO_PROGRESS_SHARE = 25;
+    let pointerStartX = 0;
+    let pointerStartY = 0;
+    let pointerActive = false;
+    let pointerTargetEl = null;
+    let suppressTapUntil = 0;
+    let loadTickerTimer = null;
+
+    function navVerb() {
+      return 'Wischen / Tippen / Weiter';
+    }
+
+    function boardArtifactQueue() {
+      const names = [];
+      INV.DESIGNS.forEach((d) => {
+        const meta = INV.getBoardMeta(d);
+        if (meta?.source) names.push(meta.source);
+      });
+      R.ILLUSTRATIONS.forEach((ill) => names.push(ill.name));
+      names.push('payday_logo_aligned');
+      return names;
+    }
+
+    function setLoaderName(name, sub) {
+      if (!assetLoaderName) return;
+      assetLoaderName.textContent = name;
+      if (sub && assetLoaderSub) assetLoaderSub.textContent = sub;
+    }
+
+    function showAssetLoader(show) {
+      assetLoader?.classList.toggle('is-hidden', !show);
+      previewFrame?.classList.toggle('is-interactive', !show && !state.unlocked);
+    }
+
+    function startLoadTicker() {
+      const queue = boardArtifactQueue();
+      let i = 0;
+      setLoaderName(queue[0] || 'payday_CHROME', 'Artefakte werden geladen…');
+      loadTickerTimer = setInterval(() => {
+        i = (i + 1) % queue.length;
+        setLoaderName(queue[i], 'Board-Archiv · ' + (i + 1) + '/' + queue.length);
+      }, 420);
+    }
+
+    function stopLoadTicker() {
+      if (loadTickerTimer) clearInterval(loadTickerTimer);
+      loadTickerTimer = null;
+    }
+
+    function preloadBoardThumbs(onName) {
+      const tasks = INV.DESIGNS.map((design) => () => new Promise((resolve) => {
+        const meta = INV.getBoardMeta(design);
+        onName(meta.source);
+        const img = new Image();
+        img.onload = img.onerror = () => resolve();
+        img.src = INV.thumbUrl(design);
+      }));
+      return tasks.reduce((p, task) => p.then(task), Promise.resolve());
+    }
+
+    function currentDesign() { return INV.DESIGNS[state.designIndex]; }
+    function currentSize() { return INV.SIZES[state.sizeIndex]; }
+
+    function reservationsEnabled() {
+      return Boolean(window.PAYDAY_RESERVATIONS?.isEnabled?.());
+    }
+
+    function applyReservationAvailability(detail) {
+      const availability =
+        detail && detail.availability && typeof detail.availability === 'object'
+          ? detail.availability
+          : detail;
+      if (!availability || typeof availability !== 'object') return;
+      state.reservationAvailability = { ...availability };
+      if (detail?.baseStock && typeof detail.baseStock === 'object') {
+        state.baseStock = { ...detail.baseStock };
+        Object.keys(state.baseStock).forEach((sku) => {
+          state.stock[sku] = state.baseStock[sku];
+        });
+        rebuildCatalogFromState();
+      }
+      state.reservationsActive = true;
+    }
+
+    function displayBaseStock(skuId, item) {
+      if (state.baseStock && skuId in state.baseStock) return Math.max(0, Number(state.baseStock[skuId]) || 0);
+      const fromItem = item?.stock ?? state.stock[skuId];
+      return Math.max(0, Number(fromItem) || 0);
+    }
+
+    function formatAvailabilityLabel(avail, base) {
+      if (avail <= 0) return 'Ausverkauft';
+      const denom = Math.max(base, avail);
+      if (denom <= 0) return `${avail} verfügbar`;
+      return `${avail} von ${denom} verfügbar`;
+    }
+
+    function availableStock(skuId) {
+      if (state.reservationsActive && state.reservationAvailability && skuId in state.reservationAvailability) {
+        return Math.max(0, state.reservationAvailability[skuId]);
+      }
+      const reserved = state.cart.filter(i => i.id === skuId).length;
+      return Math.max(0, (state.stock[skuId] ?? 0) - reserved);
+    }
+
+    async function syncReservationsForCart(cart) {
+      const PR = window.PAYDAY_RESERVATIONS;
+      if (!PR?.isEnabled?.()) return { ok: true, disabled: true };
+      return PR.syncCart(cart || []);
+    }
+
+    async function initReservations() {
+      const PR = window.PAYDAY_RESERVATIONS;
+      if (!PR?.isEnabled?.()) return;
+      try {
+        if (state.cart.length) {
+          const sync = await PR.syncCart(state.cart);
+          if (sync.ok && sync.availability) {
+            applyReservationAvailability({ availability: sync.availability, baseStock: sync.baseStock });
+          } else if (!sync.ok) {
+            state.cart = [];
+            persistCart();
+          }
+        } else {
+          const res = await PR.fetchAvailability();
+          if (res.ok && res.availability) {
+            applyReservationAvailability({ availability: res.availability, baseStock: res.baseStock });
+          }
+        }
+        PR.startHeartbeat(() => state.cart);
+      } catch (err) {
+        console.warn('[reservations]', err);
+      }
+    }
+
+    function updateStockLabels() {
+      const total = state.reservationsActive && state.reservationAvailability
+        ? Object.values(state.reservationAvailability).reduce((s, n) => s + (Number(n) || 0), 0)
+        : INV.totalStock(state.stock);
+      const live = state.storefrontLive ? ' · Shopify live' : '';
+      const text = `${total} verfügbar${live}`;
+      document.getElementById('nav-stock').textContent = text;
+      document.getElementById('hero-stock').textContent = `${total} Decks · 8.38″ & 8.5″${live}`;
+    }
+
+    function formatItemPrice(item) {
+      const SF = window.PAYDAY_STOREFRONT_CATALOG;
+      const p = item.price;
+      if (SF?.formatEuro) return SF.formatEuro(p) + ' inkl. Griptape';
+      return p + ',00 € inkl. Griptape';
+    }
+
+    function rebuildCatalogFromState() {
+      catalog = INV.buildCatalog(state.stock).map((item) => ({
+        ...item,
+        price: state.shopifyPrices[item.id] ?? item.price,
+        compareAtPrice: state.shopifyCompareAt[item.id] ?? null,
+        stock: state.stock[item.id] ?? item.stock,
+      }));
+    }
+
+    function applyStorefrontItems(result) {
+      const items = result?.items || {};
+      let applied = 0;
+      Object.entries(items).forEach(([sku, row]) => {
+        if (!row?.ok) return;
+        state.stock[sku] = row.quantity;
+        if (row.price != null) state.shopifyPrices[sku] = row.price;
+        if (row.compareAtPrice != null) state.shopifyCompareAt[sku] = row.compareAtPrice;
+        applied += 1;
+      });
+      state.storefrontLive = applied > 0 && result?.ok;
+      state.storefrontSyncAt = state.storefrontLive ? new Date() : null;
+      rebuildCatalogFromState();
+      return applied;
+    }
+
+    async function refreshStorefrontCatalog(options) {
+      const SF = window.PAYDAY_STOREFRONT_CATALOG;
+      if (!SF?.fetchDeckCatalog) return { ok: false, reason: 'no_module' };
+      try {
+        const result = await SF.fetchDeckCatalog({ force: Boolean(options?.force) });
+        const n = applyStorefrontItems(result);
+        if (state.unlocked) {
+          updateStockLabels();
+          const sub = document.getElementById('shop-subtitle');
+          if (sub) {
+            sub.textContent =
+              INV.totalStock(state.stock) +
+              ' Decks · Alle ' +
+              INV.DESIGNS.length +
+              ' Designs · 8.38″ & 8.5″' +
+              (state.storefrontLive ? ' · Preise/Bestand von Shopify' : '');
+          }
+          renderShopGrid();
+        }
+        return { ok: result.ok, count: n, source: result.source };
+      } catch (err) {
+        console.warn('[storefront-catalog]', err);
+        return { ok: false, reason: String(err.message || err) };
+      }
+    }
+
+    function prefetchStorefrontCatalog() {
+      if (state.storefrontPrefetchDone) return;
+      state.storefrontPrefetchDone = true;
+      refreshStorefrontCatalog({ silent: true });
+    }
+
+    function startStorefrontPolling() {
+      if (state.storefrontPollTimer) return;
+      state.storefrontPollTimer = setInterval(() => {
+        if (state.unlocked && document.visibilityState === 'visible') {
+          refreshStorefrontCatalog({ force: true });
+        }
+      }, 5 * 60 * 1000);
+      document.addEventListener('visibilitychange', () => {
+        if (state.unlocked && document.visibilityState === 'visible') {
+          refreshStorefrontCatalog({ force: true });
+        }
+      });
+    }
+
+    function renderCanvasPreview() {
+      const design = currentDesign();
+      if (!state.rendererReady) return;
+      R.renderFromDesign(previewCanvas, design);
+      previewFrame.classList.remove('generating');
+      void previewFrame.offsetWidth;
+      previewFrame.classList.add('generating');
+    }
+
+    function updateDesignStrip() {
+      const strip = document.getElementById('design-strip');
+      strip.innerHTML = '';
+      INV.DESIGNS.forEach((d, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const isUnlocked = state.unlocked || state.visitedDesigns.has(d.id);
+        btn.className = 'design-strip__item'
+          + (i === state.designIndex ? ' active' : '')
+          + (isUnlocked ? ' visited' : '');
+        btn.title = d.name;
+        btn.disabled = !state.unlocked && !isUnlocked;
+        const img = document.createElement('img');
+        img.src = INV.thumbUrl(d);
+        img.alt = d.name;
+        img.loading = 'lazy';
+        btn.appendChild(img);
+        btn.addEventListener('click', () => {
+          if (!state.unlocked) return;
+          selectDesignByIndex(i);
+        });
+        strip.appendChild(btn);
+      });
+    }
+
+    function updatePatternPills() {
+      const design = currentDesign();
+      const camoPill = document.getElementById('pill-camo');
+      const linearPill = document.getElementById('pill-linear');
+      if (design.camoStyle === 'linear') {
+        camoPill.style.display = 'none';
+        linearPill.style.display = 'inline-block';
+      } else {
+        camoPill.style.display = 'inline-block';
+        linearPill.style.display = 'none';
+      }
+    }
+
+    function selectDesignByIndex(index) {
+      state.designIndex = index;
+      if (state.unlocked) logShopConfig('Design gewählt');
+      renderCanvasPreview();
+      updateDesignStrip();
+      updatePatternPills();
+      if (state.unlocked) renderShopGrid();
+    }
+
+    function selectDesignById(designId) {
+      const idx = INV.DESIGNS.findIndex((d) => d.id === designId);
+      if (idx >= 0) selectDesignByIndex(idx);
+    }
+
+    function shiftDesign(delta) {
+      const n = INV.DESIGNS.length;
+      state.designIndex = (state.designIndex + delta + n) % n;
+      state.visitedDesigns.add(currentDesign().id);
+      renderCanvasPreview();
+      updateDesignStrip();
+    }
+
+    function flashSwipe(dir, fast) {
+      previewFrame.classList.remove('preview-frame--swipe-left', 'preview-frame--swipe-right', 'preview-frame--intro-swipe');
+      void previewFrame.offsetWidth;
+      if (fast) {
+        previewFrame.classList.add('preview-frame--intro-swipe');
+      } else {
+        previewFrame.classList.add(dir < 0 ? 'preview-frame--swipe-left' : 'preview-frame--swipe-right');
+      }
+    }
+
+    function setProgressBar(percent, introMode) {
+      const fill = document.getElementById('unlock-progress-fill');
+      fill.style.width = Math.min(100, Math.max(0, percent)) + '%';
+      fill.classList.toggle('unlock-progress__fill--intro', !!introMode);
+    }
+
+    function updateProgressLabel() {
+      const label = document.getElementById('unlock-progress-label');
+      if (state.phase === 'loading') {
+        label.innerHTML = 'Generator lädt…';
+        return;
+      }
+      if (state.phase === 'intro') {
+        label.innerHTML = 'Vorschau · <span>alle ' + INV.DESIGNS.length + ' Designs</span>';
+        return;
+      }
+      if (state.phase === 'swipe') {
+        const left = SWIPES_REQUIRED - state.swipeCount;
+        label.innerHTML = 'Noch <span>' + left + '× ' + navVerb().toLowerCase() + '</span> bis Shop';
+        return;
+      }
+      label.innerHTML = '<span>Shop freigeschaltet</span>';
+    }
+
+    function progressPercent() {
+      if (state.phase === 'loading') return 0;
+      if (state.phase === 'intro') return INTRO_PROGRESS_SHARE;
+      if (state.phase === 'swipe') {
+        const swipeShare = (100 - INTRO_PROGRESS_SHARE) / SWIPES_REQUIRED;
+        return INTRO_PROGRESS_SHARE + state.swipeCount * swipeShare;
+      }
+      return 100;
+    }
+
+    function updateSwipeDots() {
+      for (let i = 1; i <= SWIPES_REQUIRED; i++) {
+        const dot = document.getElementById('dot-swipe-' + i);
+        if (!dot) continue;
+        const done = state.swipeCount >= i;
+        const active = state.phase === 'swipe' && state.swipeCount === i - 1;
+        dot.className = 'round-dot' + (done ? ' done' : '') + (active ? ' active' : '');
+      }
+    }
+
+    function runIntroAnimation() {
+      state.phase = 'intro';
+      state.introRunning = true;
+      state.designIndex = 0;
+      const n = INV.DESIGNS.length;
+      const start = performance.now();
+      let lastIdx = -1;
+
+      function tick(now) {
+        if (!state.introRunning) return;
+        const elapsed = now - start;
+        const t = Math.min(elapsed / INTRO_DURATION_MS, 1);
+        const idx = Math.min(Math.floor(t * n), n - 1);
+
+        setProgressBar(t * INTRO_PROGRESS_SHARE, true);
+        updateProgressLabel();
+
+        if (idx !== lastIdx) {
+          lastIdx = idx;
+          state.designIndex = idx;
+          state.visitedDesigns.add(INV.DESIGNS[idx].id);
+          renderCanvasPreview();
+          flashSwipe(-1, true);
+          updateDesignStrip();
+        }
+
+        if (t < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          state.introRunning = false;
+          state.phase = 'swipe';
+          state.swipeCount = 0;
+          setProgressBar(INTRO_PROGRESS_SHARE, false);
+          prefetchStorefrontCatalog();
+          updateUI();
+        }
+      }
+
+      updateUI();
+      requestAnimationFrame(tick);
+      // Fallback falls rAF nach Navigation (z. B. von shop/) stockt
+      setTimeout(() => {
+        if (!state.introRunning || state.phase !== 'intro') return;
+        state.introRunning = false;
+        state.phase = 'swipe';
+        state.swipeCount = 0;
+        setProgressBar(INTRO_PROGRESS_SHARE, false);
+        prefetchStorefrontCatalog();
+        updateUI();
+      }, INTRO_DURATION_MS + 400);
+    }
+
+    function skipIntroToSwipe() {
+      if (!state.introRunning && state.phase !== 'intro') return;
+      state.introRunning = false;
+      state.phase = 'swipe';
+      state.swipeCount = 0;
+      setProgressBar(INTRO_PROGRESS_SHARE, false);
+      prefetchStorefrontCatalog();
+      updateUI();
+    }
+
+    function registerUnlockStep(direction) {
+      const dx = direction < 0 ? -80 : 80;
+      shiftDesign(dx < 0 ? 1 : -1);
+      flashSwipe(dx, false);
+      state.swipeCount += 1;
+      setProgressBar(progressPercent(), false);
+      updateProgressLabel();
+      updateSwipeDots();
+      const prog = document.getElementById('click-progress');
+      const left = SWIPES_REQUIRED - state.swipeCount;
+      prog.textContent = left > 0 ? left + '× ' + navVerb() + ' bis Shop' : 'Shop wird freigeschaltet…';
+      if (state.swipeCount >= SWIPES_REQUIRED) {
+        setTimeout(unlockShop, 180);
+      } else {
+        updateUI();
+      }
+    }
+
+    function handleUnlockAdvance(direction) {
+      if (state.phase === 'loading') return;
+      if (state.unlocked) {
+        shiftDesign(direction > 0 ? -1 : 1);
+        flashSwipe(direction > 0 ? 80 : -80, false);
+        updateUI();
+        return;
+      }
+      if (state.introRunning || state.phase === 'intro') {
+        skipIntroToSwipe();
+        return;
+      }
+      if (state.phase === 'swipe') {
+        registerUnlockStep(direction);
+      }
+    }
+
+    function handleNavStep(direction) {
+      handleUnlockAdvance(direction);
+    }
+
+    function handleSwipe(dx) {
+      if (state.phase === 'loading') return;
+      if (state.unlocked) {
+        shiftDesign(dx < 0 ? 1 : -1);
+        flashSwipe(dx, false);
+        updateUI();
+        return;
+      }
+      if (state.introRunning || state.phase === 'intro') {
+        skipIntroToSwipe();
+        return;
+      }
+      if (state.phase !== 'swipe') return;
+      registerUnlockStep(dx < 0 ? 1 : -1);
+    }
+
+    function updateUI() {
+      const design = currentDesign();
+      const prog = document.getElementById('click-progress');
+      const badge = document.getElementById('phase-badge');
+      const title = document.getElementById('phase-title');
+      const hint = document.getElementById('phase-hint');
+
+      const navActive = state.phase === 'swipe' || state.phase === 'intro' || state.unlocked;
+      const sidebar = document.querySelector('.configurator__sidebar');
+      if (sidebar) sidebar.classList.toggle('configurator__sidebar--swipeable', navActive && !state.unlocked);
+
+      const designNav = document.getElementById('design-nav');
+      designNav.classList.toggle('is-hidden', state.phase === 'loading');
+      previewFrame?.classList.toggle('is-interactive', state.phase !== 'loading' && !state.unlocked);
+      document.getElementById('zone-progress').classList.toggle('is-done', state.unlocked);
+      document.getElementById('zone-controls').classList.toggle('is-hidden', state.unlocked);
+
+      if (state.phase === 'loading') {
+        badge.textContent = 'Lädt';
+        title.textContent = 'Payday Decks';
+        hint.textContent = 'Generator wird vorbereitet…';
+        prog.textContent = 'Bitte kurz warten';
+      } else if (state.phase === 'intro') {
+        badge.textContent = 'Vorschau';
+        title.textContent = 'Alle Designs';
+        hint.textContent = '1 Sekunde — alle ' + INV.DESIGNS.length + ' Boards im Schnelldurchlauf.';
+        prog.textContent = 'Vorschau läuft…';
+      } else if (state.phase === 'swipe') {
+        const left = SWIPES_REQUIRED - state.swipeCount;
+        badge.textContent = 'Schritt ' + (state.swipeCount + 1) + ' von ' + SWIPES_REQUIRED;
+        title.textContent = design.name;
+        hint.textContent = left + '× bis Shop — Wischen, Tippen aufs Deck oder „Weiter“.';
+        prog.textContent = left + '× ' + navVerb() + ' bis Shop';
+      } else {
+        badge.textContent = 'Shop offen';
+        title.textContent = 'Verfügbare Decks';
+        hint.textContent = design.name + ' · Größe im Shop wählen';
+        prog.textContent = 'Shop offen';
+      }
+
+      const navHint = document.getElementById('preview-nav-hint');
+      if (state.unlocked || state.phase === 'loading') {
+        navHint.hidden = true;
+      } else if (state.phase === 'intro') {
+        navHint.hidden = false;
+        navHint.textContent = 'Tippen / Weiter überspringt die Vorschau';
+      } else if (state.phase === 'swipe') {
+        navHint.hidden = false;
+        navHint.textContent = '← Wischen · Tippen · Weiter →';
+      } else {
+        navHint.hidden = true;
+      }
+
+      setProgressBar(progressPercent(), state.introRunning);
+      updateProgressLabel();
+      updateSwipeDots();
+      const dotsWrap = document.getElementById('swipe-dots');
+      if (dotsWrap) dotsWrap.style.visibility = state.phase === 'swipe' ? 'visible' : 'hidden';
+      updatePatternPills();
+      updateDesignStrip();
+      if (!state.introRunning) renderCanvasPreview();
+    }
+
+    function unlockAllDesigns() {
+      INV.DESIGNS.forEach((d) => state.visitedDesigns.add(d.id));
+    }
+
+    function resetShopFilters() {
+      state.filterDesign = null;
+      state.filterSize = null;
+    }
+
+    function unlockShop() {
+      state.introRunning = false;
+      state.phase = 'shop';
+      state.unlocked = true;
+      setProgressBar(100, false);
+      updateProgressLabel();
+      unlockAllDesigns();
+      resetShopFilters();
+      document.getElementById('configurator').classList.add('is-unlocked');
+      document.getElementById('shop-section').classList.add('is-unlocked');
+      rebuildCatalogFromState();
+      document.getElementById('shop-subtitle').textContent =
+        INV.totalStock(state.stock) + ' Decks · Alle ' + INV.DESIGNS.length + ' Designs · 8.38″ & 8.5″';
+      buildFilters();
+      renderShopGrid();
+      updateUI();
+      refreshStorefrontCatalog({ force: true });
+      startStorefrontPolling();
+      window.PAYDAY_RESERVATIONS?.startAvailabilityPolling?.({
+        isActive: () => state.unlocked,
+      });
+      logShopConfig('Shop freigeschaltet');
+    }
+
+    function isSwipeExcludedTarget(target) {
+      return target.closest('.design-strip')
+        || target.closest('button')
+        || target.closest('a');
+    }
+
+    function bindPreviewInteraction(el) {
+      el.addEventListener('pointerdown', (e) => {
+        if (state.phase === 'loading') return;
+        if (isSwipeExcludedTarget(e.target)) return;
+        pointerActive = true;
+        pointerTargetEl = el;
+        pointerStartX = e.clientX;
+        pointerStartY = e.clientY;
+      });
+      el.addEventListener('pointerup', (e) => {
+        if (!pointerActive || pointerTargetEl !== el) return;
+        pointerActive = false;
+        if (isSwipeExcludedTarget(e.target)) return;
+        const dx = e.clientX - pointerStartX;
+        const dy = e.clientY - pointerStartY;
+        if (Math.abs(dx) >= SWIPE_MIN && Math.abs(dx) > Math.abs(dy)) {
+          handleSwipe(dx);
+          suppressTapUntil = Date.now() + 300;
+          return;
+        }
+        if (Math.abs(dx) <= TAP_MAX_MOVE && Math.abs(dy) <= TAP_MAX_MOVE && Date.now() > suppressTapUntil) {
+          handleUnlockAdvance(1);
+        }
+      });
+      el.addEventListener('pointercancel', () => {
+        pointerActive = false;
+        pointerTargetEl = null;
+      });
+    }
+
+    bindPreviewInteraction(document.querySelector('.configurator__sidebar'));
+    bindPreviewInteraction(previewFrame);
+    document.getElementById('nav-prev').addEventListener('click', () => handleNavStep(-1));
+    document.getElementById('nav-next').addEventListener('click', () => handleNavStep(1));
+    document.addEventListener('keydown', (e) => {
+      if (state.unlocked || state.phase === 'loading') return;
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        handleUnlockAdvance(1);
+      }
+      if (e.key === 'ArrowLeft') handleUnlockAdvance(-1);
+    });
+
+    let catalog = [];
+
+    function buildFilters() {
+      const sizeBar = document.getElementById('filter-size');
+      const designBar = document.getElementById('filter-design');
+      sizeBar.innerHTML = '<button class="filter-chip' + (!state.filterSize ? ' active' : '') + '" data-size="all">Alle Größen</button>';
+      INV.SIZES.forEach(s => {
+        const btn = document.createElement('button');
+        const isPick = state.filterSize === s.id;
+        btn.className = 'filter-chip' + (isPick ? ' active' : '');
+        btn.dataset.size = s.id;
+        btn.textContent = s.label;
+        sizeBar.appendChild(btn);
+      });
+      designBar.innerHTML = '<button class="filter-chip' + (!state.filterDesign ? ' active' : '') + '" data-design="all">Alle Designs</button>';
+      INV.DESIGNS.forEach(d => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-chip' + (state.filterDesign === d.id ? ' active' : '');
+        btn.dataset.design = d.id;
+        btn.textContent = d.name;
+        designBar.appendChild(btn);
+      });
+    }
+
+    document.getElementById('shop-section').addEventListener('click', e => {
+      const chip = e.target.closest('.filter-chip');
+      if (!chip) return;
+      if (chip.dataset.size !== undefined) {
+        state.filterSize = chip.dataset.size === 'all' ? null : chip.dataset.size;
+        buildFilters();
+        renderShopGrid();
+      } else if (chip.dataset.design !== undefined) {
+        state.filterDesign = chip.dataset.design === 'all' ? null : chip.dataset.design;
+        buildFilters();
+        renderShopGrid();
+      }
+    });
+
+    function renderShopGrid() {
+      const grid = document.getElementById('deck-grid');
+      grid.innerHTML = '';
+      catalog.filter(item => {
+        if (state.filterSize && item.sizeId !== state.filterSize) return false;
+        if (state.filterDesign && item.designId !== state.filterDesign) return false;
+        return true;
+      }).forEach(item => {
+        const avail = availableStock(item.id);
+        const design = INV.getDesignById(item.designId);
+        const card = document.createElement('article');
+        card.className = 'deck-card' + (avail === 0 ? ' sold-out' : '');
+        if (item.designId === currentDesign().id) card.classList.add('selected');
+
+        const pattern = document.createElement('div');
+        pattern.className = 'deck-card__pattern';
+        pattern.textContent = design.patternLabel;
+
+        const img = document.createElement('img');
+        img.className = 'board-img board-img--thumb';
+        img.src = item.thumbUrl;
+        img.alt = item.title;
+        img.loading = 'lazy';
+
+        const title = document.createElement('div');
+        title.className = 'deck-card__title';
+        title.textContent = item.title;
+
+        const sizeEl = document.createElement('div');
+        sizeEl.className = 'deck-card__size';
+        sizeEl.textContent = item.sizeLabel;
+
+        const stockEl = document.createElement('div');
+        stockEl.className = 'deck-card__stock' + (avail <= 2 ? ' low' : '') + (avail === 0 ? ' out' : '');
+        stockEl.textContent = formatAvailabilityLabel(avail, displayBaseStock(item.id, item));
+
+        const price = document.createElement('div');
+        price.className = 'deck-card__price';
+        if (item.compareAtPrice && item.price && item.compareAtPrice > item.price) {
+          const was = document.createElement('span');
+          was.className = 'deck-card__price-was';
+          was.textContent = window.PAYDAY_STOREFRONT_CATALOG?.formatEuro(item.compareAtPrice) || item.compareAtPrice + ' €';
+          price.appendChild(was);
+          price.appendChild(document.createTextNode(formatItemPrice(item)));
+        } else {
+          price.textContent = formatItemPrice(item);
+        }
+
+        const addBtn = document.createElement('button');
+        addBtn.className = 'deck-card__add';
+        addBtn.type = 'button';
+        addBtn.textContent = avail === 0 ? 'Nicht verfügbar' : 'In den Warenkorb';
+        addBtn.disabled = avail === 0;
+        addBtn.addEventListener('click', e => { e.stopPropagation(); if (availableStock(item.id) > 0) addToCart(item); });
+
+        card.addEventListener('click', () => selectDesignById(item.designId));
+        card.appendChild(pattern);
+        card.appendChild(img);
+        card.appendChild(title);
+        card.appendChild(sizeEl);
+        card.appendChild(stockEl);
+        card.appendChild(price);
+        card.appendChild(addBtn);
+        grid.appendChild(card);
+      });
+    }
+
+    async function addToCart(item) {
+      if (availableStock(item.id) <= 0) return;
+      const nextCart = state.cart.concat([{ ...item }]);
+      const sync = await syncReservationsForCart(nextCart);
+      if (!sync.ok && !sync.disabled) {
+        if (sync.availability) applyReservationAvailability(sync.availability);
+        renderShopGrid();
+        alert(
+          sync.reason === 'insufficient'
+            ? 'Gerade nicht mehr verfügbar (andere Session oder Reservierung abgelaufen).'
+            : sync.reason === 'rate_limited'
+              ? 'Zu viele Anfragen — bitte ' +
+                (sync.retryAfterSeconds ? sync.retryAfterSeconds + ' Sek. ' : '') +
+                'warten und erneut versuchen.'
+              : 'Reservierung fehlgeschlagen — bitte erneut versuchen.'
+        );
+        return;
+      }
+      if (sync.availability) applyReservationAvailability(sync.availability);
+      state.cart = nextCart;
+      updateCart(true);
+      renderShopGrid();
+      window.PAYDAY_RESERVATIONS?.startHeartbeat?.(() => state.cart);
+      logShopConfig('In den Warenkorb');
+    }
+
+    async function removeFromCart(index) {
+      if (index < 0 || index >= state.cart.length) return;
+      const nextCart = state.cart.slice();
+      nextCart.splice(index, 1);
+      const sync = await syncReservationsForCart(nextCart);
+      if (!sync.ok && !sync.disabled) {
+        if (sync.availability) applyReservationAvailability(sync.availability);
+        return;
+      }
+      if (sync.availability) applyReservationAvailability(sync.availability);
+      state.cart = nextCart;
+      updateCart(true);
+      renderShopGrid();
+      if (!state.cart.length) window.PAYDAY_RESERVATIONS?.stopHeartbeat?.();
+    }
+
+    function clearCart() {
+      state.cart = [];
+      try {
+        localStorage.setItem('payday_deck_cart', '[]');
+      } catch {
+        /* ignore */
+      }
+      window.PAYDAY_RESERVATIONS?.releaseCart?.().then((res) => {
+        if (res?.availability) applyReservationAvailability(res.availability);
+      });
+      window.PAYDAY_RESERVATIONS?.stopHeartbeat?.();
+      updateCart(false);
+      renderShopGrid();
+    }
+
+    function persistCart() {
+      try {
+        localStorage.setItem('payday_deck_cart', JSON.stringify(state.cart));
+      } catch {
+        /* ignore */
+      }
+    }
+
+    function loadCartFromStorage() {
+      try {
+        const raw = localStorage.getItem('payday_deck_cart');
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return;
+        state.cart = parsed.filter((e) => e && e.id);
+      } catch {
+        state.cart = [];
+      }
+    }
+
+    function renderCartLines() {
+      const list = document.getElementById('cart-lines');
+      if (!list) return;
+      list.innerHTML = '';
+      state.cart.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'cart-line';
+        const main = document.createElement('div');
+        const t = document.createElement('div');
+        t.className = 'cart-line__title';
+        t.textContent = item.title + ' · ' + item.sizeLabel;
+        const m = document.createElement('div');
+        m.className = 'cart-line__meta';
+        m.textContent = item.id;
+        main.appendChild(t);
+        main.appendChild(m);
+        const price = document.createElement('div');
+        price.className = 'cart-line__price';
+        price.textContent =
+          window.PAYDAY_STOREFRONT_CATALOG?.formatEuro(item.price) || item.price + ',00 €';
+        const rm = document.createElement('button');
+        rm.type = 'button';
+        rm.className = 'cart-line__remove';
+        rm.textContent = 'Entfernen';
+        rm.addEventListener('click', () => removeFromCart(index));
+        li.appendChild(main);
+        li.appendChild(price);
+        li.appendChild(rm);
+        list.appendChild(li);
+      });
+    }
+
+    function setCartPanelOpen(expanded) {
+      const panel = document.getElementById('cart-panel');
+      if (!panel) return;
+      if (state.cart.length === 0) {
+        panel.classList.remove('visible', 'expanded');
+        panel.setAttribute('aria-hidden', 'true');
+        return;
+      }
+      panel.classList.add('visible');
+      panel.setAttribute('aria-hidden', 'false');
+      if (expanded) panel.classList.add('expanded');
+      else panel.classList.remove('expanded');
+    }
+
+    function updateCart(expandPanel) {
+      const n = state.cart.length;
+      document.getElementById('cart-toggle').textContent = 'Warenkorb (' + n + ')';
+      document.getElementById('cart-panel-title').textContent = 'Warenkorb (' + n + ')';
+      const info = document.getElementById('cart-info');
+      const checkoutBtn = document.getElementById('checkout-btn');
+      renderCartLines();
+      if (n === 0) {
+        info.textContent = 'Kein Deck im Warenkorb';
+        if (checkoutBtn) checkoutBtn.disabled = true;
+        setCartPanelOpen(false);
+        persistCart();
+        return;
+      }
+      if (checkoutBtn) checkoutBtn.disabled = false;
+      const total = state.cart.reduce((s, i) => s + i.price, 0);
+      info.innerHTML = 'Summe: <strong>' + total + ',00 €</strong> · ' + n + ' Position' + (n > 1 ? 'en' : '');
+      persistCart();
+      const panel = document.getElementById('cart-panel');
+      const stayExpanded = Boolean(expandPanel) || Boolean(panel?.classList.contains('expanded'));
+      setCartPanelOpen(stayExpanded);
+    }
+
+    document.getElementById('checkout-btn').addEventListener('click', async () => {
+      const items = state.cart.slice();
+      if (!items.length) return;
+      const btn = document.getElementById('checkout-btn');
+      if (btn) btn.disabled = true;
+      try {
+        const result = await window.PAYDAY_SHOPIFY_CHECKOUT.goToCheckout(items);
+        if (result?.ok) clearCart();
+        else if (btn) btn.disabled = state.cart.length === 0;
+      } catch (err) {
+        console.error('[deck-shop] checkout', err);
+        if (btn) btn.disabled = state.cart.length === 0;
+      }
+    });
+
+    window.addEventListener('payday-checkout-started', () => {
+      clearCart();
+    });
+
+    window.addEventListener('payday-reservation-updated', (ev) => {
+      applyReservationAvailability({
+        availability: ev.detail?.availability,
+        baseStock: ev.detail?.baseStock,
+      });
+      if (state.unlocked) renderShopGrid();
+    });
+
+    window.addEventListener('pageshow', () => {
+      try {
+        if (!sessionStorage.getItem('payday_checkout_pending')) return;
+        sessionStorage.removeItem('payday_checkout_pending');
+        clearCart();
+      } catch {
+        /* ignore */
+      }
+    });
+
+    function renderShopifyStatus() {
+      const el = document.getElementById('shopify-status');
+      const SH = window.PAYDAY_SHOPIFY_CHECKOUT;
+      if (!el || !SH) return;
+      if (!DEV_MODE) {
+        el.textContent = '';
+        el.classList.remove('shopify-status--ready', 'shopify-status--locked');
+        return;
+      }
+      el.classList.remove('shopify-status--ready', 'shopify-status--locked');
+      const cfg = SH.getConfig ? SH.getConfig() : window.PAYDAY_SHOP || {};
+      el.textContent = SH.statusLine();
+      const mapped = Object.values(cfg.deckVariants || {}).filter((v) => v && v.variantId).length;
+      if (SH.isConfigured() && mapped > 0) {
+        el.classList.add('shopify-status--ready');
+      } else if (SH.isConfigured()) {
+        el.innerHTML = 'Domain gesetzt — <button type="button" id="shopify-status-sync" style="font:inherit;color:var(--accent);cursor:pointer;border:none;background:none;text-decoration:underline">Varianten laden</button> (Dev)';
+      } else {
+        el.innerHTML = 'Shopify: <button type="button" id="shopify-status-open" style="font:inherit;color:var(--purple);cursor:pointer;border:none;background:none;text-decoration:underline">Jetzt verbinden</button>';
+      }
+      document.getElementById('shopify-status-open')?.addEventListener('click', () => connectUI?.open());
+      document.getElementById('shopify-status-sync')?.addEventListener('click', () => connectUI?.open());
+
+      SH.shopLiveStatusLine?.(cfg).then((live) => {
+        if (!live || !el) return;
+        el.querySelector('#shopify-live-status')?.remove();
+        const extra = document.createElement('div');
+        extra.id = 'shopify-live-status';
+        extra.style.marginTop = '4px';
+        extra.style.fontSize = '9px';
+        if (live.locked) {
+          el.classList.add('shopify-status--locked');
+          extra.innerHTML =
+            '⚠ ' +
+            live.text +
+            ' — <a href="' +
+            live.adminUrl +
+            '" target="_blank" rel="noopener" style="color:var(--accent)">Passwortschutz in Shopify deaktivieren</a>';
+        } else {
+          extra.textContent = '✓ ' + live.text;
+        }
+        el.appendChild(extra);
+      });
+    }
+
+    const connectUI = window.PAYDAY_SHOPIFY_CONNECT?.mountConnectUI({
+      openOnLoad: DEV_MODE && location.hash === '#shopify-connect',
+    });
+    window.addEventListener('payday-shopify-updated', () => {
+      renderShopifyStatus();
+      if (state.unlocked) refreshStorefrontCatalog({ force: true });
+    });
+    renderShopifyStatus();
+
+    document.getElementById('cart-toggle').addEventListener('click', () => {
+      if (state.cart.length === 0) return;
+      const panel = document.getElementById('cart-panel');
+      setCartPanelOpen(!panel.classList.contains('expanded'));
+    });
+    function collapseCartPanel() {
+      setCartPanelOpen(false);
+    }
+    document.getElementById('cart-close')?.addEventListener('click', collapseCartPanel);
+    document.getElementById('cart-collapse')?.addEventListener('click', collapseCartPanel);
+
+    rebuildCatalogFromState();
+    loadCartFromStorage();
+    try {
+      if (sessionStorage.getItem('payday_checkout_pending')) {
+        sessionStorage.removeItem('payday_checkout_pending');
+        state.cart = [];
+      }
+    } catch {
+      /* ignore */
+    }
+
+    updateStockLabels();
+    updateCart(false);
+    initReservations();
+    if (DEV_MODE) window.PAYDAY_CONFIG_LOG?.renderList('session-config-log');
+
+    state.phase = 'loading';
+    showAssetLoader(true);
+    startLoadTicker();
+    updateUI();
+
+    const onAssetProgress = (ev) => {
+      const label = ev.label || ev.name || '…';
+      setLoaderName(label, ev.kind === 'illus' ? 'Illustration · ' + label : 'Generator · ' + label);
+    };
+
+    Promise.all([
+      R.loadAssets('../decks/', onAssetProgress),
+      preloadBoardThumbs((name) => setLoaderName(name, 'Board-JPEG · ' + name)),
+    ]).then(() => {
+      stopLoadTicker();
+      setLoaderName(INV.getBoardMeta(currentDesign()).source, 'Shop wird vorbereitet…');
+      state.rendererReady = true;
+      state.designIndex = 0;
+      state.visitedDesigns.clear();
+      state.visitedDesigns.add(currentDesign().id);
+      showAssetLoader(false);
+      runIntroAnimation();
+    }).catch(() => {
+      stopLoadTicker();
+      showAssetLoader(false);
+      state.rendererReady = false;
+      state.phase = 'swipe';
+      document.getElementById('phase-hint').textContent = 'Generator teilweise geladen — Shop trotzdem freischaltbar.';
+      updateUI();
+    });
+  </script>
+</body>
+</html>

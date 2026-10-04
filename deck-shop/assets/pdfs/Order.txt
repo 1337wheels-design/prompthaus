@@ -1,0 +1,12 @@
+File Name			- Total Number	- Subtotal + Size	-Subtotal + Size
+-------------------------------------------------------------------------------------------
+payday_CHROME.pdf		- 10 Total	- 5 x 8.38		- 5 x 8.5  
+payday_NEON.pdf			- 8 Total	- 4 x 8.38		- 4 x 8.5  
+payday_PAYDAY_Linear.pdf	- 8 Total	- 4 x 8.38		- 4 x 8.5	
+payday_ARCTIC.pdf		- 8 Total	- 4 x 8.38		- 4 x 8.5
+payday_NIGHT.pdf		- 8 Total	- 4 x 8.38		- 4 x 8.5
+payday_PAYDAY_Camo.pdf		- 8 Total	- 4 x 8.38		- 4 x 8.5
+
+				- 50 Total 	- 25 x 8.38	- 25 x 8.5
+
+

@@ -38,6 +38,18 @@ Projekt: `yoeehrdsrfwolzdtgmel` · Live-Shop: GitHub Pages Deck Shop · API: `re
 - 25 User, je **2×** sync (2 Stück) auf A-SKU
 - Erwartung: frühe 409, stärkere **Burst-Limits** (8/10s IP, 5/10s Session)
 
+### Szenario `empty` — Shop leerkaufen (1 IP)
+
+- Verteilt **alle** freien Einheiten (Baseline) round-robin auf 25 `drop-user-*` Sessions, **ein** paralleler `sync`-Wave
+- Für Ein-IP-Lauf: kurz `DECK_RATE_LIMIT_DISABLED=true` (Supabase Secret), danach wieder `false`
+- Erwartung: **25×200**, `after` alle SKUs **0** (Holds aktiv — Shop wirkt ausverkauft bis Release)
+
+```bash
+npm run test:drop-sim-25:cleanup
+node scripts/deck-drop-simulation-25.mjs --scenario=empty
+# Bestand zurück: --release-after oder test:drop-sim-25:cleanup
+```
+
 ---
 
 ## 3. Ablauf (koordiniert)

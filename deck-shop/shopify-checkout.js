@@ -197,6 +197,26 @@
     return { ok: true, url, mode: 'storefront' };
   }
 
+  function notifyCheckoutRedirect(cartItems) {
+    try {
+      sessionStorage.setItem('payday_checkout_pending', String(Date.now()));
+    } catch {
+      /* ignore */
+    }
+    try {
+      global.dispatchEvent(
+        new CustomEvent('payday-checkout-started', { detail: { cartItems: cartItems || [] } })
+      );
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function redirectToCheckout(url, cartItems) {
+    notifyCheckoutRedirect(cartItems);
+    window.location.href = url;
+  }
+
   async function goToCheckout(cartItems) {
     const cfg = getConfig();
 
@@ -207,7 +227,7 @@
     // Permalink (/cart/{variantId}:qty) → stabiler Checkout auf Live-Shops
     const permalink = buildCartCheckout(cfg, cartItems);
     if (permalink.ok && permalink.url) {
-      window.location.href = permalink.url;
+      redirectToCheckout(permalink.url, cartItems);
       return permalink;
     }
 
@@ -216,7 +236,7 @@
       try {
         const sf = await checkoutViaStorefront(cfg, cartItems);
         if (sf.ok && sf.url) {
-          window.location.href = sf.url;
+          redirectToCheckout(sf.url, cartItems);
           return sf;
         }
       } catch (err) {
@@ -229,7 +249,7 @@
     if (result.reason === 'missing_variants' && cartItems.length === 1) {
       const fallback = resolveProductUrl(cfg, cartItems[0]);
       if (fallback) {
-        window.location.href = fallback;
+        redirectToCheckout(fallback, cartItems);
         return { ok: true, url: fallback, fallback: true };
       }
     }

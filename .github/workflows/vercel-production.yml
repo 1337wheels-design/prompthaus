@@ -1,0 +1,33 @@
+# Production deploy → Vercel Projekt „payday“
+# Secret (eine Option): VERCEL_DEPLOY_HOOK_URL
+# Oder: VERCEL_TOKEN + VERCEL_ORG_ID + VERCEL_PROJECT_ID
+
+name: Deploy main to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-payday-main
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          CI: 'true'
+        run: node scripts/vercel-redeploy-payday.mjs

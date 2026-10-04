@@ -31,11 +31,19 @@ Das Vercel-Deployment ist **veraltet** oder **falsches Repo/Root**:
 | `/deck-shop/` | HTTP **200** |
 | `vercel.json` | im Deployment aktiv (Redirect `/` → `/deck-shop/`) |
 
-**Fix im Dashboard (Projekt `payday`, Team `1337wheels-design`):**
+**Automatisch (empfohlen) — Deploy Hook:**
 
-1. **Settings → Git** → Repository **`1337wheels-design/prompthaus`**, Production Branch **`main`**
-2. **Settings → General** → Root Directory **`.`**, Build Command **leer**, Output static
-3. **Deployments** → letztes Deployment → **Redeploy** (Production, **Use existing Build Cache: No**)
+1. Vercel → Projekt **payday** → **Settings → Git → Deploy Hooks** → Name `github-main`, Branch **`main`** → URL kopieren
+2. GitHub → **prompthaus → Settings → Secrets → Actions** → `VERCEL_DEPLOY_HOOK_URL` = Hook-URL
+3. Push auf `main` oder **Actions → Deploy main to Vercel → Run workflow**
+
+Alternativ Cloud-Agent-Secret `VERCEL_DEPLOY_HOOK_URL` + `npm run vercel:redeploy`
+
+**Manuell im Dashboard:**
+
+1. **Settings → Git** → **`1337wheels-design/prompthaus`**, Production Branch **`main`**
+2. **General** → Root **`.`**, Build leer
+3. **Redeploy** (Cache aus)
 
 ## Vercel-Projekt anlegen / verbinden
 

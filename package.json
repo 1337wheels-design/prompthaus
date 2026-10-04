@@ -18,6 +18,7 @@
     "test:go-live:vercel": "DECK_SHOP_URL=https://1337wheels-design-payday.vercel.app/deck-shop/ node scripts/deck-shop-go-live-check.mjs",
     "vercel:setup": "node scripts/vercel-setup.mjs",
     "vercel:deploy": "node scripts/vercel-setup.mjs --deploy",
+    "vercel:redeploy": "node scripts/vercel-redeploy-payday.mjs",
     "test:browser-check": "node scripts/deck-shop-browser-check.mjs",
     "test:drop-sim-25": "node scripts/deck-drop-simulation-25.mjs",
     "test:drop-sim-25:cleanup": "node scripts/deck-drop-simulation-25.mjs --cleanup-only",

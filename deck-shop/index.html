@@ -75,10 +75,60 @@
     .deck-card__add:hover { background: rgba(167, 139, 250, 0.12); }
     .deck-card__add:disabled { opacity: 0.35; cursor: not-allowed; }
     .board-img--thumb { width: 70px; margin: 0 auto 8px; max-height: 245px; display: block; object-fit: contain; }
-    .cart-panel { position: fixed; bottom: 0; left: 0; right: 0; z-index: 60; background: rgba(10, 8, 18, 0.96); border-top: 1px solid var(--border); padding: 12px 20px; display: none; align-items: center; justify-content: space-between; gap: 16px; }
+    .cart-panel {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
+      background: rgba(10, 8, 18, 0.98); border-top: 1px solid var(--border);
+      padding: 0; display: none; flex-direction: column; max-height: min(70vh, 520px);
+    }
     .cart-panel.visible { display: flex; }
-    .cart-panel__info { font-size: 10px; color: var(--text-muted); }
+    .cart-panel.visible:not(.expanded) .cart-panel__head,
+    .cart-panel.visible:not(.expanded) .cart-panel__lines { display: none; }
+    .cart-panel.visible:not(.expanded) {
+      max-height: none; flex-direction: row; align-items: center;
+      padding: 12px 20px; gap: 16px;
+    }
+    .cart-panel.visible:not(.expanded) .cart-panel__foot {
+      border-top: none; padding: 0; flex: 1; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+    }
+    .cart-panel.visible.expanded { display: flex; }
+    .cart-panel__head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid var(--border);
+      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--purple);
+    }
+    .cart-panel__close {
+      border: none; background: transparent; color: var(--text-muted); font-size: 20px;
+      line-height: 1; cursor: pointer; padding: 0 4px;
+    }
+    .cart-panel__lines {
+      list-style: none; margin: 0; padding: 8px 12px; overflow-y: auto; flex: 1;
+    }
+    .cart-line {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 8px 12px; align-items: center;
+      padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 10px;
+    }
+    .cart-line__title { color: var(--text); line-height: 1.35; }
+    .cart-line__meta { color: var(--text-muted); font-size: 9px; }
+    .cart-line__price { color: #d8b4fe; white-space: nowrap; }
+    .cart-line__remove {
+      border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+      font-family: inherit; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 6px 8px; cursor: pointer;
+    }
+    .cart-line__remove:hover { color: #fbbf24; border-color: rgba(251, 191, 36, 0.4); }
+    .cart-panel__foot {
+      padding: 10px 16px 14px; border-top: 1px solid var(--border);
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .cart-panel__info { font-size: 10px; color: var(--text-muted); flex: 1; min-width: 140px; }
     .cart-panel__info strong { color: var(--purple); }
+    .cart-panel__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .cart-clear-btn {
+      padding: 10px 14px; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+      border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+      cursor: pointer; font-family: inherit;
+    }
     .checkout-btn { padding: 10px 20px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--purple); background: rgba(167, 139, 250, 0.15); color: var(--purple); cursor: pointer; font-family: inherit; white-space: nowrap; }
     @media (max-width: 480px) { .deck-grid { grid-template-columns: repeat(2, 1fr); } }
     .shopify-status {
@@ -195,9 +245,19 @@
 
   <div class="shopify-connect" id="shopify-connect" aria-hidden="true"></div>
 
-  <div class="cart-panel" id="cart-panel">
-    <div class="cart-panel__info" id="cart-info">Kein Deck im Warenkorb</div>
-    <button class="checkout-btn" id="checkout-btn" type="button">Zur Kasse</button>
+  <div class="cart-panel" id="cart-panel" aria-hidden="true">
+    <div class="cart-panel__head">
+      <span id="cart-panel-title">Warenkorb</span>
+      <button type="button" class="cart-panel__close" id="cart-close" aria-label="Warenkorb schließen">×</button>
+    </div>
+    <ul class="cart-panel__lines" id="cart-lines"></ul>
+    <div class="cart-panel__foot">
+      <div class="cart-panel__info" id="cart-info">Kein Deck im Warenkorb</div>
+      <div class="cart-panel__actions">
+        <button class="cart-clear-btn" id="cart-clear" type="button">Leeren</button>
+        <button class="checkout-btn" id="checkout-btn" type="button">Zur Kasse</button>
+      </div>
+    </div>
   </div>
 
   <script src="deck-inventory.js"></script>
@@ -679,21 +739,112 @@
     function addToCart(item) {
       if (availableStock(item.id) <= 0) return;
       state.cart.push({ ...item });
-      updateCart();
+      updateCart(true);
       renderShopGrid();
     }
 
-    function updateCart() {
+    function removeFromCart(index) {
+      if (index < 0 || index >= state.cart.length) return;
+      state.cart.splice(index, 1);
+      updateCart(true);
+      renderShopGrid();
+    }
+
+    function clearCart() {
+      state.cart = [];
+      updateCart(false);
+      renderShopGrid();
+    }
+
+    function persistCart() {
+      try {
+        localStorage.setItem('payday_deck_cart', JSON.stringify(state.cart));
+      } catch {
+        /* ignore */
+      }
+    }
+
+    function loadCartFromStorage() {
+      try {
+        const raw = localStorage.getItem('payday_deck_cart');
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return;
+        state.cart = parsed.filter((e) => e && e.id);
+      } catch {
+        state.cart = [];
+      }
+    }
+
+    function renderCartLines() {
+      const list = document.getElementById('cart-lines');
+      if (!list) return;
+      list.innerHTML = '';
+      state.cart.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'cart-line';
+        const main = document.createElement('div');
+        const t = document.createElement('div');
+        t.className = 'cart-line__title';
+        t.textContent = item.title + ' · ' + item.sizeLabel;
+        const m = document.createElement('div');
+        m.className = 'cart-line__meta';
+        m.textContent = item.id;
+        main.appendChild(t);
+        main.appendChild(m);
+        const price = document.createElement('div');
+        price.className = 'cart-line__price';
+        price.textContent = item.price + ',00 €';
+        const rm = document.createElement('button');
+        rm.type = 'button';
+        rm.className = 'cart-line__remove';
+        rm.textContent = 'Entfernen';
+        rm.addEventListener('click', () => removeFromCart(index));
+        li.appendChild(main);
+        li.appendChild(price);
+        li.appendChild(rm);
+        list.appendChild(li);
+      });
+    }
+
+    function setCartPanelOpen(expanded) {
+      const panel = document.getElementById('cart-panel');
+      if (!panel) return;
+      if (state.cart.length === 0) {
+        panel.classList.remove('visible', 'expanded');
+        panel.setAttribute('aria-hidden', 'true');
+        return;
+      }
+      panel.classList.add('visible');
+      panel.setAttribute('aria-hidden', 'false');
+      if (expanded) panel.classList.add('expanded');
+      else panel.classList.remove('expanded');
+    }
+
+    function updateCart(expandPanel) {
       const n = state.cart.length;
       document.getElementById('cart-toggle').textContent = 'Warenkorb (' + n + ')';
-      const panel = document.getElementById('cart-panel');
+      document.getElementById('cart-panel-title').textContent = 'Warenkorb (' + n + ')';
       const info = document.getElementById('cart-info');
-      if (n === 0) { panel.classList.remove('visible'); return; }
-      panel.classList.add('visible');
-      const last = state.cart[n - 1];
+      const clearBtn = document.getElementById('cart-clear');
+      const checkoutBtn = document.getElementById('checkout-btn');
+      renderCartLines();
+      if (n === 0) {
+        info.textContent = 'Kein Deck im Warenkorb';
+        if (clearBtn) clearBtn.disabled = true;
+        if (checkoutBtn) checkoutBtn.disabled = true;
+        setCartPanelOpen(false);
+        persistCart();
+        return;
+      }
+      if (clearBtn) clearBtn.disabled = false;
+      if (checkoutBtn) checkoutBtn.disabled = false;
       const total = state.cart.reduce((s, i) => s + i.price, 0);
-      info.innerHTML = '<strong>' + n + '</strong> Deck' + (n > 1 ? 's' : '') + ' · zuletzt: ' + last.title + ' ' + last.sizeLabel + ' · <strong>' + total + ',00 €</strong>';
-      localStorage.setItem('payday_deck_cart', JSON.stringify(state.cart));
+      info.innerHTML = 'Summe: <strong>' + total + ',00 €</strong> · ' + n + ' Position' + (n > 1 ? 'en' : '');
+      persistCart();
+      const panel = document.getElementById('cart-panel');
+      const stayExpanded = Boolean(expandPanel) || Boolean(panel?.classList.contains('expanded'));
+      setCartPanelOpen(stayExpanded);
     }
 
     document.getElementById('checkout-btn').addEventListener('click', () => {
@@ -747,12 +898,20 @@
     renderShopifyStatus();
 
     document.getElementById('cart-toggle').addEventListener('click', () => {
-      document.getElementById('cart-panel').classList.toggle('visible');
+      if (state.cart.length === 0) return;
+      const panel = document.getElementById('cart-panel');
+      setCartPanelOpen(!panel.classList.contains('expanded'));
+    });
+    document.getElementById('cart-close')?.addEventListener('click', () => setCartPanelOpen(false));
+    document.getElementById('cart-clear')?.addEventListener('click', () => {
+      if (state.cart.length && confirm('Warenkorb wirklich leeren?')) clearCart();
     });
 
     catalog = INV.buildCatalog(state.stock);
+    loadCartFromStorage();
 
     updateStockLabels();
+    updateCart(false);
 
     R.loadAssets('../decks/').then(() => {
       state.rendererReady = true;

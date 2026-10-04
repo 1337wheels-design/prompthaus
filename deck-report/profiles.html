@@ -4,6 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
+  <script>
+    if (new URLSearchParams(location.search).get('dev') !== '1') {
+      location.replace('../deck-shop/');
+    }
+  </script>
   <title>Drop-Sim — 25 Profile &amp; Warenkörbe</title>
   <style>
     :root {

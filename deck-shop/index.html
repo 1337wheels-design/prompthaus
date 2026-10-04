@@ -150,6 +150,30 @@
     .shopify-connect-btn { font-size: 9px; letter-spacing: 0.12em; color: var(--accent); border: 1px solid rgba(232, 121, 249, 0.35); padding: 6px 10px; background: transparent; cursor: pointer; font-family: inherit; text-transform: uppercase; }
     body.dev-mode .nav__dev-only { display: inline-block; }
     body.dev-mode #shopify-status.nav__dev-only { display: block; }
+    body.dev-mode .dev-vitals-wrap { display: block; }
+    .dev-vitals-wrap { display: none; margin: 32px 20px 48px; max-width: 960px; margin-left: auto; margin-right: auto; }
+    .dev-vitals {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px;
+    }
+    .dev-vitals__head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .dev-vitals__head h2 { font-family: var(--font-display); font-size: 14px; color: var(--purple); letter-spacing: 0.08em; text-transform: uppercase; margin: 0; }
+    .dev-vitals__badge { font-size: 9px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 3px; }
+    .dev-vitals__badge--ok { color: #4ade80; }
+    .dev-vitals__badge--warn { color: #fbbf24; }
+    .dev-vitals__meta { font-size: 9px; color: var(--text-muted); margin: 0 0 10px; }
+    .dev-vitals__table { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 12px; }
+    .dev-vitals__table th, .dev-vitals__table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .dev-vitals__table th { color: var(--purple-dim); font-weight: normal; text-transform: uppercase; font-size: 8px; }
+    .dev-vitals__links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .dev-vitals__links a { font-size: 9px; color: var(--accent); }
+    .dev-vitals__refresh { font: inherit; font-size: 9px; padding: 4px 10px; cursor: pointer; background: transparent; border: 1px solid var(--border); color: var(--purple); margin-left: auto; }
+    .config-log { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .config-log h3 { font-size: 10px; color: var(--purple-dim); text-transform: uppercase; letter-spacing: 0.12em; margin: 0 0 8px; }
+    .config-log__list { margin: 0; padding-left: 16px; font-size: 10px; color: var(--text-muted); max-height: 160px; overflow-y: auto; }
+    .config-log__list time { color: var(--text-muted); margin-right: 6px; }
+    .config-log__sid, .config-log__empty { font-size: 9px; color: var(--text-muted); word-break: break-all; }
+    .nav__links .nav__dev-menu { display: none; }
+    body.dev-mode .nav__links .nav__dev-menu { display: inline; }
     .shopify-connect { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
     .shopify-connect.is-open { display: flex; }
     .shopify-connect__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.72); }
@@ -172,7 +196,8 @@
     <a href="index.html" class="nav__logo">Payday Decks</a>
     <div class="nav__links">
       <a href="index.html" class="active">Shop</a>
-      <a href="../decks/editor.html">Design Editor</a>
+      <a href="../decks/editor.html" id="nav-configurator">Deck-Konfigurator</a>
+      <a href="../?dev=1" class="nav__dev-menu">Dev</a>
     </div>
     <div class="nav__right">
       <span class="nav__stock" id="nav-stock">50 verfügbar</span>
@@ -254,6 +279,14 @@
     </div>
   </section>
 
+  <div class="dev-vitals-wrap" id="dev-vitals-wrap" aria-hidden="true">
+    <div class="dev-vitals" id="dev-vitals"></div>
+    <div class="config-log dev-vitals">
+      <h3>Letzte Konfigurationen (Session)</h3>
+      <div id="session-config-log"></div>
+    </div>
+  </div>
+
   <div class="shopify-connect" id="shopify-connect" aria-hidden="true"></div>
 
   <div class="cart-panel" id="cart-panel" aria-hidden="true">
@@ -276,6 +309,8 @@
   <script src="config.js"></script>
   <script src="config.local.js" onerror="void 0"></script>
   <script src="deck-reservations.js?v=20260404-stufe-a"></script>
+  <script src="session-config-log.js?v=20260405"></script>
+  <script src="dev-vitals.js?v=20260405"></script>
   <script src="shopify-connect.js?v=20260303-id-only"></script>
   <script src="shopify-storefront-catalog.js?v=20260404-catalog"></script>
   <script src="shopify-checkout.js?v=20260404-harden"></script>
@@ -316,6 +351,34 @@
       document.body.classList.add('dev-mode');
       document.getElementById('shopify-connect-open').hidden = false;
       document.getElementById('shopify-status').hidden = false;
+      const dv = document.getElementById('dev-vitals-wrap');
+      if (dv) dv.removeAttribute('aria-hidden');
+      window.PAYDAY_DEV_VITALS?.init?.();
+    }
+
+    function appendDevQuery(url) {
+      if (!DEV_MODE) return url;
+      try {
+        const u = new URL(url, location.href);
+        u.searchParams.set('dev', '1');
+        return u.pathname + u.search;
+      } catch {
+        return url;
+      }
+    }
+    const navCfg = document.getElementById('nav-configurator');
+    if (navCfg) navCfg.href = appendDevQuery(navCfg.getAttribute('href') || '../decks/editor.html');
+
+    function logShopConfig(reason) {
+      const d = currentDesign?.();
+      const size = INV.SIZES?.[state.sizeIndex];
+      window.PAYDAY_CONFIG_LOG?.push({
+        label: reason,
+        design: d ? d.name || d.id : null,
+        size: size ? size.label || size.id : null,
+        cart: state.cart.map((c) => c.id).join(', ') || 'leer',
+      });
+      if (DEV_MODE) window.PAYDAY_CONFIG_LOG?.renderList('session-config-log');
     }
 
     const state = {
@@ -587,6 +650,7 @@
 
     function selectDesignByIndex(index) {
       state.designIndex = index;
+      if (state.unlocked) logShopConfig('Design gewählt');
       renderCanvasPreview();
       updateDesignStrip();
       updatePatternPills();
@@ -870,6 +934,7 @@
       window.PAYDAY_RESERVATIONS?.startAvailabilityPolling?.({
         isActive: () => state.unlocked,
       });
+      logShopConfig('Shop freigeschaltet');
     }
 
     function isSwipeExcludedTarget(target) {
@@ -1049,6 +1114,7 @@
       updateCart(true);
       renderShopGrid();
       window.PAYDAY_RESERVATIONS?.startHeartbeat?.(() => state.cart);
+      logShopConfig('In den Warenkorb');
     }
 
     async function removeFromCart(index) {
@@ -1284,6 +1350,7 @@
     updateStockLabels();
     updateCart(false);
     initReservations();
+    if (DEV_MODE) window.PAYDAY_CONFIG_LOG?.renderList('session-config-log');
 
     state.phase = 'loading';
     showAssetLoader(true);

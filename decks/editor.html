@@ -190,6 +190,50 @@ body {
   .preset-btn { height:38px; }
   #mainCanvas { width:200px; height:700px; }
 }
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+  touch-action: none;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: rgba(141, 97, 166, 0.45);
+  border-radius: 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: #c4b5fd;
+  border: 1px solid #8d61a6;
+}
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: rgba(141, 97, 166, 0.45);
+  border-radius: 2px;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #c4b5fd;
+  border: 1px solid #8d61a6;
+}
+.slider-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.slider-val { font-size: 0.45rem; color: var(--aqua); min-width: 2.2em; text-align: right; }
+.config-history {
+  max-width: 700px; width: 100%; margin: 20px auto 0;
+  border: 1px solid var(--border); padding: 12px 14px; background: var(--panel);
+}
+.config-history h2 { font-size: 0.5rem; letter-spacing: 0.2em; color: var(--gold); margin-bottom: 8px; }
+.config-history ul { margin: 0; padding-left: 16px; font-size: 0.48rem; color: var(--dim); max-height: 120px; overflow-y: auto; }
 </style>
 </head>
 <body>
@@ -197,8 +241,13 @@ body {
 <header class="hd">
   <h1>DECK EDITOR</h1>
   <p class="sub">Paint your own — Üpark Payday 2026</p>
-  <a class="nav-link" href="index.html">← Back to Deck Viewer</a>
+  <a class="nav-link" id="nav-deck-shop" href="../deck-shop/">← Zum Deck Shop</a>
 </header>
+
+<div class="config-history" id="editor-config-history">
+  <h2>Letzte Konfigurationen (Session)</h2>
+  <div id="editor-config-log"></div>
+</div>
 
 <div class="workspace">
 
@@ -231,13 +280,15 @@ body {
         <div class="toggle-btn on" id="logoToggle" onclick="toggleLogo()"></div>
         <span class="toggle-label">PAYDAY</span>
       </div>
-      <div style="margin-top:5px;display:flex;align-items:center;gap:6px;">
+      <div class="slider-row" style="margin-top:5px;">
         <label style="font-size:0.5rem;color:#888;white-space:nowrap;">SIZE</label>
-        <input type="range" id="logoScaleSlider" min="30" max="120" value="85" style="flex:1;height:4px;accent-color:#8d61a6;cursor:pointer;">
+        <input type="range" id="logoScaleSlider" min="30" max="120" value="85" aria-valuemin="30" aria-valuemax="120" aria-valuenow="85">
+        <span class="slider-val" id="logoScaleVal">85</span>
       </div>
-      <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
+      <div class="slider-row" style="margin-top:6px;">
         <label style="font-size:0.5rem;color:#888;white-space:nowrap;">OPACITY</label>
-        <input type="range" id="logoOpacitySlider" min="0" max="100" value="100" style="flex:1;height:4px;accent-color:#8d61a6;cursor:pointer;">
+        <input type="range" id="logoOpacitySlider" min="0" max="100" value="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+        <span class="slider-val" id="logoOpacityVal">100</span>
       </div>
     </div>
 
@@ -259,6 +310,7 @@ body {
 
 </div><!-- /workspace -->
 
+<script src="../deck-shop/session-config-log.js"></script>
 <script>
 
 
@@ -349,6 +401,7 @@ function setBgStyle(s) {
   if (activeMode === 'camo') applyCamo(activeCamo);
   else if (activeMode === 'illustration') applyIllustration(activeIllustration);
   else if (activeMode === 'custom') applyCustom();
+  if (typeof scheduleEditorConfigLog === 'function') scheduleEditorConfigLog();
 }
 
 function redrawCamoThumbnails() {
@@ -1162,10 +1215,35 @@ function exportPDF() {
 // ═══════════════════════════════════════════════════════
 //  EVENT WIRING
 // ═══════════════════════════════════════════════════════
+function shopUrl() {
+  const u = new URL('../deck-shop/', location.href);
+  if (new URLSearchParams(location.search).get('dev') === '1') u.searchParams.set('dev', '1');
+  return u.pathname + u.search;
+}
+
+function editorConfigLabel() {
+  const mode = activeMode === 'illustration' ? `Illustration ${activeIllustration}` : activeMode === 'custom' ? 'Custom' : `Camo ${activeCamo}`;
+  return `${mode} · Logo ${Math.round(logoScale * 100)}% · Opacity ${Math.round(logoOpacity * 100)}%`;
+}
+
+let logEditorTimer = null;
+function scheduleEditorConfigLog() {
+  clearTimeout(logEditorTimer);
+  logEditorTimer = setTimeout(() => {
+    window.PAYDAY_CONFIG_LOG?.push({ label: 'Editor', design: editorConfigLabel(), size: camoStyle || 'blob', cart: '—' });
+    window.PAYDAY_CONFIG_LOG?.renderList('editor-config-log');
+  }, 400);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+  const navShop = document.getElementById('nav-deck-shop');
+  if (navShop) navShop.href = shopUrl();
+  window.PAYDAY_CONFIG_LOG?.renderList('editor-config-log');
+
   buildCamoPresets();
   buildIllustrationPresets();
   applyCamo(0);
+  scheduleEditorConfigLog();
 
   document.getElementById('importFileInput').addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -1212,13 +1290,44 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  document.getElementById('logoOpacitySlider').addEventListener('input', (e) => {
-    logoOpacity = e.target.value / 100;
+  const scaleEl = document.getElementById('logoScaleSlider');
+  const scaleVal = document.getElementById('logoScaleVal');
+  const opEl = document.getElementById('logoOpacitySlider');
+  const opVal = document.getElementById('logoOpacityVal');
+
+  function syncSliderUi() {
+    if (scaleEl && scaleVal) {
+      scaleVal.textContent = scaleEl.value;
+      scaleEl.setAttribute('aria-valuenow', scaleEl.value);
+    }
+    if (opEl && opVal) {
+      opVal.textContent = opEl.value;
+      opEl.setAttribute('aria-valuenow', opEl.value);
+    }
+  }
+  syncSliderUi();
+
+  opEl.addEventListener('input', (e) => {
+    logoOpacity = Number(e.target.value) / 100;
+    syncSliderUi();
+    redraw();
+    scheduleEditorConfigLog();
+  });
+  opEl.addEventListener('change', (e) => {
+    logoOpacity = Number(e.target.value) / 100;
+    syncSliderUi();
     redraw();
   });
 
-  document.getElementById('logoScaleSlider').addEventListener('input', (e) => {
-    logoScale = e.target.value / 100;
+  scaleEl.addEventListener('input', (e) => {
+    logoScale = Number(e.target.value) / 100;
+    syncSliderUi();
+    redraw();
+    scheduleEditorConfigLog();
+  });
+  scaleEl.addEventListener('change', (e) => {
+    logoScale = Number(e.target.value) / 100;
+    syncSliderUi();
     redraw();
   });
 });

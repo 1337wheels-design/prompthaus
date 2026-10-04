@@ -52,6 +52,22 @@ python3 scripts/shopify-setup.py sync-images --replace  # payday-asset:* neu set
 Upload bevorzugt **lokale JPGs** (Base64); falls eine Datei fehlt, wird die **GitHub-Pages-URL** aus `deck-media.json` als `src` verwendet. Bilder sind idempotent über Alt-Tag `payday-asset:{manifest}:preview|thumb`.
 
 Grafiken aus PDFs neu erzeugen: `python3 scripts/extract-board-assets.py` (benötigt PyMuPDF + Pillow).
+
+### Ohne API-Token: CSV-Import (Bulk Medien)
+
+Wenn Admin-Credentials in der Cloud noch fehlen, aber du im Browser eingeloggt bist:
+
+```bash
+python3 scripts/shopify-setup.py export-deck-images-csv
+```
+
+Erzeugt `shopify/import/deck-media-update.csv` (24 Zeilen: je Produkt preview + thumb von GitHub Pages).
+
+1. [Products → Import](https://admin.shopify.com/store/xwk1u9-6z/products/import)
+2. CSV hochladen → **bestehende Produkte anhand Handle aktualisieren**
+3. Nach Import: ein Produkt öffnen und Medien-Reihenfolge prüfen (1 = Preview, 2 = Thumb)
+
+Preise parallel per **Bulk edit** auf 59,00 € oder `sync-prices` mit API.
 ```
 
 ### Preise (GitHub vs. Shopify)

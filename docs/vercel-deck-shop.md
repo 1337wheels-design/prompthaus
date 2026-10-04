@@ -9,7 +9,39 @@
 
 Vercel deployt das **gesamte Repo** (static), damit `../decks/` für Editor und Assets funktioniert.
 
-## Vercel-Projekt
+## Wichtig: Vercel ≠ GitHub Pages
+
+| | GitHub Pages | Vercel |
+|---|--------------|--------|
+| **Branch** | `gh-pages` (manuell in Pages-Settings) | Standard beim Import: **`main`** (GitHub-Default) |
+| **Inhalt in diesem Repo** | Deck Shop, `vercel.json`, Supabase-Anbindung | Auf **`main`**: kein `deck-shop/`, kein `vercel.json` |
+| **Verknüpfung** | GitHub → Settings → Pages | Separates Vercel-Projekt + Git **oder** CLI/Action |
+
+Beim Anlegen eines Vercel-Projekts wird **nicht** die GitHub-Pages-Konfiguration übernommen. Ohne Anpassung deployt Vercel **`main`** — dann fehlt `/deck-shop/` (404) oder es läuft noch ein **anderes** Deployment auf derselben Domain.
+
+**Aktueller Befund `payday.vercel.app`:** Root liefert eine **React-SPA** (nicht der statische Deck Shop aus `gh-pages`). Das Projekt muss auf Repo **`1337wheels-design/prompthaus`** + Branch **`gh-pages`** umgestellt und neu deployed werden.
+
+## Projekt „payday“ existiert schon (Git nachträglich)
+
+1. [Vercel Dashboard](https://vercel.com) → Projekt **payday** → **Settings** → **Git**
+2. **Connect Git Repository** → `1337wheels-design/prompthaus` (falls noch nicht verbunden)
+3. **Settings** → **Environments** → **Production** → **Branch** auf **`gh-pages`** stellen (nicht `main`)
+4. **Settings** → **General** → **Root Directory** = `.` · Build Command leer
+5. **Deployments** → **Redeploy** (Production, Branch `gh-pages`)
+
+Direktlink (Team/Scope anpassen):  
+`https://vercel.com/<team>/payday/settings/git`
+
+### Alternative: GitHub Action (empfohlen bei hartnäckigem `main`)
+
+Workflow [`.github/workflows/vercel-gh-pages.yml`](../.github/workflows/vercel-gh-pages.yml) deployt bei jedem Push auf **`gh-pages`**, sobald diese Secrets gesetzt sind:
+
+- `VERCEL_TOKEN` — [Vercel → Account → Tokens](https://vercel.com/account/tokens)
+- `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` — nach `npm run vercel:setup` + `vercel link` in `.vercel/project.json`
+
+Ohne Secrets macht der Workflow **nichts** (exit 0, kein Fehler).
+
+## Vercel-Projekt (Neu-Anlage)
 
 **GitHub App (einmalig):**  
 https://github.com/apps/vercel/installations/new/permissions?target_id=262473948&target_type=User  

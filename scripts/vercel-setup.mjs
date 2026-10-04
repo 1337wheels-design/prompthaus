@@ -51,6 +51,16 @@ console.log(`
    curl -I ${SHOP_URL}
    npm run test:go-live:vercel
 
+--- Projekt „payday“ existiert schon / Git beim Erstellen nicht verbunden ---
+
+Vercel übernimmt NICHT die GitHub-Pages-Branch-Einstellung. Default ist main — Deck Shop liegt auf gh-pages.
+
+Dashboard: Projekt payday → Settings → Git → Repository verbinden
+         → Settings → Environments → Production → Branch: ${PRODUCTION_BRANCH}
+         → Deployments → Redeploy
+
+Oder GitHub Action: .github/workflows/vercel-gh-pages.yml + Secrets VERCEL_* (siehe docs/vercel-deck-shop.md)
+
 Doku: docs/vercel-deck-shop.md
 `);
 

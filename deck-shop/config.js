@@ -12,7 +12,11 @@
 window.PAYDAY_SHOP = {
   shopDomain: 'xwk1u9-6z.myshopify.com',
 
-  /** Optional: Storefront API für erweiterten Headless-Cart (Hydrogen) */
+  /**
+   * Storefront Public Token — für Live-Bestand/Preise (shopify-storefront-catalog.js).
+   * Headless-App → Storefront API. Öffentlich im Browser OK (kein Admin-shpat).
+   * Alternativ: ?dev=1 → Shopify-Modal oder config.local.js
+   */
   storefrontAccessToken: '',
 
   /**

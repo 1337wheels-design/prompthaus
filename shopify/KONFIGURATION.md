@@ -77,6 +77,16 @@ Import:
 4. Danach: `python3 scripts/shopify-setup.py sync-config` (neue Variant-IDs → `config.local.js`)
 
 Preise parallel per **Bulk edit** auf 59,00 € oder `sync-prices` mit API.
+
+### Live-Katalog im Deck Shop (Storefront, Shopify = SSOT)
+
+Nach Freischaltung lädt `shopify-storefront-catalog.js` **Preis, Compare-at, Bestand** pro Deck-SKU via Storefront GraphQL.
+
+1. **Storefront Access Token** in `deck-shop/config.js` oder `config.local.js` / `?dev=1` setzen  
+2. Produkte müssen im **Online Store** kanal sichtbar sein  
+3. Fallback ohne Token: lokales `INITIAL_STOCK` aus `deck-inventory.js`
+
+Aktualisierung: beim Shop-Unlock, alle 5 Min (Tab sichtbar), nach Tab-Wechsel, 90s Session-Cache.
 ```
 
 ### Preise (GitHub vs. Shopify)

@@ -67,6 +67,7 @@
     .deck-card__title { font-size: 9px; letter-spacing: 0.08em; color: var(--purple); text-transform: uppercase; margin-bottom: 2px; }
     .deck-card__size { font-size: 8px; color: var(--text-muted); margin-bottom: 4px; }
     .deck-card__price { font-size: 11px; line-height: 1.35; color: #d8b4fe; }
+    .deck-card__price-was { text-decoration: line-through; color: var(--text-muted); margin-right: 6px; font-size: 10px; }
     .deck-card__stock { font-size: 8px; letter-spacing: 0.1em; margin-top: 4px; color: var(--accent); }
     .deck-card__stock.low { color: #c084fc; }
     .deck-card__stock.out { color: #c04a4a; }
@@ -275,6 +276,7 @@
   <script src="config.js"></script>
   <script src="config.local.js" onerror="void 0"></script>
   <script src="shopify-connect.js?v=20260303-id-only"></script>
+  <script src="shopify-storefront-catalog.js?v=20260404-catalog"></script>
   <script src="shopify-checkout.js?v=20260404-stress"></script>
   <script>
     const INV = window.PAYDAY_DECK_INVENTORY;
@@ -299,6 +301,11 @@
       unlocked: false,
       cart: [],
       stock: INV.cloneStock(),
+      shopifyPrices: {},
+      shopifyCompareAt: {},
+      storefrontLive: false,
+      storefrontSyncAt: null,
+      storefrontPrefetchDone: false,
       filterDesign: null,
       filterSize: null,
       visitedDesigns: new Set(),
@@ -381,9 +388,88 @@
 
     function updateStockLabels() {
       const total = INV.totalStock(state.stock);
-      const text = `${total} verfügbar`;
+      const live = state.storefrontLive ? ' · Shopify live' : '';
+      const text = `${total} verfügbar${live}`;
       document.getElementById('nav-stock').textContent = text;
-      document.getElementById('hero-stock').textContent = `${total} Decks · 8.38″ & 8.5″`;
+      document.getElementById('hero-stock').textContent = `${total} Decks · 8.38″ & 8.5″${live}`;
+    }
+
+    function formatItemPrice(item) {
+      const SF = window.PAYDAY_STOREFRONT_CATALOG;
+      const p = item.price;
+      if (SF?.formatEuro) return SF.formatEuro(p) + ' inkl. Griptape';
+      return p + ',00 € inkl. Griptape';
+    }
+
+    function rebuildCatalogFromState() {
+      catalog = INV.buildCatalog(state.stock).map((item) => ({
+        ...item,
+        price: state.shopifyPrices[item.id] ?? item.price,
+        compareAtPrice: state.shopifyCompareAt[item.id] ?? null,
+        stock: state.stock[item.id] ?? item.stock,
+      }));
+    }
+
+    function applyStorefrontItems(result) {
+      const items = result?.items || {};
+      let applied = 0;
+      Object.entries(items).forEach(([sku, row]) => {
+        if (!row?.ok) return;
+        state.stock[sku] = row.quantity;
+        if (row.price != null) state.shopifyPrices[sku] = row.price;
+        if (row.compareAtPrice != null) state.shopifyCompareAt[sku] = row.compareAtPrice;
+        applied += 1;
+      });
+      state.storefrontLive = applied > 0 && result?.ok;
+      state.storefrontSyncAt = state.storefrontLive ? new Date() : null;
+      rebuildCatalogFromState();
+      return applied;
+    }
+
+    async function refreshStorefrontCatalog(options) {
+      const SF = window.PAYDAY_STOREFRONT_CATALOG;
+      if (!SF?.fetchDeckCatalog) return { ok: false, reason: 'no_module' };
+      try {
+        const result = await SF.fetchDeckCatalog({ force: Boolean(options?.force) });
+        const n = applyStorefrontItems(result);
+        if (state.unlocked) {
+          updateStockLabels();
+          const sub = document.getElementById('shop-subtitle');
+          if (sub) {
+            sub.textContent =
+              INV.totalStock(state.stock) +
+              ' Decks · Alle ' +
+              INV.DESIGNS.length +
+              ' Designs · 8.38″ & 8.5″' +
+              (state.storefrontLive ? ' · Preise/Bestand von Shopify' : '');
+          }
+          renderShopGrid();
+        }
+        return { ok: result.ok, count: n, source: result.source };
+      } catch (err) {
+        console.warn('[storefront-catalog]', err);
+        return { ok: false, reason: String(err.message || err) };
+      }
+    }
+
+    function prefetchStorefrontCatalog() {
+      if (state.storefrontPrefetchDone) return;
+      state.storefrontPrefetchDone = true;
+      refreshStorefrontCatalog({ silent: true });
+    }
+
+    function startStorefrontPolling() {
+      if (state.storefrontPollTimer) return;
+      state.storefrontPollTimer = setInterval(() => {
+        if (state.unlocked && document.visibilityState === 'visible') {
+          refreshStorefrontCatalog({ force: true });
+        }
+      }, 5 * 60 * 1000);
+      document.addEventListener('visibilitychange', () => {
+        if (state.unlocked && document.visibilityState === 'visible') {
+          refreshStorefrontCatalog({ force: true });
+        }
+      });
     }
 
     function renderCanvasPreview() {
@@ -541,6 +627,7 @@
           state.phase = 'swipe';
           state.swipeCount = 0;
           setProgressBar(INTRO_PROGRESS_SHARE, false);
+          prefetchStorefrontCatalog();
           updateUI();
         }
       }
@@ -554,6 +641,7 @@
         state.phase = 'swipe';
         state.swipeCount = 0;
         setProgressBar(INTRO_PROGRESS_SHARE, false);
+        prefetchStorefrontCatalog();
         updateUI();
       }, INTRO_DURATION_MS + 400);
     }
@@ -564,6 +652,7 @@
       state.phase = 'swipe';
       state.swipeCount = 0;
       setProgressBar(INTRO_PROGRESS_SHARE, false);
+      prefetchStorefrontCatalog();
       updateUI();
     }
 
@@ -704,11 +793,14 @@
       resetShopFilters();
       document.getElementById('configurator').classList.add('is-unlocked');
       document.getElementById('shop-section').classList.add('is-unlocked');
+      rebuildCatalogFromState();
       document.getElementById('shop-subtitle').textContent =
         INV.totalStock(state.stock) + ' Decks · Alle ' + INV.DESIGNS.length + ' Designs · 8.38″ & 8.5″';
       buildFilters();
       renderShopGrid();
       updateUI();
+      refreshStorefrontCatalog({ force: true });
+      startStorefrontPolling();
     }
 
     function isSwipeExcludedTarget(target) {
@@ -836,7 +928,15 @@
 
         const price = document.createElement('div');
         price.className = 'deck-card__price';
-        price.textContent = item.price + ',00 € inkl. Griptape';
+        if (item.compareAtPrice && item.price && item.compareAtPrice > item.price) {
+          const was = document.createElement('span');
+          was.className = 'deck-card__price-was';
+          was.textContent = window.PAYDAY_STOREFRONT_CATALOG?.formatEuro(item.compareAtPrice) || item.compareAtPrice + ' €';
+          price.appendChild(was);
+          price.appendChild(document.createTextNode(formatItemPrice(item)));
+        } else {
+          price.textContent = formatItemPrice(item);
+        }
 
         const addBtn = document.createElement('button');
         addBtn.className = 'deck-card__add';
@@ -1017,7 +1117,10 @@
     const connectUI = window.PAYDAY_SHOPIFY_CONNECT?.mountConnectUI({
       openOnLoad: DEV_MODE && location.hash === '#shopify-connect',
     });
-    window.addEventListener('payday-shopify-updated', renderShopifyStatus);
+    window.addEventListener('payday-shopify-updated', () => {
+      renderShopifyStatus();
+      if (state.unlocked) refreshStorefrontCatalog({ force: true });
+    });
     renderShopifyStatus();
 
     document.getElementById('cart-toggle').addEventListener('click', () => {
@@ -1031,7 +1134,7 @@
     document.getElementById('cart-close')?.addEventListener('click', collapseCartPanel);
     document.getElementById('cart-collapse')?.addEventListener('click', collapseCartPanel);
 
-    catalog = INV.buildCatalog(state.stock);
+    rebuildCatalogFromState();
     loadCartFromStorage();
 
     updateStockLabels();

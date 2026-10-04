@@ -1,3 +1,13 @@
 node_modules/
 .env
 deck-shop/config.local.js
+
+# Videos — nur Artefakte außerhalb des Repos (z. B. /opt/cursor/artifacts/)
+*.mp4
+*.webm
+*.mov
+*.avi
+*.mkv
+*.m4v
+*.mpeg
+*.mpg

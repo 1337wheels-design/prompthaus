@@ -25,7 +25,33 @@ Cloud Agent → **Environment** → Secrets / Variables:
 ```bash
 python3 scripts/shopify-setup.py status      # Verbindung prüfen
 python3 scripts/shopify-setup.py sync-prices # 59 € Deck-Preise aus CSV → Shopify
-python3 scripts/shopify-setup.py all         # Import + Preise + Variant-IDs
+python3 scripts/shopify-setup.py sync-images # thumb + preview je Deck (wie GitHub Deck Shop)
+python3 scripts/shopify-setup.py verify-deck-assets  # nur lokal: JPGs vorhanden?
+python3 scripts/shopify-setup.py all         # Import + Preise + Bilder + Variant-IDs
+```
+
+### Produktbilder (Decks)
+
+Im [Deck Shop](https://1337wheels-design.github.io/prompthaus/deck-shop/) nutzt jedes Design **zwei** Dateien unter `deck-shop/assets/boards/`:
+
+| Rolle | Datei | Shopify-Position |
+|-------|--------|------------------|
+| Produktansicht | `{manifest}-preview.jpg` | 1 (Featured) |
+| Grid-Thumbnail | `{manifest}-thumb.jpg` | 2 |
+
+Zuordnung SKU → Grafik (identisch zu `deck-inventory.js`): siehe `shopify/deck-media.json`.  
+8.38″ und 8.5″ teilen **dieselben** Bilder (nur Größen-Variante unterscheidet sich).
+
+```bash
+python3 scripts/shopify-setup.py verify-deck-assets   # 24 JPG-Referenzen lokal prüfen
+python3 scripts/shopify-setup.py sync-images          # fehlende Bilder in Admin hochladen
+python3 scripts/shopify-setup.py sync-images --dry-run
+python3 scripts/shopify-setup.py sync-images --replace  # payday-asset:* neu setzen
+```
+
+Upload bevorzugt **lokale JPGs** (Base64); falls eine Datei fehlt, wird die **GitHub-Pages-URL** aus `deck-media.json` als `src` verwendet. Bilder sind idempotent über Alt-Tag `payday-asset:{manifest}:preview|thumb`.
+
+Grafiken aus PDFs neu erzeugen: `python3 scripts/extract-board-assets.py` (benötigt PyMuPDF + Pillow).
 ```
 
 ### Preise (GitHub vs. Shopify)

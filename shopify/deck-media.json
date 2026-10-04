@@ -1,0 +1,41 @@
+{
+  "$schema": "Payday deck SKU → Board-Grafiken (wie deck-shop/deck-inventory.js)",
+  "assetsBase": "deck-shop/assets/",
+  "githubPagesAssetBase": "https://1337wheels-design.github.io/prompthaus/deck-shop/assets/",
+  "skuToManifestKey": {
+    "chrome-838": "payday_CHROME",
+    "chrome-850": "payday_CHROME",
+    "neon-838": "payday_NEON",
+    "neon-850": "payday_NEON",
+    "payday-linear-838": "payday_ARCTIC",
+    "payday-linear-850": "payday_ARCTIC",
+    "arctic-838": "payday_PAYDAY_Linear",
+    "arctic-850": "payday_PAYDAY_Linear",
+    "night-838": "payday_NIGHT",
+    "night-850": "payday_NIGHT",
+    "payday-camo-838": "payday_PAYDAY",
+    "payday-camo-850": "payday_PAYDAY"
+  },
+  "manifestLabels": {
+    "payday_CHROME": "CHROME",
+    "payday_NEON": "NEON",
+    "payday_ARCTIC": "PAYDAY Linear",
+    "payday_PAYDAY_Linear": "ARCTIC",
+    "payday_NIGHT": "NIGHT",
+    "payday_PAYDAY": "PAYDAY Camo"
+  },
+  "roles": [
+    {
+      "id": "preview",
+      "suffix": "-preview.jpg",
+      "position": 1,
+      "altSuffix": "— Produktansicht (wie Deck Shop)"
+    },
+    {
+      "id": "thumb",
+      "suffix": "-thumb.jpg",
+      "position": 2,
+      "altSuffix": "— Thumbnail (Grid)"
+    }
+  ]
+}

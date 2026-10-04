@@ -15,10 +15,13 @@ Aufruf:
   python3 scripts/shopify-setup.py import-products
   python3 scripts/shopify-setup.py sync-config
   python3 scripts/shopify-setup.py sync-prices   # Preise aus CSV → bestehende Varianten
+  python3 scripts/shopify-setup.py sync-images   # Deck thumb + preview → Shopify-Produkte
+  python3 scripts/shopify-setup.py verify-deck-assets  # Lokale JPGs vs. deck-media.json
   python3 scripts/shopify-setup.py all
 """
 from __future__ import annotations
 
+import base64
 import csv
 import json
 import os
@@ -30,7 +33,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CSV_PATH = ROOT / "shopify" / "products.csv"
+DECK_MEDIA_PATH = ROOT / "shopify" / "deck-media.json"
+BOARDS_DIR = ROOT / "deck-shop" / "assets" / "boards"
+ASSETS_DIR = ROOT / "deck-shop" / "assets"
 API_VERSION = "2024-10"
+ASSET_ALT_PREFIX = "payday-asset:"
 
 # deck-inventory SKU → Shopify handle (must match products.csv)
 DECK_SKU_HANDLE = {
@@ -55,6 +62,64 @@ PACK_HANDLES = [
     "triple-pack",
     "art-print-attitude",
 ]
+
+
+def load_deck_media() -> dict:
+    if not DECK_MEDIA_PATH.is_file():
+        sys.exit(f"Fehlt: {DECK_MEDIA_PATH}")
+    return json.loads(DECK_MEDIA_PATH.read_text(encoding="utf-8"))
+
+
+def manifest_key_for_sku(sku: str, media: dict | None = None) -> str:
+    media = media or load_deck_media()
+    mapping = media.get("skuToManifestKey") or {}
+    key = mapping.get(sku)
+    if not key:
+        raise KeyError(f"Kein Manifest für SKU {sku!r} in deck-media.json")
+    return str(key)
+
+
+def asset_alt(manifest_key: str, role_id: str) -> str:
+    return f"{ASSET_ALT_PREFIX}{manifest_key}:{role_id}"
+
+
+def github_pages_asset_url(relative_path: str, media: dict | None = None) -> str:
+    media = media or load_deck_media()
+    base = (env("PAYDAY_GITHUB_PAGES_ASSET_BASE") or media.get("githubPagesAssetBase") or "").strip()
+    if not base.endswith("/"):
+        base += "/"
+    rel = relative_path.lstrip("/")
+    if rel.startswith("boards/"):
+        return base + rel
+    return base + "boards/" + rel
+
+
+def deck_image_entries(manifest_key: str, media: dict | None = None) -> list[dict]:
+    """Preview + thumb wie im Deck Shop (Reihenfolge: Hero, dann Thumbnail)."""
+    media = media or load_deck_media()
+    labels = media.get("manifestLabels") or {}
+    label = labels.get(manifest_key, manifest_key)
+    roles = media.get("roles") or [
+        {"id": "preview", "suffix": "-preview.jpg", "position": 1, "altSuffix": "— Produktansicht"},
+        {"id": "thumb", "suffix": "-thumb.jpg", "position": 2, "altSuffix": "— Thumbnail"},
+    ]
+    entries = []
+    for role in roles:
+        filename = f"{manifest_key}{role['suffix']}"
+        rel = f"boards/{filename}"
+        entries.append(
+            {
+                "role": role["id"],
+                "filename": filename,
+                "relative": rel,
+                "local_path": ASSETS_DIR / rel,
+                "position": int(role.get("position") or 1),
+                "alt": f"Payday Deck {label} {role.get('altSuffix', '').strip()}".strip(),
+                "alt_key": asset_alt(manifest_key, role["id"]),
+                "src": github_pages_asset_url(rel, media),
+            }
+        )
+    return entries
 
 
 def env(name: str) -> str:
@@ -225,6 +290,143 @@ def update_variant_price(domain: str, token: str, handle: str, price: str) -> bo
     return True
 
 
+def list_product_images(domain: str, token: str, product_id: int) -> list:
+    data = admin_request(domain, token, "GET", f"/products/{product_id}/images.json")
+    return data.get("images") or []
+
+
+def delete_product_image(domain: str, token: str, product_id: int, image_id: int) -> None:
+    admin_request(domain, token, "DELETE", f"/products/{product_id}/images/{image_id}.json")
+
+
+def image_entry_present(existing: list, entry: dict) -> bool:
+    for img in existing:
+        alt = str(img.get("alt") or "")
+        if entry["alt_key"] == alt or entry["alt_key"] in alt:
+            return True
+        src = str(img.get("src") or "")
+        if entry["filename"] in src:
+            return True
+    return False
+
+
+def upload_product_image(
+    domain: str,
+    token: str,
+    product_id: int,
+    entry: dict,
+    *,
+    prefer_local: bool = True,
+) -> dict:
+    path: Path = entry["local_path"]
+    body: dict = {
+        "filename": entry["filename"],
+        "alt": f"{entry['alt']} [{entry['alt_key']}]",
+        "position": entry["position"],
+    }
+    if prefer_local and path.is_file():
+        body["attachment"] = base64.b64encode(path.read_bytes()).decode("ascii")
+    else:
+        body["src"] = entry["src"]
+    data = admin_request(
+        domain,
+        token,
+        "POST",
+        f"/products/{product_id}/images.json",
+        {"image": body},
+    )
+    return data["image"]
+
+
+def sync_images_for_handle(
+    domain: str,
+    token: str,
+    handle: str,
+    sku: str,
+    *,
+    replace: bool = False,
+    dry_run: bool = False,
+) -> tuple[int, int]:
+    media = load_deck_media()
+    manifest_key = manifest_key_for_sku(sku, media)
+    product = get_product_by_handle(domain, token, handle)
+    if not product:
+        print(f"  fehlt Produkt: {handle}")
+        return 0, 0
+    pid = int(product["id"])
+    planned = deck_image_entries(manifest_key, media)
+    existing = list_product_images(domain, token, pid)
+
+    added = 0
+    skipped = 0
+
+    if replace:
+        for img in existing:
+            alt = str(img.get("alt") or "")
+            src = str(img.get("src") or "")
+            tagged = ASSET_ALT_PREFIX in alt or any(p["filename"] in src for p in planned)
+            if tagged and not dry_run:
+                delete_product_image(domain, token, pid, int(img["id"]))
+
+    if replace and not dry_run:
+        existing = list_product_images(domain, token, pid)
+
+    for entry in planned:
+        if not entry["local_path"].is_file():
+            print(f"  WARN lokale Datei fehlt: {entry['local_path']} (fallback URL)")
+        if image_entry_present(existing, entry):
+            skipped += 1
+            continue
+        if dry_run:
+            print(f"  würde hochladen: {handle} ← {entry['filename']} (pos {entry['position']})")
+            added += 1
+            continue
+        upload_product_image(domain, token, pid, entry)
+        print(f"  + {handle}: {entry['filename']}")
+        added += 1
+
+    return added, skipped
+
+
+def cmd_sync_images(domain: str, token: str):
+    replace = "--replace" in sys.argv
+    dry_run = "--dry-run" in sys.argv
+    print("Deck-Bilder (preview + thumb) an Shopify-Produkte anbinden")
+    print(f"  Quelle: {BOARDS_DIR}")
+    if dry_run:
+        print("  Modus: dry-run (keine Uploads)")
+    if replace:
+        print("  Modus: --replace (bestehende payday-asset:* Bilder ersetzen)")
+
+    total_add = 0
+    total_skip = 0
+    for sku, handle in DECK_SKU_HANDLE.items():
+        a, s = sync_images_for_handle(
+            domain, token, handle, sku, replace=replace, dry_run=dry_run
+        )
+        total_add += a
+        total_skip += s
+    print(f"  fertig: {total_add} neu, {total_skip} bereits vorhanden ({len(DECK_SKU_HANDLE)} Produkte)")
+
+
+def cmd_verify_deck_assets():
+    media = load_deck_media()
+    print("Deck-Asset-Check (lokal, wie Deck Shop)")
+    missing = []
+    for sku, handle in DECK_SKU_HANDLE.items():
+        manifest_key = manifest_key_for_sku(sku, media)
+        for entry in deck_image_entries(manifest_key, media):
+            ok = entry["local_path"].is_file()
+            mark = "✓" if ok else "✗"
+            print(f"  {mark} {handle} → {entry['filename']}")
+            if not ok:
+                missing.append(str(entry["local_path"]))
+    if missing:
+        print(f"  FEHLER: {len(missing)} Dateien fehlen — ggf. scripts/extract-board-assets.py ausführen")
+        sys.exit(1)
+    print("  Alle 12×2 Bildreferenzen vorhanden (6 Designs × 2 Größen × 2 Dateien)")
+
+
 def cmd_sync_prices(domain: str, token: str):
     print("Preise aus CSV in Shopify aktualisieren (bestehende Produkte)")
     with CSV_PATH.open(newline="", encoding="utf-8") as f:
@@ -346,6 +548,9 @@ def main():
     if cmd == "status":
         cmd_status()
         return
+    if cmd == "verify-deck-assets":
+        cmd_verify_deck_assets()
+        return
     domain, token = require_env()
     if cmd == "import-products":
         cmd_import_products(domain, token)
@@ -354,9 +559,12 @@ def main():
         sys.exit(0 if ok else 2)
     elif cmd == "sync-prices":
         cmd_sync_prices(domain, token)
+    elif cmd == "sync-images":
+        cmd_sync_images(domain, token)
     elif cmd == "all":
         cmd_import_products(domain, token)
         cmd_sync_prices(domain, token)
+        cmd_sync_images(domain, token)
         ok = cmd_sync_config(domain, token)
         sys.exit(0 if ok else 2)
     else:

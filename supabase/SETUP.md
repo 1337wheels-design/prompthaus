@@ -37,17 +37,19 @@ npx supabase db push
 ```bash
 npx supabase secrets set DECK_RESERVE_TTL_SECONDS=300
 
-# Shop-Sync (optional):
-npx supabase secrets set SHOPIFY_SHOP_DOMAIN=xwk1u9-6z.myshopify.com
-npx supabase secrets set SHOPIFY_STOREFRONT_TOKEN=dein_storefront_public_token
-npx supabase secrets set DECK_SKU_HANDLE_MAP_JSON="$(cat deck-shop/deck-sku-handle-map.json)"
-npx supabase secrets set DECK_SYNC_CRON_SECRET=lange-zufallszeichenkette
-
 npx supabase functions deploy reservation-api --project-ref yoeehrdsrfwolzdtgmel
-npx supabase functions deploy shop-sync --project-ref yoeehrdsrfwolzdtgmel
+npm run supabase:deploy:shop-sync
 ```
 
-Kurz via npm-Scripts (Repo-Root): `npm run supabase:deploy:reservation`
+**Shop-Sync (Shopify-Inventar → Postgres):** ausführlich in **`supabase/SHOP-SYNC.md`**. Kurz:
+
+```bash
+export SHOPIFY_STOREFRONT_TOKEN='dein_public_storefront_token'
+node scripts/supabase-shop-sync-setup.mjs --generate-cron-secret --deploy
+node scripts/deck-shop-sync-smoke.mjs --sync   # nach DECK_SYNC_CRON_SECRET in .env
+```
+
+Kurz via npm: `npm run supabase:deploy:reservation` · `npm run supabase:deploy:shop-sync`
 
 **Reservierungs-URL für den Deck Shop:**
 

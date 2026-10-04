@@ -17,7 +17,10 @@
     "supabase:link": "supabase link --project-ref yoeehrdsrfwolzdtgmel",
     "supabase:db:push": "supabase db push",
     "supabase:deploy:reservation": "supabase functions deploy reservation-api --project-ref yoeehrdsrfwolzdtgmel",
-    "supabase:deploy:shop-sync": "supabase functions deploy shop-sync --project-ref yoeehrdsrfwolzdtgmel"
+    "supabase:deploy:shop-sync": "supabase functions deploy shop-sync --project-ref yoeehrdsrfwolzdtgmel",
+    "supabase:shop-sync:setup": "node scripts/supabase-shop-sync-setup.mjs --generate-cron-secret --deploy",
+    "test:shop-sync": "node scripts/deck-shop-sync-smoke.mjs",
+    "test:shop-sync:run": "node scripts/deck-shop-sync-smoke.mjs --sync"
   },
   "repository": {
     "type": "git",

@@ -5,15 +5,65 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
 const API_VERSION = '2024-10';
 
+function routePath(pathname: string): string {
+  if (pathname.endsWith('/health')) return '/health';
+  return '/sync';
+}
+
+function json(status: number, body: unknown) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+  });
+}
+
+function authorize(req: Request): Response | null {
+  const cronSecret = Deno.env.get('DECK_SYNC_CRON_SECRET');
+  const auth = req.headers.get('Authorization') ?? '';
+  if (cronSecret && auth !== `Bearer ${cronSecret}`) {
+    return json(401, { ok: false, reason: 'unauthorized' });
+  }
+  return null;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 204 });
   }
 
-  const cronSecret = Deno.env.get('DECK_SYNC_CRON_SECRET');
-  const auth = req.headers.get('Authorization') ?? '';
-  if (cronSecret && auth !== `Bearer ${cronSecret}`) {
-    return new Response(JSON.stringify({ ok: false, reason: 'unauthorized' }), { status: 401 });
+  const url = new URL(req.url);
+  const path = routePath(url.pathname);
+
+  if (req.method === 'GET' && path === '/health') {
+    const domain = Deno.env.get('SHOPIFY_SHOP_DOMAIN');
+    const token = Deno.env.get('SHOPIFY_STOREFRONT_TOKEN');
+    const mapRaw = Deno.env.get('DECK_SKU_HANDLE_MAP_JSON');
+    let mapKeys = 0;
+    try {
+      if (mapRaw) mapKeys = Object.keys(JSON.parse(mapRaw)).length;
+    } catch {
+      mapKeys = -1;
+    }
+    return json(200, {
+      ok: true,
+      function: 'shop-sync',
+      configured: Boolean(domain && token && mapRaw && mapKeys > 0),
+      checks: {
+        shopDomain: Boolean(domain),
+        storefrontToken: Boolean(token),
+        skuMap: mapKeys > 0,
+        skuMapInvalid: mapKeys === -1,
+        cronSecret: Boolean(Deno.env.get('DECK_SYNC_CRON_SECRET')),
+      },
+      skuCount: mapKeys > 0 ? mapKeys : 0,
+    });
+  }
+
+  const denied = authorize(req);
+  if (denied) return denied;
+
+  if (req.method !== 'POST' && req.method !== 'GET') {
+    return json(405, { ok: false, reason: 'method_not_allowed' });
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -23,7 +73,7 @@ Deno.serve(async (req) => {
   const mapRaw = Deno.env.get('DECK_SKU_HANDLE_MAP_JSON');
 
   if (!supabaseUrl || !serviceKey) {
-    return new Response(JSON.stringify({ ok: false, reason: 'misconfigured' }), { status: 500 });
+    return json(500, { ok: false, reason: 'misconfigured_supabase' });
   }
 
   const supabase = createClient(supabaseUrl, serviceKey, {
@@ -36,7 +86,7 @@ Deno.serve(async (req) => {
     .select('id')
     .single();
   if (runErr) {
-    return new Response(JSON.stringify({ ok: false, reason: runErr.message }), { status: 500 });
+    return json(500, { ok: false, reason: runErr.message });
   }
   const runId = runRow.id as string;
 
@@ -46,6 +96,7 @@ Deno.serve(async (req) => {
     }
     const handleMap = JSON.parse(mapRaw) as Record<string, string>;
     const snapshot: Record<string, number> = {};
+    const skipped: string[] = [];
 
     for (const [skuId, handle] of Object.entries(handleMap)) {
       const query = `query Q($h: String!) {
@@ -61,9 +112,10 @@ Deno.serve(async (req) => {
         },
         body: JSON.stringify({ query, variables: { h: handle } }),
       });
-      const json = await res.json();
-      const qty = json?.data?.product?.variants?.nodes?.[0]?.quantityAvailable;
+      const jsonBody = await res.json();
+      const qty = jsonBody?.data?.product?.variants?.nodes?.[0]?.quantityAvailable;
       if (typeof qty === 'number') snapshot[skuId] = qty;
+      else skipped.push(skuId);
     }
 
     const { data: applied, error: applyErr } = await supabase.rpc('deck_apply_stock_snapshot', {
@@ -76,12 +128,15 @@ Deno.serve(async (req) => {
       .update({
         status: 'ok',
         finished_at: new Date().toISOString(),
-        meta: { domain, applied, skuCount: Object.keys(snapshot).length },
+        meta: { domain, applied, skuCount: Object.keys(snapshot).length, skipped },
       })
       .eq('id', runId);
 
-    return new Response(JSON.stringify({ ok: true, applied }), {
-      headers: { 'Content-Type': 'application/json' },
+    return json(200, {
+      ok: true,
+      applied,
+      syncedSkus: Object.keys(snapshot).length,
+      skipped,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -93,6 +148,6 @@ Deno.serve(async (req) => {
         meta: { error: message },
       })
       .eq('id', runId);
-    return new Response(JSON.stringify({ ok: false, reason: message }), { status: 500 });
+    return json(500, { ok: false, reason: message });
   }
 });

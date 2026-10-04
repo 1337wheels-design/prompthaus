@@ -20,6 +20,7 @@
     "ops:status": "node scripts/deck-ops-status.mjs",
     "ops:status:json": "node scripts/deck-ops-status.mjs --json",
     "ops:report:build": "node scripts/deck-ops-report-build.mjs",
+    "ops:profiles:build": "node scripts/deck-drop-profiles-build.mjs",
     "playwright:install": "playwright install chromium && playwright install-deps chromium",
     "supabase:link": "supabase link --project-ref yoeehrdsrfwolzdtgmel",
     "supabase:db:push": "supabase db push",

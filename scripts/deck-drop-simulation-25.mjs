@@ -129,11 +129,14 @@ if (emptyMatrix) {
   console.log('Empty-shop wave:', { unitsToReserve: units, usersWithLines: emptyMatrix.filter((l) => l.length).length });
 }
 
+const cartMatrix =
+  scenario === 'empty'
+    ? linesForEmptyShop(baselineAfterCleanup.availability)
+    : sessionIds.map((_, i) => linesForUser(i, baselineAfterCleanup.availability));
+
 console.log(`T0 — ${USER_COUNT} parallel sync…`);
 const results = await Promise.all(
-  sessionIds.map((sid, i) =>
-    sync(sid, linesForUser(i, baselineAfterCleanup.availability))
-  )
+  sessionIds.map((sid, i) => sync(sid, cartMatrix[i] || []))
 );
 
 const after = await availability();
@@ -160,7 +163,10 @@ const summary = {
     max: Math.max(...results.map((r) => r.ms)),
     avg: Math.round(results.reduce((s, r) => s + r.ms, 0) / results.length),
   },
-  results,
+  results: results.map((r, i) => ({
+    ...r,
+    lines: cartMatrix[i] || [],
+  })),
 };
 
 writeFileSync(REPORT, JSON.stringify(summary, null, 2));

@@ -1,0 +1,604 @@
+{
+  "generatedAt": "2026-10-04T21:37:57.619Z",
+  "scenario": "empty",
+  "dropAt": "2026-10-04T20:56:07.335Z",
+  "distribution": "round-robin über alle freien Einheiten (1 Sync-Wave)",
+  "note": "Holds wurden danach per Release/TTL freigegeben — Zuordnung rekonstruiert aus Baseline + Algorithmus.",
+  "profiles": [
+    {
+      "id": 1,
+      "sessionId": "drop-user-01",
+      "displayName": "Mira K.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "neon-838",
+          "qty": 1,
+          "label": "Neon · 8.38″"
+        },
+        {
+          "skuId": "chrome-838",
+          "qty": 1,
+          "label": "Chrome · 8.38″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 665
+      }
+    },
+    {
+      "id": 2,
+      "sessionId": "drop-user-02",
+      "displayName": "Jonas W.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "neon-838",
+          "qty": 1,
+          "label": "Neon · 8.38″"
+        },
+        {
+          "skuId": "chrome-838",
+          "qty": 1,
+          "label": "Chrome · 8.38″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 345
+      }
+    },
+    {
+      "id": 3,
+      "sessionId": "drop-user-03",
+      "displayName": "Selin A.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "neon-838",
+          "qty": 1,
+          "label": "Neon · 8.38″"
+        },
+        {
+          "skuId": "chrome-838",
+          "qty": 1,
+          "label": "Chrome · 8.38″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 398
+      }
+    },
+    {
+      "id": 4,
+      "sessionId": "drop-user-04",
+      "displayName": "Tim R.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "neon-838",
+          "qty": 1,
+          "label": "Neon · 8.38″"
+        },
+        {
+          "skuId": "chrome-850",
+          "qty": 1,
+          "label": "Chrome · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 327
+      }
+    },
+    {
+      "id": 5,
+      "sessionId": "drop-user-05",
+      "displayName": "Lena H.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "neon-850",
+          "qty": 1,
+          "label": "Neon · 8.5″"
+        },
+        {
+          "skuId": "chrome-850",
+          "qty": 1,
+          "label": "Chrome · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 770
+      }
+    },
+    {
+      "id": 6,
+      "sessionId": "drop-user-06",
+      "displayName": "Felix B.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "neon-850",
+          "qty": 1,
+          "label": "Neon · 8.5″"
+        },
+        {
+          "skuId": "chrome-850",
+          "qty": 1,
+          "label": "Chrome · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 448
+      }
+    },
+    {
+      "id": 7,
+      "sessionId": "drop-user-07",
+      "displayName": "Zeynep Ö.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "neon-850",
+          "qty": 1,
+          "label": "Neon · 8.5″"
+        },
+        {
+          "skuId": "chrome-850",
+          "qty": 1,
+          "label": "Chrome · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 386
+      }
+    },
+    {
+      "id": 8,
+      "sessionId": "drop-user-08",
+      "displayName": "Noah S.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "neon-850",
+          "qty": 1,
+          "label": "Neon · 8.5″"
+        },
+        {
+          "skuId": "chrome-850",
+          "qty": 1,
+          "label": "Chrome · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 701
+      }
+    },
+    {
+      "id": 9,
+      "sessionId": "drop-user-09",
+      "displayName": "Emma L.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "night-838",
+          "qty": 1,
+          "label": "Night · 8.38″"
+        },
+        {
+          "skuId": "payday-camo-838",
+          "qty": 1,
+          "label": "Camo · 8.38″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 763
+      }
+    },
+    {
+      "id": 10,
+      "sessionId": "drop-user-10",
+      "displayName": "Luca M.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "night-838",
+          "qty": 1,
+          "label": "Night · 8.38″"
+        },
+        {
+          "skuId": "payday-camo-838",
+          "qty": 1,
+          "label": "Camo · 8.38″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 712
+      }
+    },
+    {
+      "id": 11,
+      "sessionId": "drop-user-11",
+      "displayName": "Aylin D.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "night-838",
+          "qty": 1,
+          "label": "Night · 8.38″"
+        },
+        {
+          "skuId": "payday-camo-838",
+          "qty": 1,
+          "label": "Camo · 8.38″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 389
+      }
+    },
+    {
+      "id": 12,
+      "sessionId": "drop-user-12",
+      "displayName": "Ben P.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "night-838",
+          "qty": 1,
+          "label": "Night · 8.38″"
+        },
+        {
+          "skuId": "payday-camo-838",
+          "qty": 1,
+          "label": "Camo · 8.38″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 357
+      }
+    },
+    {
+      "id": 13,
+      "sessionId": "drop-user-13",
+      "displayName": "Sofia T.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "night-850",
+          "qty": 1,
+          "label": "Night · 8.5″"
+        },
+        {
+          "skuId": "payday-camo-850",
+          "qty": 1,
+          "label": "Camo · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 732
+      }
+    },
+    {
+      "id": 14,
+      "sessionId": "drop-user-14",
+      "displayName": "Kaan Y.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "night-850",
+          "qty": 1,
+          "label": "Night · 8.5″"
+        },
+        {
+          "skuId": "payday-camo-850",
+          "qty": 1,
+          "label": "Camo · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 752
+      }
+    },
+    {
+      "id": 15,
+      "sessionId": "drop-user-15",
+      "displayName": "Hannah G.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "night-850",
+          "qty": 1,
+          "label": "Night · 8.5″"
+        },
+        {
+          "skuId": "payday-camo-850",
+          "qty": 1,
+          "label": "Camo · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 800
+      }
+    },
+    {
+      "id": 16,
+      "sessionId": "drop-user-16",
+      "displayName": "Elias N.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "night-850",
+          "qty": 1,
+          "label": "Night · 8.5″"
+        },
+        {
+          "skuId": "payday-camo-850",
+          "qty": 1,
+          "label": "Camo · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 698
+      }
+    },
+    {
+      "id": 17,
+      "sessionId": "drop-user-17",
+      "displayName": "Lea F.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "arctic-838",
+          "qty": 1,
+          "label": "Arctic · 8.38″"
+        },
+        {
+          "skuId": "payday-linear-838",
+          "qty": 1,
+          "label": "Linear · 8.38″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 384
+      }
+    },
+    {
+      "id": 18,
+      "sessionId": "drop-user-18",
+      "displayName": "Moritz C.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "arctic-838",
+          "qty": 1,
+          "label": "Arctic · 8.38″"
+        },
+        {
+          "skuId": "payday-linear-838",
+          "qty": 1,
+          "label": "Linear · 8.38″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 696
+      }
+    },
+    {
+      "id": 19,
+      "sessionId": "drop-user-19",
+      "displayName": "Jana V.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "arctic-838",
+          "qty": 1,
+          "label": "Arctic · 8.38″"
+        },
+        {
+          "skuId": "payday-linear-838",
+          "qty": 1,
+          "label": "Linear · 8.38″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 408
+      }
+    },
+    {
+      "id": 20,
+      "sessionId": "drop-user-20",
+      "displayName": "Omar I.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "arctic-838",
+          "qty": 1,
+          "label": "Arctic · 8.38″"
+        },
+        {
+          "skuId": "payday-linear-838",
+          "qty": 1,
+          "label": "Linear · 8.38″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 699
+      }
+    },
+    {
+      "id": 21,
+      "sessionId": "drop-user-21",
+      "displayName": "Nina Z.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "arctic-850",
+          "qty": 1,
+          "label": "Arctic · 8.5″"
+        },
+        {
+          "skuId": "payday-linear-850",
+          "qty": 1,
+          "label": "Linear · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 656
+      }
+    },
+    {
+      "id": 22,
+      "sessionId": "drop-user-22",
+      "displayName": "Paul J.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "arctic-850",
+          "qty": 1,
+          "label": "Arctic · 8.5″"
+        },
+        {
+          "skuId": "payday-linear-850",
+          "qty": 1,
+          "label": "Linear · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 702
+      }
+    },
+    {
+      "id": 23,
+      "sessionId": "drop-user-23",
+      "displayName": "Ruby E.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "arctic-850",
+          "qty": 1,
+          "label": "Arctic · 8.5″"
+        },
+        {
+          "skuId": "payday-linear-850",
+          "qty": 1,
+          "label": "Linear · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 383
+      }
+    },
+    {
+      "id": 24,
+      "sessionId": "drop-user-24",
+      "displayName": "Max U.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "arctic-850",
+          "qty": 1,
+          "label": "Arctic · 8.5″"
+        },
+        {
+          "skuId": "payday-linear-850",
+          "qty": 1,
+          "label": "Linear · 8.5″"
+        }
+      ],
+      "deckCount": 2,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 748
+      }
+    },
+    {
+      "id": 25,
+      "sessionId": "drop-user-25",
+      "displayName": "Kim Q.",
+      "role": "Drop-Simulation",
+      "cart": [
+        {
+          "skuId": "chrome-838",
+          "qty": 1,
+          "label": "Chrome · 8.38″"
+        }
+      ],
+      "deckCount": 1,
+      "sync": {
+        "status": 200,
+        "ok": true,
+        "latencyMs": 758
+      }
+    }
+  ]
+}

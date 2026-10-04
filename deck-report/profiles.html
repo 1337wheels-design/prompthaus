@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Drop-Sim — 25 Profile &amp; Warenkörbe</title>
+  <style>
+    :root {
+      --purple: #c4b5fd;
+      --panel: #100c1a;
+      --border: rgba(167, 139, 250, 0.22);
+      --text: #d0d0d2;
+      --muted: #a8a090;
+      --ok: #4ade80;
+      --font-mono: 'Courier New', monospace;
+      --font-display: Impact, 'Arial Narrow', Arial, sans-serif;
+    }
+    body {
+      margin: 0; padding: 20px 16px 48px;
+      font-family: var(--font-mono);
+      background: #0a0812;
+      color: var(--text);
+    }
+    h1 {
+      font-family: var(--font-display);
+      color: var(--purple);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 24px;
+    }
+    .meta { font-size: 10px; color: var(--muted); margin-bottom: 20px; max-width: 720px; line-height: 1.5; }
+    .toolbar { margin-bottom: 20px; }
+    .toolbar a {
+      color: var(--purple); font-size: 10px; margin-right: 12px;
+    }
+    table {
+      width: 100%; max-width: 960px;
+      border-collapse: collapse; font-size: 11px; margin-bottom: 32px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 10px 8px; text-align: left; vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: normal; text-transform: uppercase; font-size: 9px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .profile {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+    }
+    .profile h2 {
+      font-size: 13px; color: var(--purple); margin: 0 0 4px;
+    }
+    .profile .sid { font-size: 9px; color: var(--muted); margin-bottom: 10px; }
+    .profile ul { margin: 0; padding-left: 16px; font-size: 11px; }
+    .profile li { margin-bottom: 4px; }
+    .badge {
+      display: inline-block; font-size: 9px; padding: 2px 6px;
+      border: 1px solid var(--border); border-radius: 3px; margin-top: 8px;
+    }
+    .badge.ok { color: var(--ok); }
+  </style>
+</head>
+<body>
+  <h1>25 Drop-Profile</h1>
+  <p class="meta" id="intro">Lade profiles.json…</p>
+  <div class="toolbar">
+    <a href="index.html">← Ops-Bericht</a>
+    <a href="profiles.json" target="_blank" rel="noopener">JSON</a>
+  </div>
+
+  <table id="summary">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>User</th>
+        <th>Session</th>
+        <th>Decks im Warenkorb</th>
+        <th>Sync</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="grid" id="cards"></div>
+
+  <script>
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    }
+
+    fetch('profiles.json')
+      .then((r) => r.json())
+      .then((data) => {
+        document.getElementById('intro').textContent =
+          `Szenario ${data.scenario} · Drop ${new Date(data.dropAt).toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })} · ${data.distribution}. ${data.note || ''}`;
+
+        const tbody = document.querySelector('#summary tbody');
+        const cards = document.getElementById('cards');
+
+        for (const p of data.profiles) {
+          const cartText = p.cart.map((l) => `${l.label} ×${l.qty}`).join(', ') || '—';
+          const sync =
+            p.sync?.status === 200
+              ? `200 · ${p.sync.latencyMs} ms`
+              : p.sync?.status
+                ? String(p.sync.status)
+                : '—';
+
+          tbody.innerHTML += `<tr>
+            <td>${p.id}</td>
+            <td>${esc(p.displayName)}</td>
+            <td><code>${esc(p.sessionId)}</code></td>
+            <td>${esc(cartText)}</td>
+            <td>${esc(sync)}</td>
+          </tr>`;
+
+          const items = p.cart.map((l) => `<li>${esc(l.label)} <span style="color:var(--muted)">×${l.qty}</span></li>`).join('');
+          cards.innerHTML += `<article class="profile">
+            <h2>${esc(p.displayName)}</h2>
+            <div class="sid">${esc(p.sessionId)} · ${p.deckCount} Deck(s)</div>
+            <ul>${items || '<li>—</li>'}</ul>
+            <span class="badge ${p.sync?.ok ? 'ok' : ''}">Sync ${p.sync?.status ?? '—'}${p.sync?.latencyMs ? ' · ' + p.sync.latencyMs + ' ms' : ''}</span>
+          </article>`;
+        }
+      })
+      .catch((e) => {
+        document.getElementById('intro').textContent = 'profiles.json fehlt — npm run ops:profiles:build';
+      });
+  </script>
+</body>
+</html>

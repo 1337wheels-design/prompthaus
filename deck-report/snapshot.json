@@ -1,0 +1,61 @@
+{
+  "at": "2026-10-04T21:18:52.634Z",
+  "overall": "ok",
+  "panels": [
+    {
+      "name": "supabase_reservation",
+      "ok": true,
+      "rateLimit": "stufe1",
+      "rateLimitDb": {
+        "ok": true
+      },
+      "ttlMs": 300000,
+      "availability": {
+        "neon-838": 4,
+        "neon-850": 4,
+        "night-838": 4,
+        "night-850": 4,
+        "arctic-838": 4,
+        "arctic-850": 4,
+        "chrome-838": 4,
+        "chrome-850": 5,
+        "payday-camo-838": 4,
+        "payday-camo-850": 4,
+        "payday-linear-838": 4,
+        "payday-linear-850": 4
+      },
+      "totalAvail": 49
+    },
+    {
+      "name": "supabase_shop_sync",
+      "ok": true,
+      "configured": true,
+      "checks": {
+        "shopDomain": true,
+        "storefrontToken": true,
+        "skuMap": true,
+        "skuMapInvalid": false,
+        "cronSecret": true
+      }
+    },
+    {
+      "name": "shopify_storefront",
+      "ok": true,
+      "storefrontHttp": 200,
+      "passwordLocked": false
+    },
+    {
+      "name": "github_pages_deck_shop",
+      "ok": true,
+      "http": 200,
+      "url": "https://1337wheels-design.github.io/prompthaus/deck-shop/"
+    }
+  ],
+  "links": {
+    "supabaseFunctions": "https://supabase.com/dashboard/project/yoeehrdsrfwolzdtgmel/functions",
+    "supabaseSql": "https://supabase.com/dashboard/project/yoeehrdsrfwolzdtgmel/sql/new",
+    "supabaseTables": "https://supabase.com/dashboard/project/yoeehrdsrfwolzdtgmel/editor",
+    "deckShop": "https://1337wheels-design.github.io/prompthaus/deck-shop/",
+    "shopifyAdmin": "https://xwk1u9-6z.myshopify.com/admin"
+  }
+}

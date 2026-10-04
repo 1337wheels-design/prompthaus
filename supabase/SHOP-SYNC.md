@@ -22,7 +22,7 @@ node scripts/supabase-shop-sync-setup.mjs --generate-cron-secret --deploy
 
 # Prüfen
 node scripts/deck-shop-sync-smoke.mjs
-export DECK_SYNC_CRON_SECRET='…'   # aus Setup-Ausgabe / .env
+export DECK_SYNC_CRON_SECRET='<dein_hex_secret_aus_setup>'   # nur ASCII — nicht den Dokumentations-Platzhalter kopieren
 node scripts/deck-shop-sync-smoke.mjs --sync
 ```
 

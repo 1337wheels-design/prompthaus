@@ -2,7 +2,21 @@
 /** Health + optional Sync gegen live shop-sync Edge Function. */
 const PROJECT = process.env.SUPABASE_PROJECT_REF || 'yoeehrdsrfwolzdtgmel';
 const BASE = `https://${PROJECT}.supabase.co/functions/v1/shop-sync`;
-const SECRET = process.env.DECK_SYNC_CRON_SECRET || '';
+function readCronSecret() {
+  const raw = (process.env.DECK_SYNC_CRON_SECRET || '').trim();
+  if (!raw) return '';
+  if (raw === '…' || raw.includes('\u2026') || !/^[\x21-\x7E]+$/.test(raw)) {
+    console.error(
+      'DECK_SYNC_CRON_SECRET ungültig: kein Platzhalter „…“ aus der Doku — echtes ASCII-Secret setzen.\n' +
+        'Neu erzeugen: npm run supabase:shop-sync:setup (Ausgabe DECK_SYNC_CRON_SECRET=…)\n' +
+        'Nicht verwechseln mit SHOPIFY_STOREFRONT_TOKEN.'
+    );
+    process.exit(1);
+  }
+  return raw;
+}
+
+const SECRET = readCronSecret();
 
 async function get(path) {
   const headers = {};

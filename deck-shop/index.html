@@ -91,6 +91,7 @@
       border-top: none; padding: 0; flex: 1; display: flex; align-items: center;
       justify-content: space-between; gap: 16px;
     }
+    .cart-panel.visible:not(.expanded) #cart-collapse { display: none; }
     .cart-panel.visible.expanded { display: flex; }
     .cart-panel__head {
       display: flex; align-items: center; justify-content: space-between;
@@ -266,7 +267,7 @@
   <script src="config.js"></script>
   <script src="config.local.js" onerror="void 0"></script>
   <script src="shopify-connect.js?v=20260303-id-only"></script>
-  <script src="shopify-checkout.js?v=20260303-permalink-first"></script>
+  <script src="shopify-checkout.js?v=20260404-stress"></script>
   <script>
     const INV = window.PAYDAY_DECK_INVENTORY;
     const R = window.PaydayDeckRenderer;

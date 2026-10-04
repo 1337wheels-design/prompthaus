@@ -53,7 +53,7 @@
   }
 
   function resolveProductUrl(cfg, item) {
-    const entry = variantEntry(cfg, item);
+    const entry = variantEntry(cfg, item.id);
     if (!entry?.handle || !isConfigured(cfg)) return null;
     return `https://${normalizeDomain(cfg.shopDomain)}/products/${entry.handle}`;
   }

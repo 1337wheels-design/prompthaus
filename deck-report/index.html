@@ -143,9 +143,12 @@
     const RES = 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/reservation-api';
     const ORIGIN = 'https://1337wheels-design.github.io';
     const SHOPIFY = 'xwk1u9-6z.myshopify.com';
-    const PAGES_SHOP = '../deck-shop/';
+    const PAGES_SHOP = 'https://1337wheels-design.github.io/prompthaus/deck-shop/';
+    const SYNC = 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/shop-sync';
 
     let refreshTimer;
+    /** @type {object | null} */
+    let cachedSnapshot = null;
 
     function esc(s) {
       return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -202,6 +205,18 @@
       </div>`;
     }
 
+    function panelFromSnapshot(name) {
+      return cachedSnapshot?.panels?.find((p) => p.name === name) ?? null;
+    }
+
+    async function tryProbe(run) {
+      try {
+        return await run();
+      } catch (e) {
+        return { error: e instanceof Error ? e.message : String(e) };
+      }
+    }
+
     async function liveProbe() {
       const metrics = document.getElementById('metrics');
       const badge = document.getElementById('status-badge');
@@ -210,10 +225,18 @@
 
       let overall = 'ok';
       const cards = [];
+      let av = null;
 
-      try {
+      const health = await tryProbe(async () => {
         const hRes = await fetch(`${RES}/health`, { headers: { Origin: ORIGIN } });
         const h = await hRes.json();
+        return { hRes, h };
+      });
+      if (health.error) {
+        cards.push(card('Reservierung API', 'Fehler', esc(health.error), false));
+        overall = 'fail';
+      } else {
+        const { hRes, h } = health;
         const rlOk = h.rateLimit === 'stufe1' && h.rateLimitDb?.ok;
         cards.push(
           card(
@@ -224,35 +247,97 @@
           )
         );
         if (!hRes.ok || !h.ok) overall = 'degraded';
+        if (!rlOk && h.rateLimit !== 'disabled') overall = 'degraded';
+      }
 
+      const avail = await tryProbe(async () => {
         const aRes = await fetch(`${RES}/v1/availability?sessionId=report-ui`, {
           headers: { Origin: ORIGIN },
         });
+        if (aRes.status === 429) {
+          return { rateLimited: true };
+        }
         const a = await aRes.json();
-        const av = a.availability || {};
+        return { aRes, a };
+      });
+      if (avail.error) {
+        cards.push(card('Freie Einheiten', '—', esc(avail.error), false));
+        overall = overall === 'ok' ? 'degraded' : overall;
+      } else if (avail.rateLimited) {
+        cards.push(card('Freie Einheiten', '429', 'Rate-Limit — später erneut', false));
+        overall = 'degraded';
+      } else {
+        av = avail.a.availability || {};
         const total = Object.values(av).reduce((s, n) => s + (Number(n) || 0), 0);
         cards.push(
-          card('Freie Einheiten', String(total), `chrome-838: ${av['chrome-838'] ?? '—'}`, aRes.ok)
+          card('Freie Einheiten', String(total), `chrome-838: ${av['chrome-838'] ?? '—'}`, avail.aRes.ok)
         );
         renderSkuTable(av);
+      }
 
-        const shop = await fetch(`https://${SHOPIFY}/`, { redirect: 'manual' });
-        const shopOpen = shop.status === 200;
+      const syncLive = await tryProbe(async () => {
+        const r = await fetch(`${SYNC}/health`, { headers: { Origin: ORIGIN } });
+        return { status: r.status, body: await r.json() };
+      });
+      if (!syncLive.error && syncLive.body?.configured != null) {
         cards.push(
-          card('Shopify Storefront', shopOpen ? 'Offen' : `HTTP ${shop.status}`, SHOPIFY, shopOpen)
+          card(
+            'Shop-Sync',
+            syncLive.body.configured ? 'Konfiguriert' : 'Unvollständig',
+            'Live /health',
+            syncLive.body.configured
+          )
         );
-        if (!shopOpen) overall = 'degraded';
+        if (!syncLive.body.configured) overall = 'degraded';
+      } else {
+        const snap = panelFromSnapshot('supabase_shop_sync');
+        if (snap?.ok) {
+          cards.push(
+            card(
+              'Shop-Sync',
+              snap.configured ? 'Konfiguriert' : 'Prüfen',
+              'Snapshot (Browser-CORS)',
+              snap.configured
+            )
+          );
+        } else {
+          cards.push(card('Shop-Sync', '—', 'npm run ops:report:build', false));
+          overall = 'degraded';
+        }
+      }
 
-        const pages = await fetch(PAGES_SHOP, { redirect: 'manual' });
+      const shopSnap = panelFromSnapshot('shopify_storefront');
+      if (shopSnap?.ok) {
+        const open = !shopSnap.passwordLocked;
         cards.push(
-          card('GitHub Pages Shop', pages.status === 200 ? '200 OK' : `HTTP ${pages.status}`, 'gh-pages', pages.status === 200)
+          card(
+            'Shopify Storefront',
+            open ? 'Offen' : 'Gesperrt',
+            `Snapshot · HTTP ${shopSnap.storefrontHttp}`,
+            open
+          )
         );
-        if (pages.status !== 200) overall = 'degraded';
+        if (!open) overall = 'degraded';
+      } else {
+        cards.push(card('Shopify', 'Snapshot fehlt', 'ops:report:build', false));
+      }
 
-        if (!rlOk && h.rateLimit !== 'disabled') overall = 'degraded';
-      } catch (e) {
-        overall = 'fail';
-        cards.push(card('Fehler', 'Probe fehlgeschlagen', esc(e.message), false));
+      const pages = await tryProbe(() => fetch(PAGES_SHOP, { method: 'HEAD' }));
+      if (!pages.error && pages.status != null) {
+        const ok = pages.status === 200;
+        cards.push(card('GitHub Pages Shop', ok ? '200 OK' : `HTTP ${pages.status}`, 'Live HEAD', ok));
+        if (!ok) overall = 'degraded';
+      } else {
+        const pagesSnap = panelFromSnapshot('github_pages_deck_shop');
+        const ok = pagesSnap?.http === 200;
+        cards.push(
+          card('GitHub Pages Shop', ok ? '200 OK' : '—', pagesSnap ? 'Snapshot' : esc(pages.error || ''), ok)
+        );
+        if (!ok) overall = 'degraded';
+      }
+
+      if (!av && panelFromSnapshot('supabase_reservation')?.availability) {
+        renderSkuTable(panelFromSnapshot('supabase_reservation').availability);
       }
 
       metrics.innerHTML = cards.join('');
@@ -281,6 +366,7 @@
         fetch('snapshot.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
       ]);
       if (bericht) renderBericht(bericht);
+      cachedSnapshot = snap;
       if (snap?.links) renderLinks(snap.links);
       else renderLinks(null);
       if (snap?.panels) {

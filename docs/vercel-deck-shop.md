@@ -11,6 +11,12 @@ Vercel deployt das **gesamte Repo** (static), damit `../decks/` für Editor und 
 
 ## Vercel-Projekt
 
+**GitHub App (einmalig):**  
+https://github.com/apps/vercel/installations/new/permissions?target_id=262473948&target_type=User  
+→ Zugriff auf `1337wheels-design/prompthaus` erlauben.
+
+CLI-Hilfe im Repo: `npm run vercel:setup` (zeigt Links; mit `VERCEL_TOKEN` optional `npm run vercel:deploy`).
+
 1. [Vercel Dashboard](https://vercel.com/new) → Import `1337wheels-design/prompthaus`
 2. **Production Branch:** `gh-pages` (oder Branch eurer Wahl)
 3. **Framework Preset:** Other  

@@ -16,6 +16,8 @@
     "test:rate-limit": "node scripts/deck-reservation-rate-limit-test.mjs",
     "test:go-live": "node scripts/deck-shop-go-live-check.mjs",
     "test:go-live:vercel": "DECK_SHOP_URL=https://payday.vercel.app/deck-shop/ node scripts/deck-shop-go-live-check.mjs",
+    "vercel:setup": "node scripts/vercel-setup.mjs",
+    "vercel:deploy": "node scripts/vercel-setup.mjs --deploy",
     "test:browser-check": "node scripts/deck-shop-browser-check.mjs",
     "test:drop-sim-25": "node scripts/deck-drop-simulation-25.mjs",
     "test:drop-sim-25:cleanup": "node scripts/deck-drop-simulation-25.mjs --cleanup-only",
@@ -48,6 +50,7 @@
     "playwright": "^1.63.0"
   },
   "devDependencies": {
-    "supabase": "^2.119.0"
+    "supabase": "^2.119.0",
+    "vercel": "^62.2.0"
   }
 }

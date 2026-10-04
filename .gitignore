@@ -1,5 +1,6 @@
 node_modules/
 supabase/.temp/
+.vercel/
 .env
 deck-shop/config.local.js
 

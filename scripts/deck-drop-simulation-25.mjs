@@ -60,8 +60,32 @@ async function sync(sessionId, lines) {
   };
 }
 
-function linesForUser(index) {
+function consolidateLines(skuIds) {
+  const m = {};
+  for (const skuId of skuIds) m[skuId] = (m[skuId] || 0) + 1;
+  return Object.entries(m).map(([skuId, qty]) => ({ skuId, qty }));
+}
+
+/** Verteilt alle freien Einheiten auf USER_COUNT Sessions (1 paralleler Sync-Wave). */
+function linesForEmptyShop(availability) {
+  const slots = [];
+  for (const [skuId, qty] of Object.entries(availability || {})) {
+    const n = Number(qty) || 0;
+    for (let i = 0; i < n; i++) slots.push(skuId);
+  }
+  const perUser = Array.from({ length: USER_COUNT }, () => []);
+  slots.forEach((skuId, i) => {
+    perUser[i % USER_COUNT].push(skuId);
+  });
+  return perUser.map((skus) => consolidateLines(skus));
+}
+
+function linesForUser(index, availability) {
   const n = index + 1;
+  if (scenario === 'empty') {
+    const matrix = linesForEmptyShop(availability);
+    return matrix[index] || [];
+  }
   if (scenario === 'b') {
     if (n <= 8) return [{ skuId: 'chrome-838', qty: 1 }];
     if (n <= 16) return [{ skuId: 'neon-850', qty: 1 }];
@@ -98,9 +122,18 @@ if (cleanupOnly) {
 const baselineAfterCleanup = await availability();
 console.log('After cleanup chrome-838:', baselineAfterCleanup.availability?.['chrome-838']);
 
+const emptyMatrix =
+  scenario === 'empty' ? linesForEmptyShop(baselineAfterCleanup.availability) : null;
+if (emptyMatrix) {
+  const units = emptyMatrix.reduce((s, lines) => s + lines.reduce((t, l) => t + l.qty, 0), 0);
+  console.log('Empty-shop wave:', { unitsToReserve: units, usersWithLines: emptyMatrix.filter((l) => l.length).length });
+}
+
 console.log(`T0 — ${USER_COUNT} parallel sync…`);
 const results = await Promise.all(
-  sessionIds.map((sid, i) => sync(sid, linesForUser(i)))
+  sessionIds.map((sid, i) =>
+    sync(sid, linesForUser(i, baselineAfterCleanup.availability))
+  )
 );
 
 const after = await availability();
@@ -135,7 +168,7 @@ console.log('\nSummary:', summary.counts);
 console.log('Latency ms:', summary.latencyMs);
 console.log('Report:', REPORT);
 
-const hotSku = scenario === 'b' ? null : 'chrome-838';
+const hotSku = scenario === 'b' || scenario === 'empty' ? null : 'chrome-838';
 if (hotSku) {
   const b = baselineAfterCleanup.availability?.[hotSku] ?? 0;
   const ok = summary.counts.http200;

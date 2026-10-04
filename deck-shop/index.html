@@ -275,6 +275,7 @@
   <script src="deck-renderer.js"></script>
   <script src="config.js"></script>
   <script src="config.local.js" onerror="void 0"></script>
+  <script src="deck-reservations.js?v=20260404-reserve"></script>
   <script src="shopify-connect.js?v=20260303-id-only"></script>
   <script src="shopify-storefront-catalog.js?v=20260404-catalog"></script>
   <script src="shopify-checkout.js?v=20260404-harden"></script>
@@ -329,6 +330,8 @@
       storefrontLive: false,
       storefrontSyncAt: null,
       storefrontPrefetchDone: false,
+      reservationAvailability: null,
+      reservationsActive: false,
       filterDesign: null,
       filterSize: null,
       visitedDesigns: new Set(),
@@ -404,9 +407,49 @@
     function currentDesign() { return INV.DESIGNS[state.designIndex]; }
     function currentSize() { return INV.SIZES[state.sizeIndex]; }
 
+    function reservationsEnabled() {
+      return Boolean(window.PAYDAY_RESERVATIONS?.isEnabled?.());
+    }
+
+    function applyReservationAvailability(availability) {
+      if (!availability || typeof availability !== 'object') return;
+      state.reservationAvailability = { ...availability };
+      state.reservationsActive = true;
+    }
+
     function availableStock(skuId) {
+      if (state.reservationsActive && state.reservationAvailability && skuId in state.reservationAvailability) {
+        return Math.max(0, state.reservationAvailability[skuId]);
+      }
       const reserved = state.cart.filter(i => i.id === skuId).length;
       return Math.max(0, (state.stock[skuId] ?? 0) - reserved);
+    }
+
+    async function syncReservationsForCart(cart) {
+      const PR = window.PAYDAY_RESERVATIONS;
+      if (!PR?.isEnabled?.()) return { ok: true, disabled: true };
+      return PR.syncCart(cart || []);
+    }
+
+    async function initReservations() {
+      const PR = window.PAYDAY_RESERVATIONS;
+      if (!PR?.isEnabled?.()) return;
+      try {
+        if (state.cart.length) {
+          const sync = await PR.syncCart(state.cart);
+          if (sync.ok && sync.availability) applyReservationAvailability(sync.availability);
+          else if (!sync.ok) {
+            state.cart = [];
+            persistCart();
+          }
+        } else {
+          const res = await PR.fetchAvailability();
+          if (res.ok && res.availability) applyReservationAvailability(res.availability);
+        }
+        PR.startHeartbeat(() => state.cart);
+      } catch (err) {
+        console.warn('[reservations]', err);
+      }
     }
 
     function updateStockLabels() {
@@ -980,18 +1023,41 @@
       });
     }
 
-    function addToCart(item) {
+    async function addToCart(item) {
       if (availableStock(item.id) <= 0) return;
-      state.cart.push({ ...item });
+      const nextCart = state.cart.concat([{ ...item }]);
+      const sync = await syncReservationsForCart(nextCart);
+      if (!sync.ok && !sync.disabled) {
+        if (sync.availability) applyReservationAvailability(sync.availability);
+        renderShopGrid();
+        alert(
+          sync.reason === 'insufficient'
+            ? 'Gerade nicht mehr verfügbar (andere Session oder Reservierung abgelaufen).'
+            : 'Reservierung fehlgeschlagen — bitte erneut versuchen.'
+        );
+        return;
+      }
+      if (sync.availability) applyReservationAvailability(sync.availability);
+      state.cart = nextCart;
       updateCart(true);
       renderShopGrid();
+      window.PAYDAY_RESERVATIONS?.startHeartbeat?.(() => state.cart);
     }
 
-    function removeFromCart(index) {
+    async function removeFromCart(index) {
       if (index < 0 || index >= state.cart.length) return;
-      state.cart.splice(index, 1);
+      const nextCart = state.cart.slice();
+      nextCart.splice(index, 1);
+      const sync = await syncReservationsForCart(nextCart);
+      if (!sync.ok && !sync.disabled) {
+        if (sync.availability) applyReservationAvailability(sync.availability);
+        return;
+      }
+      if (sync.availability) applyReservationAvailability(sync.availability);
+      state.cart = nextCart;
       updateCart(true);
       renderShopGrid();
+      if (!state.cart.length) window.PAYDAY_RESERVATIONS?.stopHeartbeat?.();
     }
 
     function clearCart() {
@@ -1001,6 +1067,10 @@
       } catch {
         /* ignore */
       }
+      window.PAYDAY_RESERVATIONS?.releaseCart?.().then((res) => {
+        if (res?.availability) applyReservationAvailability(res.availability);
+      });
+      window.PAYDAY_RESERVATIONS?.stopHeartbeat?.();
       updateCart(false);
       renderShopGrid();
     }
@@ -1113,6 +1183,11 @@
       clearCart();
     });
 
+    window.addEventListener('payday-reservation-updated', (ev) => {
+      applyReservationAvailability(ev.detail?.availability);
+      if (state.unlocked) renderShopGrid();
+    });
+
     window.addEventListener('pageshow', () => {
       try {
         if (!sessionStorage.getItem('payday_checkout_pending')) return;
@@ -1201,6 +1276,7 @@
 
     updateStockLabels();
     updateCart(false);
+    initReservations();
 
     state.phase = 'loading';
     showAssetLoader(true);

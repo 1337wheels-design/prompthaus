@@ -16,6 +16,15 @@ window.PAYDAY_SHOP = {
   checkoutReturnUrl: 'https://1337wheels-design.github.io/prompthaus/deck-shop/',
 
   /**
+   * Inventar-Holds (5 Min) — Basis-URL des Reservation-Servers (scripts/deck-reservation-server.mjs).
+   * Lokal: http://127.0.0.1:8791 — im Shop z. B. ?reserveApi=http://127.0.0.1:8791
+   */
+  reservationApiUrl: '',
+
+  /** Reservierungs-TTL in ms (Default serverseitig: 5 Min). */
+  reservationTtlMs: 5 * 60 * 1000,
+
+  /**
    * Storefront Public Token — für Live-Bestand/Preise (shopify-storefront-catalog.js).
    * Headless-App → Storefront API. Öffentlich im Browser OK (kein Admin-shpat).
    * Alternativ: ?dev=1 → Shopify-Modal oder config.local.js

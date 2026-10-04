@@ -20,7 +20,8 @@ const PAGES_SHOP =
   process.env.DECK_SHOP_URL ||
   'https://1337wheels-design.github.io/prompthaus/deck-shop/';
 const VERCEL_SHOP =
-  process.env.VERCEL_DECK_SHOP_URL || 'https://payday.vercel.app/deck-shop/';
+  process.env.VERCEL_DECK_SHOP_URL ||
+  'https://1337wheels-design-payday.vercel.app/deck-shop/';
 const SHOPIFY = process.env.SHOPIFY_SHOP_DOMAIN || 'xwk1u9-6z.myshopify.com';
 const ORIGIN = 'https://1337wheels-design.github.io';
 const SUPABASE_PROJECT = 'yoeehrdsrfwolzdtgmel';

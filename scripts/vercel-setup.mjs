@@ -17,7 +17,9 @@ const GITHUB_OWNER_ID = '262473948';
 /** Vercel default; gh-pages bleibt für GitHub Pages. */
 const PRODUCTION_BRANCH = process.env.VERCEL_PRODUCTION_BRANCH || 'main';
 const PROJECT_NAME = 'payday';
-const SHOP_URL = `https://${PROJECT_NAME}.vercel.app/deck-shop/`;
+const SHOP_URL =
+  process.env.VERCEL_DECK_SHOP_URL ||
+  'https://1337wheels-design-payday.vercel.app/deck-shop/';
 
 const INSTALL_APP =
   `https://github.com/apps/vercel/installations/new/permissions` +

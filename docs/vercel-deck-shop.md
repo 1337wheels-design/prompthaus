@@ -5,85 +5,66 @@
 | Host | URL | Rolle |
 |------|-----|--------|
 | **GitHub Pages** | `https://1337wheels-design.github.io/prompthaus/deck-shop/` | Produktion / Event (kanonisch) |
-| **Vercel** | `https://payday.vercel.app/deck-shop/` | Schnelle Previews, parallele Entwicklung |
+| **Vercel (Team)** | `https://1337wheels-design-payday.vercel.app/deck-shop/` | Preview / paralleler Host |
 
 Vercel deployt das **gesamte Repo** (static), damit `../decks/` für Editor und Assets funktioniert.
 
-## Wichtig: Vercel ≠ GitHub Pages
+## Live-URL
 
-| | GitHub Pages | Vercel |
-|---|--------------|--------|
-| **Branch** | `gh-pages` (manuell in Pages-Settings) | Standard beim Import: **`main`** (GitHub-Default) |
-| **Inhalt in diesem Repo** | Deck Shop, `vercel.json`, Supabase-Anbindung | Auf **`main`**: kein `deck-shop/`, kein `vercel.json` |
-| **Verknüpfung** | GitHub → Settings → Pages | Separates Vercel-Projekt + Git **oder** CLI/Action |
+- **Production (Team-Subdomain):** https://1337wheels-design-payday.vercel.app/
+- **Deck Shop (Zielpfad):** https://1337wheels-design-payday.vercel.app/deck-shop/
+- Optional alias: `https://payday.vercel.app` (nur wenn im Vercel-Projekt zugewiesen)
 
-Beim Anlegen eines Vercel-Projekts wird **nicht** die GitHub-Pages-Konfiguration übernommen. Ohne Anpassung deployt Vercel **`main`** — dann fehlt `/deck-shop/` (404) oder es läuft noch ein **anderes** Deployment auf derselben Domain.
+Root `/` soll per `vercel.json` nach `/deck-shop/` leiten — **nur wenn** das Deployment den aktuellen **`main`**-Stand enthält (`deck-shop/`, `vercel.json`).
 
-**Deployment-Strategie:** Deck-Shop-Stand liegt auf **`main`** (Merge aus `gh-pages`), damit Vercel ohne Sonder-Branch deployen kann. **GitHub Pages** kann weiter **`gh-pages`** nutzen — bei Änderungen beide Branches syncen oder Pages auf `main` umstellen.
+## Deployment-Strategie
 
-**Hinweis:** Solange Vercel noch ein altes Deployment ausliefert (z. B. React-SPA auf `/`), nach Git-Verbindung **Redeploy** auslösen.
+Deck-Shop-Stand liegt auf **`main`** (Merge aus `gh-pages`). **GitHub Pages** kann weiter **`gh-pages`** nutzen — beide Branches werden nach größeren Änderungen sync gehalten.
 
-## Projekt „payday“ existiert schon (Git nachträglich)
+### Symptom: alte Startseite, `/deck-shop/` → 404
 
-1. [Vercel Dashboard](https://vercel.com) → Projekt **payday** → **Settings** → **Git**
-2. **Connect Git Repository** → `1337wheels-design/prompthaus` (falls noch nicht verbunden)
-3. **Settings** → **Environments** → **Production** → **Branch** auf **`gh-pages`** stellen (nicht `main`)
-4. **Settings** → **General** → **Root Directory** = `.` · Build Command leer
-5. **Deployments** → **Redeploy** (Production, Branch `gh-pages`)
+Das Vercel-Deployment ist **veraltet** oder **falsches Repo/Root**:
 
-Direktlink (Team/Scope anpassen):  
-`https://vercel.com/<team>/payday/settings/git`
+| Prüfung | Erwartung (aktueller `main`) |
+|---------|------------------------------|
+| `/` Titel | „Payday Deck Shop“ (Redirect-Script) — **nicht** „Complete Card Set“ |
+| `/deck-shop/` | HTTP **200** |
+| `vercel.json` | im Deployment aktiv (Redirect `/` → `/deck-shop/`) |
 
-### Alternative: GitHub Action (empfohlen bei hartnäckigem `main`)
+**Fix im Dashboard (Projekt `payday`, Team `1337wheels-design`):**
 
-Workflow [`.github/workflows/vercel-gh-pages.yml`](../.github/workflows/vercel-gh-pages.yml) deployt bei jedem Push auf **`gh-pages`**, sobald diese Secrets gesetzt sind:
+1. **Settings → Git** → Repository **`1337wheels-design/prompthaus`**, Production Branch **`main`**
+2. **Settings → General** → Root Directory **`.`**, Build Command **leer**, Output static
+3. **Deployments** → letztes Deployment → **Redeploy** (Production, **Use existing Build Cache: No**)
 
-- `VERCEL_TOKEN` — [Vercel → Account → Tokens](https://vercel.com/account/tokens)
-- `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` — nach `npm run vercel:setup` + `vercel link` in `.vercel/project.json`
+## Vercel-Projekt anlegen / verbinden
 
-Ohne Secrets macht der Workflow **nichts** (exit 0, kein Fehler).
+**GitHub App:**  
+https://github.com/apps/vercel/installations/new/permissions?target_id=262473948&target_type=User
 
-## Vercel-Projekt (Neu-Anlage)
+CLI: `npm run vercel:setup` · mit `VERCEL_TOKEN`: `npm run vercel:deploy`
 
-**GitHub App (einmalig):**  
-https://github.com/apps/vercel/installations/new/permissions?target_id=262473948&target_type=User  
-→ Zugriff auf `1337wheels-design/prompthaus` erlauben.
+Import: https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2F1337wheels-design%2Fprompthaus&project-name=payday&production-branch=main
 
-CLI-Hilfe im Repo: `npm run vercel:setup` (zeigt Links; mit `VERCEL_TOKEN` optional `npm run vercel:deploy`).
-
-1. [Vercel Dashboard](https://vercel.com/new) → Import `1337wheels-design/prompthaus`
-2. **Production Branch:** `main` (nach Merge; alternativ weiter `gh-pages` + Action)
-3. **Framework Preset:** Other  
-4. **Root Directory:** `.` (Repo-Root)  
-5. **Build Command:** leer · **Output:** static (siehe `vercel.json`)
-6. **Project Name:** `payday` → URL `https://payday.vercel.app`
-
-Root `/` leitet per `vercel.json` nach `/deck-shop/`.
-
-## Supabase
-
-Edge Functions erlauben CORS für:
+## Supabase CORS
 
 - `https://1337wheels-design.github.io`
+- `https://1337wheels-design-payday.vercel.app`
 - `https://payday.vercel.app`
-- `https://*.vercel.app` (Preview-Deployments)
+- `https://*.vercel.app`
 
-Nach CORS-Änderungen: `npm run supabase:deploy:reservation` und `supabase:deploy:shop-sync`.
-
-## Checkout Return-URL
-
-`shopify-checkout.js` erkennt automatisch  
-`…/deck-shop/` auf der **aktuellen Origin** (Pages, Vercel, Custom Domain).  
-`config.js` enthält nur noch den **GitHub-Fallback**, wenn keine Browser-Location existiert.
+Nach Änderungen an `deck-cors.ts`: `npm run supabase:deploy:reservation` und `supabase:deploy:shop-sync`.
 
 ## Tests
 
 ```bash
-DECK_SHOP_URL=https://payday.vercel.app/deck-shop/ npm run test:go-live
+npm run test:go-live:vercel
+# oder
+DECK_SHOP_URL=https://1337wheels-design-payday.vercel.app/deck-shop/ npm run test:go-live
 ```
 
-Manuell: Shop öffnen → Warenkorb → Checkout → `return_to` muss dieselbe Origin + `/…/deck-shop/` sein.
+Checkout: `return_to` = aktuelle Origin + `/deck-shop/` (automatisch in `shopify-checkout.js`).
 
-## Custom Domain (später)
+## Custom Domain
 
-Domain in Vercel verbinden → Origin in Supabase Secret **`DECK_SHOP_ALLOWED_ORIGINS`** (kommagetrennt, z. B. `https://shop.example.com`) setzen und Edge Functions neu deployen — oder dauerhaft in `supabase/functions/deck-cors.ts` eintragen.
+Domain in Vercel → Origin in Secret **`DECK_SHOP_ALLOWED_ORIGINS`** oder `supabase/functions/deck-cors.ts`.

@@ -5,7 +5,7 @@
       "id": "executive",
       "title": "Kurzfassung",
       "paragraphs": [
-        "Stand 5.10.2026, 00:10:17 (Europe/Berlin): Gesamtstatus **OK**.",
+        "Stand 5.10.2026, 00:52:54 (Europe/Berlin): Gesamtstatus **OK**.",
         "Reservierungs-API aktiv (Rate-Limit **stufe1**). Freie Einheiten gesamt: **0**.",
         "Shop-Sync ist konfiguriert (Shopify Storefront → Postgres)."
       ]
@@ -43,7 +43,7 @@
       ]
     }
   ],
-  "generatedAt": "2026-10-04T22:10:17.435Z",
+  "generatedAt": "2026-10-04T22:52:54.272Z",
   "liveSummary": {
     "overall": "ok",
     "rateLimit": "stufe1",

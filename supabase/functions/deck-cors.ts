@@ -2,6 +2,7 @@
 const PREFIX_ORIGINS = [
   'https://1337wheels-design.github.io',
   'https://payday.vercel.app',
+  'https://1337wheels-design-payday.vercel.app',
   'http://localhost',
   'http://127.0.0.1',
 ];

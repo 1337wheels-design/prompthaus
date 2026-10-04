@@ -16,7 +16,7 @@
 
 ## Ops
 
-- Limits testweise abschalten (nur Dev/Drop-Test): Supabase Secret `DECK_RATE_LIMIT_DISABLED=true` (setzt `applyRateLimit` außer Kraft; Health zeigt `rateLimit: disabled`)
+- Limits testweise abschalten (nur Dev/Drop-Test): Secret `DECK_RATE_LIMIT_DISABLED=true`, danach **`supabase secrets unset DECK_RATE_LIMIT_DISABLED`** (nicht dauerhaft `false` lassen). Health: `disabled` vs. Prod **`stufe1`**
 - Alte Buckets aufräumen (optional Cron/SQL): `SELECT deck_purge_rate_limit_buckets(86400);`
 
 ## Deploy

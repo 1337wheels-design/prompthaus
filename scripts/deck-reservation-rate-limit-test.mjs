@@ -27,23 +27,29 @@ async function syncBurst(sessionId, n) {
 const health = await fetch(`${API}/health`, { headers }).then((r) => r.json());
 console.log('health rateLimit:', health.rateLimit);
 
+// Sequentiell aber ohne Pause — muss innerhalb 60 s Fenster bleiben (langsames curl spreadet über Fenstergrenze).
 const floodSession = 'rate-flood-session-' + Date.now();
 let got429 = false;
+const t0 = performance.now();
 for (let i = 0; i < 90; i++) {
   const res = await fetch(
     `${API}/v1/availability?sessionId=${encodeURIComponent(floodSession)}`,
     { headers }
   );
-  const st = res.status;
-  if (st === 429) {
+  if (res.status === 429) {
     got429 = true;
-    console.log('PASS availability rate limit at request', i + 1);
+    console.log('PASS availability rate limit at request', i + 1, `(${(performance.now() - t0).toFixed(0)}ms)`);
     break;
   }
 }
 if (!got429) {
-  console.error('FAIL expected 429 on availability flood');
+  console.error('FAIL expected 429 on availability flood within 60s window', {
+    elapsedMs: Math.round(performance.now() - t0),
+  });
   process.exit(1);
+}
+if (performance.now() - t0 > 55_000) {
+  console.warn('WARN flood took >55s — test may be flaky on slow networks');
 }
 
 await new Promise((r) => setTimeout(r, 2000));

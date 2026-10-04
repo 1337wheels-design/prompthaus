@@ -44,6 +44,8 @@ https://github.com/apps/vercel/installations/new/permissions?target_id=262473948
 
 CLI: `npm run vercel:setup` · mit `VERCEL_TOKEN`: `npm run vercel:deploy`
 
+**Vercel MCP (Cursor):** [`docs/vercel-mcp-cloud-agent.md`](vercel-mcp-cloud-agent.md) — Dashboard-OAuth, dann Redeploy/Logs per Agent.
+
 Import: https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2F1337wheels-design%2Fprompthaus&project-name=payday&production-branch=main
 
 ## Supabase CORS

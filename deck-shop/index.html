@@ -1015,7 +1015,8 @@
         main.appendChild(m);
         const price = document.createElement('div');
         price.className = 'cart-line__price';
-        price.textContent = item.price + ',00 €';
+        price.textContent =
+          window.PAYDAY_STOREFRONT_CATALOG?.formatEuro(item.price) || item.price + ',00 €';
         const rm = document.createElement('button');
         rm.type = 'button';
         rm.className = 'cart-line__remove';

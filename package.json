@@ -8,22 +8,23 @@
   },
   "scripts": {
     "test:reservations": "node scripts/deck-reservation-test.mjs",
-    "test:supabase": "node scripts/deck-supabase-smoke-test.mjs",
+    "test:supabase": "node -r dotenv/config scripts/deck-supabase-smoke-test.mjs",
     "test:desktop": "node scripts/deck-shop-desktop-test.mjs",
     "test:desktop:headless": "HEADLESS=1 node scripts/deck-shop-desktop-test.mjs",
     "test:walkthrough": "node scripts/deck-shop-guided-walkthrough.mjs",
     "test:fake-order-inventory": "node scripts/deck-shop-fake-order-inventory.mjs",
     "test:rate-limit": "node scripts/deck-reservation-rate-limit-test.mjs",
-    "test:go-live": "node scripts/deck-shop-go-live-check.mjs",
-    "test:go-live:vercel": "DECK_SHOP_URL=https://1337wheels-design-payday.vercel.app/deck-shop/ node scripts/deck-shop-go-live-check.mjs",
+    "env:init": "test -f .env || cp .env.example .env",
+    "test:go-live": "node -r dotenv/config scripts/deck-shop-go-live-check.mjs",
+    "test:go-live:vercel": "DECK_SHOP_URL=https://1337wheels-design-payday.vercel.app/deck-shop/ node -r dotenv/config scripts/deck-shop-go-live-check.mjs",
     "vercel:setup": "node scripts/vercel-setup.mjs",
     "vercel:deploy": "node scripts/vercel-setup.mjs --deploy",
     "vercel:redeploy": "node scripts/vercel-redeploy-payday.mjs",
     "test:browser-check": "node scripts/deck-shop-browser-check.mjs",
     "test:drop-sim-25": "node scripts/deck-drop-simulation-25.mjs",
     "test:drop-sim-25:cleanup": "node scripts/deck-drop-simulation-25.mjs --cleanup-only",
-    "ops:status": "node scripts/deck-ops-status.mjs",
-    "ops:status:json": "node scripts/deck-ops-status.mjs --json",
+    "ops:status": "node -r dotenv/config scripts/deck-ops-status.mjs",
+    "ops:status:json": "node -r dotenv/config scripts/deck-ops-status.mjs --json",
     "ops:report:build": "node scripts/deck-ops-report-build.mjs",
     "ops:profiles:build": "node scripts/deck-drop-profiles-build.mjs",
     "playwright:install": "playwright install chromium && playwright install-deps chromium",
@@ -31,9 +32,9 @@
     "supabase:db:push": "npx supabase db push",
     "supabase:deploy:reservation": "npx supabase functions deploy reservation-api --project-ref yoeehrdsrfwolzdtgmel",
     "supabase:deploy:shop-sync": "npx supabase functions deploy shop-sync --project-ref yoeehrdsrfwolzdtgmel",
-    "supabase:shop-sync:setup": "node scripts/supabase-shop-sync-setup.mjs --generate-cron-secret --deploy",
-    "test:shop-sync": "node scripts/deck-shop-sync-smoke.mjs",
-    "test:shop-sync:run": "node scripts/deck-shop-sync-smoke.mjs --sync",
+    "supabase:shop-sync:setup": "node -r dotenv/config scripts/supabase-shop-sync-setup.mjs --generate-cron-secret --deploy",
+    "test:shop-sync": "node -r dotenv/config scripts/deck-shop-sync-smoke.mjs",
+    "test:shop-sync:run": "node -r dotenv/config scripts/deck-shop-sync-smoke.mjs --sync",
     "ops:postgres-stock": "node scripts/deck-postgres-stock-audit.mjs"
   },
   "repository": {
@@ -52,6 +53,7 @@
     "playwright": "^1.63.0"
   },
   "devDependencies": {
+    "dotenv": "^16.6.1",
     "supabase": "^2.119.0",
     "vercel": "^62.2.0"
   }

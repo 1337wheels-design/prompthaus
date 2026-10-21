@@ -13,3 +13,4 @@ deck-shop/config.local.js
 *.m4v
 *.mpeg
 *.mpg
+.vercel

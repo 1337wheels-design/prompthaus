@@ -7,7 +7,7 @@ Synchronisiert **`quantityAvailable`** aus der Shopify Storefront API in **`deck
 | Route | Auth | Beschreibung |
 |-------|------|--------------|
 | `GET …/health` | nein | Konfig-Check (keine Secrets im Response) |
-| `POST …/shop-sync` | Bearer `DECK_SYNC_CRON_SECRET` (wenn gesetzt) | Voll-Sync (Cron alle 3 Min) |
+| `POST …/shop-sync` | Bearer `DECK_SYNC_CRON_SECRET` (wenn gesetzt) | Voll-Sync (Cron **jede Minute**) |
 | `POST …/shop-sync/v1/schedule` | CORS (Deck-Shop-Origins) | Checkout: Sync in ~60 s einplanen |
 | `POST …/shop-sync/v1/run-due` | Bearer `DECK_SYNC_CRON_SECRET` | Fällige Checkout-Syncs ausführen (Cron */1) |
 
@@ -48,14 +48,17 @@ Dashboard → [Edge Functions → shop-sync → Schedules](https://supabase.com/
 
 | Name | Cron | Methode | URL | Header |
 |------|------|---------|-----|--------|
-| `shop-sync-full` | **`*/3 * * * *`** | POST | `…/functions/v1/shop-sync` | `Authorization: Bearer <DECK_SYNC_CRON_SECRET>` |
+| `shop-sync-full` | **`*/1 * * * *`** | POST | `…/functions/v1/shop-sync` | `Authorization: Bearer <DECK_SYNC_CRON_SECRET>` |
 | `shop-sync-run-due` | **`*/1 * * * *`** | POST | `…/functions/v1/shop-sync/v1/run-due` | gleicher Bearer |
+| `reservation-purge-holds` | **`*/1 * * * *`** | POST | `…/functions/v1/reservation-api/v1/cron/purge-holds` | gleicher Bearer |
 
 Der Deck-Shop ruft beim **Checkout-Klick** `POST …/v1/schedule` auf (ohne Secret, `keepalive`). Das plant einen Sync **~60 s später**; der Minuten-Cron `run-due` führt ihn aus.
 
+Im Browser pollt der Shop **`reservation-api` `/v1/availability` alle 60 s** (`availabilityPollMs` in `deck-shop/config.js`).
+
 Migration **`20260421220000_deck_sync_deferred.sql`** muss auf dem Projekt applied sein (`npx supabase db push`).
 
-Nach **Fake-Orders** (Test-Gateway) sinkt Shopify-Inventar sofort; Supabase folgt nach Checkout-Schedule oder spätestens beim 3-Min-Cron (oder manuell `--sync`).
+Nach **Fake-Orders** (Test-Gateway) sinkt Shopify-Inventar sofort; Supabase folgt nach Checkout-Schedule oder spätestens beim nächsten Minuten-Sync (oder manuell `--sync`).
 
 ## Logs & DB
 

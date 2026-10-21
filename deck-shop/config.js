@@ -34,10 +34,10 @@ window.PAYDAY_SHOP = {
   reservationTtlMs: 5 * 60 * 1000,
 
   /**
-   * Stufe A: leichtes Availability-Polling (nur reservation-api, kein Shopify-Sync).
-   * Ergänzt shop-sync-Cron — z. B. 75 s; Tab im Hintergrund pausiert.
+   * Availability-Polling (reservation-api) — minütlich; Tab im Hintergrund pausiert.
+   * Shopify→Postgres: shop-sync-Cron */1 (Supabase Dashboard).
    */
-  availabilityPollMs: 75 * 1000,
+  availabilityPollMs: 60 * 1000,
 
   /**
    * Storefront Public Token — für Live-Bestand/Preise (shopify-storefront-catalog.js).

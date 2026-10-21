@@ -25,7 +25,7 @@
       apiBase,
       enabled: Boolean(apiBase),
       ttlMs: shop.reservationTtlMs || DEFAULT_TTL_MS,
-      availabilityPollMs: shop.availabilityPollMs || 75 * 1000,
+      availabilityPollMs: shop.availabilityPollMs || 60 * 1000,
     };
   }
 
@@ -159,7 +159,7 @@
     stopAvailabilityPolling();
     const cfg = getConfig();
     if (!cfg.enabled) return;
-    const intervalMs = Math.max(45000, options?.intervalMs ?? cfg.availabilityPollMs ?? 75000);
+    const intervalMs = Math.max(60000, options?.intervalMs ?? cfg.availabilityPollMs ?? 60000);
     const isActive =
       typeof options?.isActive === 'function' ? options.isActive : () => true;
 

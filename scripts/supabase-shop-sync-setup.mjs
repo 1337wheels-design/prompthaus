@@ -93,10 +93,11 @@ Health:  curl -sS https://${PROJECT}.supabase.co/functions/v1/shop-sync/health
 Sync:    curl -X POST -H "Authorization: Bearer \$DECK_SYNC_CRON_SECRET" \\
            https://${PROJECT}.supabase.co/functions/v1/shop-sync
 
-Cron (2× im Dashboard → shop-sync → Schedules):
-  1) */3 * * * *  POST …/functions/v1/shop-sync
-  2) */1 * * * *  POST …/functions/v1/shop-sync/v1/run-due
-     Header jeweils: Authorization: Bearer <DECK_SYNC_CRON_SECRET>
+Cron (3× im Dashboard, jeweils */1 * * * *, POST, Bearer DECK_SYNC_CRON_SECRET):
+  1) …/functions/v1/shop-sync
+  2) …/functions/v1/shop-sync/v1/run-due
+  3) …/functions/v1/reservation-api/v1/cron/purge-holds
 
 Checkout: Browser POST …/shop-sync/v1/schedule (ohne Secret, ~60 s Verzögerung)
+Browser: reservation-api /v1/availability alle 60 s (config availabilityPollMs)
 `);

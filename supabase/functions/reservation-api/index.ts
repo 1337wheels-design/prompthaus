@@ -27,6 +27,15 @@ function routePath(pathname: string): string {
   return pathname;
 }
 
+function authorizeCron(req: Request, origin: string | null): Response | null {
+  const cronSecret = Deno.env.get('DECK_SYNC_CRON_SECRET');
+  const auth = req.headers.get('Authorization') ?? '';
+  if (cronSecret && auth !== `Bearer ${cronSecret}`) {
+    return jsonResponse(401, { ok: false, reason: 'unauthorized' }, origin);
+  }
+  return null;
+}
+
 function ttlSeconds(): number {
   const raw = Deno.env.get('DECK_RESERVE_TTL_SECONDS');
   const n = raw ? Number(raw) : DEFAULT_TTL_MS / 1000;
@@ -82,6 +91,26 @@ Deno.serve(async (req) => {
   const ttlSec = ttlSeconds();
 
   try {
+    if (req.method === 'POST' && path === '/v1/cron/purge-holds') {
+      const denied = authorizeCron(req, origin);
+      if (denied) return denied;
+      const { data: purged, error: purgeErr } = await supabase.rpc('deck_purge_expired_holds');
+      if (purgeErr) throw purgeErr;
+      const { data: snap, error: snapErr } = await supabase.rpc('deck_stock_snapshot');
+      if (snapErr) throw snapErr;
+      const snapshot = (snap as Record<string, unknown>) ?? {};
+      return jsonResponse(
+        200,
+        {
+          ok: true,
+          purgedHolds: purged,
+          availability: snapshot.availability ?? {},
+          baseStock: snapshot.baseStock ?? {},
+        },
+        origin
+      );
+    }
+
     if (req.method === 'GET' && path === '/health') {
       const { error: rlErr } = await supabase.rpc('deck_rate_limit_check', {
         p_bucket_key: 'health:probe',
@@ -96,6 +125,7 @@ Deno.serve(async (req) => {
           ttlMs: ttlSec * 1000,
           rateLimit: Deno.env.get('DECK_RATE_LIMIT_DISABLED') === 'true' ? 'disabled' : 'stufe1',
           rateLimitDb: rlErr ? { ok: false } : { ok: true },
+          cronPurgeRoute: 'POST /v1/cron/purge-holds (Bearer DECK_SYNC_CRON_SECRET)',
         },
         origin
       );

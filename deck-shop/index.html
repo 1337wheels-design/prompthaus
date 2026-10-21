@@ -482,6 +482,31 @@
       return Object.values(map).reduce((s, n) => s + (Math.max(0, Number(n)) || 0), 0);
     }
 
+    /** SSOT: Postgres availability (reservation-api), sonst Katalog state.stock. */
+    function displayTotalBoards() {
+      if (state.reservationsActive && state.reservationAvailability) {
+        return sumStockMap(state.reservationAvailability);
+      }
+      return INV.totalStock(state.stock);
+    }
+
+    function updateShopSubtitle() {
+      const sub = document.getElementById('shop-subtitle');
+      if (!sub) return;
+      const total = displayTotalBoards();
+      const live = state.storefrontLive ? ' · Preise live (Shopify)' : '';
+      sub.textContent =
+        total + ' Decks · Alle ' + INV.DESIGNS.length + ' Designs · 8.38″ & 8.5″' + live;
+    }
+
+    function applyReservationFromSync(sync) {
+      if (!sync?.availability) return;
+      applyReservationAvailability({
+        availability: sync.availability,
+        baseStock: sync.baseStock,
+      });
+    }
+
     function applyReservationAvailability(detail) {
       const availability =
         detail && detail.availability && typeof detail.availability === 'object'
@@ -501,7 +526,10 @@
           '[reservations] Postgres-Bestand ist 0 — UI nutzt Katalog-Fallback. Shopify-Inventar prüfen und shop-sync ausführen.'
         );
         updateStockLabels();
-        if (state.unlocked) renderShopGrid();
+        if (state.unlocked) {
+          updateShopSubtitle();
+          renderShopGrid();
+        }
         return;
       }
 
@@ -514,6 +542,11 @@
         rebuildCatalogFromState();
       }
       state.reservationsActive = true;
+      updateStockLabels();
+      if (state.unlocked) {
+        updateShopSubtitle();
+        renderShopGrid();
+      }
     }
 
     function displayBaseStock(skuId, item) {
@@ -553,7 +586,7 @@
         if (state.cart.length) {
           const sync = await PR.syncCart(state.cart);
           if (sync.ok && sync.availability) {
-            applyReservationAvailability({ availability: sync.availability, baseStock: sync.baseStock });
+            applyReservationFromSync(sync);
           } else if (!sync.ok) {
             state.cart = [];
             persistCart();
@@ -561,7 +594,7 @@
         } else {
           const res = await PR.fetchAvailability();
           if (res.ok && res.availability) {
-            applyReservationAvailability({ availability: res.availability, baseStock: res.baseStock });
+            applyReservationFromSync(res);
           }
         }
         PR.startHeartbeat(() => state.cart);
@@ -571,9 +604,7 @@
     }
 
     function updateStockLabels() {
-      const total = state.reservationsActive && state.reservationAvailability
-        ? Object.values(state.reservationAvailability).reduce((s, n) => s + (Number(n) || 0), 0)
-        : INV.totalStock(state.stock);
+      const total = displayTotalBoards();
       const live = state.storefrontLive ? ' · Shopify live' : '';
       const text = `${total} verfügbar${live}`;
       document.getElementById('nav-stock').textContent = text;
@@ -601,7 +632,9 @@
       let applied = 0;
       Object.entries(items).forEach(([sku, row]) => {
         if (!row?.ok) return;
-        state.stock[sku] = row.quantity;
+        if (!state.reservationsActive) {
+          state.stock[sku] = row.quantity;
+        }
         if (row.price != null) state.shopifyPrices[sku] = row.price;
         if (row.compareAtPrice != null) state.shopifyCompareAt[sku] = row.compareAtPrice;
         applied += 1;
@@ -620,15 +653,7 @@
         const n = applyStorefrontItems(result);
         if (state.unlocked) {
           updateStockLabels();
-          const sub = document.getElementById('shop-subtitle');
-          if (sub) {
-            sub.textContent =
-              INV.totalStock(state.stock) +
-              ' Decks · Alle ' +
-              INV.DESIGNS.length +
-              ' Designs · 8.38″ & 8.5″' +
-              (state.storefrontLive ? ' · Preise/Bestand von Shopify' : '');
-          }
+          updateShopSubtitle();
           renderShopGrid();
         }
         return { ok: result.ok, count: n, source: result.source };
@@ -981,8 +1006,7 @@
       document.getElementById('configurator').classList.add('is-unlocked');
       document.getElementById('shop-section').classList.add('is-unlocked');
       rebuildCatalogFromState();
-      document.getElementById('shop-subtitle').textContent =
-        INV.totalStock(state.stock) + ' Decks · Alle ' + INV.DESIGNS.length + ' Designs · 8.38″ & 8.5″';
+      updateShopSubtitle();
       buildFilters();
       renderShopGrid();
       updateUI();
@@ -1158,7 +1182,7 @@
       const nextCart = state.cart.concat([{ ...item }]);
       const sync = await syncReservationsForCart(nextCart);
       if (!sync.ok && !sync.disabled) {
-        if (sync.availability) applyReservationAvailability(sync.availability);
+        applyReservationFromSync(sync);
         renderShopGrid();
         alert(
           sync.reason === 'insufficient'
@@ -1171,7 +1195,7 @@
         );
         return;
       }
-      if (sync.availability) applyReservationAvailability(sync.availability);
+      applyReservationFromSync(sync);
       state.cart = nextCart;
       updateCart(true);
       renderShopGrid();
@@ -1185,10 +1209,10 @@
       nextCart.splice(index, 1);
       const sync = await syncReservationsForCart(nextCart);
       if (!sync.ok && !sync.disabled) {
-        if (sync.availability) applyReservationAvailability(sync.availability);
+        applyReservationFromSync(sync);
         return;
       }
-      if (sync.availability) applyReservationAvailability(sync.availability);
+      applyReservationFromSync(sync);
       state.cart = nextCart;
       updateCart(true);
       renderShopGrid();
@@ -1203,7 +1227,7 @@
         /* ignore */
       }
       window.PAYDAY_RESERVATIONS?.releaseCart?.().then((res) => {
-        if (res?.availability) applyReservationAvailability(res.availability);
+        applyReservationFromSync(res);
       });
       window.PAYDAY_RESERVATIONS?.stopHeartbeat?.();
       updateCart(false);
@@ -1323,7 +1347,6 @@
         availability: ev.detail?.availability,
         baseStock: ev.detail?.baseStock,
       });
-      if (state.unlocked) renderShopGrid();
     });
 
     window.addEventListener('pageshow', () => {

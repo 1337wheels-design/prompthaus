@@ -477,15 +477,37 @@
       return Boolean(window.PAYDAY_RESERVATIONS?.isEnabled?.());
     }
 
+    function sumStockMap(map) {
+      if (!map || typeof map !== 'object') return 0;
+      return Object.values(map).reduce((s, n) => s + (Math.max(0, Number(n)) || 0), 0);
+    }
+
     function applyReservationAvailability(detail) {
       const availability =
         detail && detail.availability && typeof detail.availability === 'object'
           ? detail.availability
           : detail;
       if (!availability || typeof availability !== 'object') return;
+
+      const baseStock =
+        detail?.baseStock && typeof detail.baseStock === 'object' ? detail.baseStock : null;
+      const availSum = sumStockMap(availability);
+      const baseSum = sumStockMap(baseStock);
+
+      if (availSum === 0 && baseSum === 0) {
+        state.reservationsActive = false;
+        state.reservationAvailability = null;
+        console.warn(
+          '[reservations] Postgres-Bestand ist 0 — UI nutzt Katalog-Fallback. Shopify-Inventar prüfen und shop-sync ausführen.'
+        );
+        updateStockLabels();
+        if (state.unlocked) renderShopGrid();
+        return;
+      }
+
       state.reservationAvailability = { ...availability };
-      if (detail?.baseStock && typeof detail.baseStock === 'object') {
-        state.baseStock = { ...detail.baseStock };
+      if (baseStock) {
+        state.baseStock = { ...baseStock };
         Object.keys(state.baseStock).forEach((sku) => {
           state.stock[sku] = state.baseStock[sku];
         });
@@ -518,6 +540,9 @@
     async function syncReservationsForCart(cart) {
       const PR = window.PAYDAY_RESERVATIONS;
       if (!PR?.isEnabled?.()) return { ok: true, disabled: true };
+      if (!state.reservationsActive) {
+        return { ok: true, disabled: true, reason: 'reservations_degraded' };
+      }
       return PR.syncCart(cart || []);
     }
 
@@ -1124,7 +1149,12 @@
     }
 
     async function addToCart(item) {
-      if (availableStock(item.id) <= 0) return;
+      if (availableStock(item.id) <= 0) {
+        alert(
+          'Gerade nicht verfügbar. Wenn der Shop leer wirkt: Inventar in Shopify pflegen und shop-sync/Cron ausführen (Postgres deck_base_stock).'
+        );
+        return;
+      }
       const nextCart = state.cart.concat([{ ...item }]);
       const sync = await syncReservationsForCart(nextCart);
       if (!sync.ok && !sync.disabled) {

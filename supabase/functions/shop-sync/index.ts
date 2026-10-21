@@ -107,7 +107,13 @@ Deno.serve(async (req) => {
     for (const [skuId, handle] of Object.entries(handleMap)) {
       const query = `query Q($h: String!) {
         product(handle: $h) {
-          variants(first: 1) { nodes { quantityAvailable } }
+          availableForSale
+          variants(first: 1) {
+            nodes {
+              availableForSale
+              quantityAvailable
+            }
+          }
         }
       }`;
       const res = await fetch(`https://${domain}/api/${API_VERSION}/graphql.json`, {
@@ -119,9 +125,25 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ query, variables: { h: handle } }),
       });
       const jsonBody = await res.json();
-      const qty = jsonBody?.data?.product?.variants?.nodes?.[0]?.quantityAvailable;
-      if (typeof qty === 'number') snapshot[skuId] = qty;
-      else skipped.push(skuId);
+      const product = jsonBody?.data?.product;
+      const variant = product?.variants?.nodes?.[0];
+      if (!product || !variant) {
+        skipped.push(skuId);
+        continue;
+      }
+      let qty = variant.quantityAvailable;
+      if (qty == null || qty < 0) {
+        if (product.availableForSale && variant.availableForSale) {
+          qty = 99;
+        } else {
+          skipped.push(skuId);
+          continue;
+        }
+      }
+      if (!product.availableForSale || !variant.availableForSale) {
+        qty = 0;
+      }
+      snapshot[skuId] = qty;
     }
 
     const { data: applied, error: applyErr } = await supabase.rpc('deck_apply_stock_snapshot', {

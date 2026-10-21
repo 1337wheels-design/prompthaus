@@ -131,19 +131,17 @@ Deno.serve(async (req) => {
         skipped.push(skuId);
         continue;
       }
-      let qty = variant.quantityAvailable;
-      if (qty == null || qty < 0) {
-        if (product.availableForSale && variant.availableForSale) {
-          qty = 99;
-        } else {
-          skipped.push(skuId);
-          continue;
-        }
-      }
       if (!product.availableForSale || !variant.availableForSale) {
-        qty = 0;
+        snapshot[skuId] = 0;
+        continue;
       }
-      snapshot[skuId] = qty;
+      const rawQty = variant.quantityAvailable;
+      if (typeof rawQty === 'number' && rawQty >= 0) {
+        snapshot[skuId] = rawQty;
+        continue;
+      }
+      // quantityAvailable fehlt oft bei untracked inventory — Postgres nicht künstlich aufblähen
+      skipped.push(skuId);
     }
 
     const { data: applied, error: applyErr } = await supabase.rpc('deck_apply_stock_snapshot', {

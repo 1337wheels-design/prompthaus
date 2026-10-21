@@ -33,7 +33,8 @@
     "supabase:deploy:shop-sync": "npx supabase functions deploy shop-sync --project-ref yoeehrdsrfwolzdtgmel",
     "supabase:shop-sync:setup": "node scripts/supabase-shop-sync-setup.mjs --generate-cron-secret --deploy",
     "test:shop-sync": "node scripts/deck-shop-sync-smoke.mjs",
-    "test:shop-sync:run": "node scripts/deck-shop-sync-smoke.mjs --sync"
+    "test:shop-sync:run": "node scripts/deck-shop-sync-smoke.mjs --sync",
+    "ops:postgres-stock": "node scripts/deck-postgres-stock-audit.mjs"
   },
   "repository": {
     "type": "git",

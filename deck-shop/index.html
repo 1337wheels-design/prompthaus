@@ -201,7 +201,7 @@
       <a href="../?dev=1" class="nav__dev-menu">Dev</a>
     </div>
     <div class="nav__right">
-      <span class="nav__stock" id="nav-stock">50 verfügbar</span>
+      <span class="nav__stock" id="nav-stock">Bestand laden…</span>
       <button type="button" class="shopify-connect-btn nav__dev-only" id="shopify-connect-open" hidden>Shopify</button>
       <button class="cart-btn" id="cart-toggle" type="button">Warenkorb (0)</button>
     </div>
@@ -211,7 +211,7 @@
   <header class="deck-hero">
     <h1 class="deck-hero__title">Payday SS26 Deck Shop</h1>
     <p class="deck-hero__sub">6 Designs · Camo &amp; Linear · 59&nbsp;€ inkl. Griptape</p>
-    <span class="deck-hero__stock" id="hero-stock">50 Decks · 8.38″ &amp; 8.5″</span>
+    <span class="deck-hero__stock" id="hero-stock">Bestand aus Postgres…</span>
   </header>
 
   <section class="configurator" id="configurator">
@@ -271,7 +271,7 @@
       <div class="configurator__shop" id="shop-section">
         <header class="shop-header">
           <h2>Verfügbare Decks</h2>
-          <p id="shop-subtitle">50 Decks · 6 Designs · 8.38″ &amp; 8.5″</p>
+          <p id="shop-subtitle">Bestand synchronisieren…</p>
         </header>
         <div class="filter-bar" id="filter-size"></div>
         <div class="filter-bar" id="filter-design"></div>
@@ -581,7 +581,10 @@
 
     async function initReservations() {
       const PR = window.PAYDAY_RESERVATIONS;
-      if (!PR?.isEnabled?.()) return;
+      if (!PR?.isEnabled?.()) {
+        updateStockLabels();
+        return;
+      }
       try {
         if (state.cart.length) {
           const sync = await PR.syncCart(state.cart);
@@ -1449,9 +1452,10 @@
       /* ignore */
     }
 
-    updateStockLabels();
     updateCart(false);
-    initReservations();
+    initReservations().finally(() => {
+      if (!state.reservationsActive) updateStockLabels();
+    });
     if (DEV_MODE) window.PAYDAY_CONFIG_LOG?.renderList('session-config-log');
 
     state.phase = 'loading';

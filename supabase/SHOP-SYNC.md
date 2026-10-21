@@ -7,7 +7,9 @@ Synchronisiert **`quantityAvailable`** aus der Shopify Storefront API in **`deck
 | Route | Auth | Beschreibung |
 |-------|------|--------------|
 | `GET …/health` | nein | Konfig-Check (keine Secrets im Response) |
-| `POST …/shop-sync` | Bearer `DECK_SYNC_CRON_SECRET` (wenn gesetzt) | Sync ausführen |
+| `POST …/shop-sync` | Bearer `DECK_SYNC_CRON_SECRET` (wenn gesetzt) | Voll-Sync (Cron alle 3 Min) |
+| `POST …/shop-sync/v1/schedule` | CORS (Deck-Shop-Origins) | Checkout: Sync in ~60 s einplanen |
+| `POST …/shop-sync/v1/run-due` | Bearer `DECK_SYNC_CRON_SECRET` | Fällige Checkout-Syncs ausführen (Cron */1) |
 
 ## Schnellstart (CLI)
 
@@ -38,15 +40,22 @@ npx supabase secrets set SHOPIFY_STOREFRONT_TOKEN="…" --project-ref yoeehrdsrf
 
 Optional denselben Token in `deck-shop/config.local.js` → `storefrontAccessToken` für Live-Preise im Browser (gitignored).
 
-## Cron (Stufe A: alle 3–5 Min)
+## Cron (regelmäßig + checkout-getriggert)
 
 Dashboard → [Edge Functions → shop-sync → Schedules](https://supabase.com/dashboard/project/yoeehrdsrfwolzdtgmel/functions)
 
-- Schedule: **`*/3 * * * *`** oder **`*/5 * * * *`**
-- HTTP **POST** auf Function-URL
-- Header: `Authorization: Bearer <DECK_SYNC_CRON_SECRET>`
+**Zwei Schedules anlegen** (aus diesem Repo kann Supabase die Dashboard-Crons nicht automatisch setzen — nach Deploy manuell oder per Supabase CLI/Management-API):
 
-Nach **Fake-Orders** (Test-Gateway) sinkt Shopify-Inventar sofort; Supabase folgt spätestens beim nächsten Cron (oder manuell `--sync`).
+| Name | Cron | Methode | URL | Header |
+|------|------|---------|-----|--------|
+| `shop-sync-full` | **`*/3 * * * *`** | POST | `…/functions/v1/shop-sync` | `Authorization: Bearer <DECK_SYNC_CRON_SECRET>` |
+| `shop-sync-run-due` | **`*/1 * * * *`** | POST | `…/functions/v1/shop-sync/v1/run-due` | gleicher Bearer |
+
+Der Deck-Shop ruft beim **Checkout-Klick** `POST …/v1/schedule` auf (ohne Secret, `keepalive`). Das plant einen Sync **~60 s später**; der Minuten-Cron `run-due` führt ihn aus.
+
+Migration **`20260421220000_deck_sync_deferred.sql`** muss auf dem Projekt applied sein (`npx supabase db push`).
+
+Nach **Fake-Orders** (Test-Gateway) sinkt Shopify-Inventar sofort; Supabase folgt nach Checkout-Schedule oder spätestens beim 3-Min-Cron (oder manuell `--sync`).
 
 ## Logs & DB
 

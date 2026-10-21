@@ -26,6 +26,10 @@ window.PAYDAY_SHOP = {
    */
   reservationApiUrl: 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/reservation-api',
 
+  /** Nach Checkout-Klick: verzögerten Shopify→Postgres-Sync anstoßen (ohne Cron-Secret). */
+  shopSyncScheduleUrl:
+    'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/shop-sync/v1/schedule',
+
   /** Reservierungs-TTL in ms (Default serverseitig: 5 Min). */
   reservationTtlMs: 5 * 60 * 1000,
 

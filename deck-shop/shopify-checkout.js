@@ -304,8 +304,28 @@
     }
   }
 
+  function scheduleDeferredShopSync(cfg) {
+    const shop = cfg || getConfig();
+    const url = (shop.shopSyncScheduleUrl || '').replace(/\/$/, '');
+    if (!url) return;
+    try {
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ delaySeconds: 60 }),
+        keepalive: true,
+        credentials: 'omit',
+      }).catch(function () {
+        /* ignore — Cron fängt Inventar sonst auf */
+      });
+    } catch {
+      /* ignore */
+    }
+  }
+
   function notifyCheckoutRedirect(cartItems) {
     clearPersistedDeckCart();
+    scheduleDeferredShopSync(getConfig());
     try {
       sessionStorage.setItem('payday_checkout_pending', String(Date.now()));
     } catch {

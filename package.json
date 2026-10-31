@@ -38,7 +38,7 @@
     "ops:postgres-stock": "node scripts/deck-postgres-stock-audit.mjs",
     "shopify:theme:login": "shopify auth login",
     "shopify:theme:dev": "shopify theme dev --path shopify/theme --store xwk1u9-6z.myshopify.com",
-    "shopify:theme:push": "shopify theme push --path shopify/theme --store xwk1u9-6z.myshopify.com",
+    "shopify:theme:push": "shopify theme push --path shopify/theme --store xwk1u9-6z.myshopify.com --unpublished --theme \"Payday Shop\"",
     "shopify:theme:sync": "node scripts/sync-deck-shop-theme-assets.mjs"
   },
   "repository": {

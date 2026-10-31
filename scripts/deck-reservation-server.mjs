@@ -155,9 +155,10 @@ const server = http.createServer(async (req, res) => {
 });
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const startupTtlMs = supabaseBackend?.ttlMs ?? DEFAULT_TTL_MS;
   server.listen(PORT, () => {
     console.log(
-      `[deck-reservation] http://127.0.0.1:${PORT} backend=${backendKind()} ttl=${ttlMs / 1000}s`
+      `[deck-reservation] http://127.0.0.1:${PORT} backend=${backendKind()} ttl=${startupTtlMs / 1000}s`
     );
   });
 }

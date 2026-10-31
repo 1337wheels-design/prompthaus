@@ -1,0 +1,102 @@
+{% comment %}
+  Payday Deck Shop — Vercel-Stand (Konfigurator, Intro-Swipe, 3× Wischen, Grid, Checkout).
+  Schwere Assets (Decks SVG, Board-JPEGs) werden von cdn_base geladen (Default: Vercel Production).
+{% endcomment %}
+
+{{ 'payday-deck-shop-shell.css' | asset_url | stylesheet_tag }}
+{{ 'payday-deck-shop.css' | asset_url | stylesheet_tag }}
+{{ 'payday-deck-shop-shopify-overrides.css' | asset_url | stylesheet_tag }}
+
+{% render 'payday-deck-shop-config', section: section %}
+{% render 'payday-deck-shop-body', section: section %}
+
+<script src="{{ 'payday-deck-inventory.js' | asset_url }}" defer></script>
+<script src="{{ 'payday-deck-renderer.js' | asset_url }}" defer></script>
+<script src="{{ 'payday-deck-reservations.js' | asset_url }}" defer></script>
+<script src="{{ 'payday-session-config-log.js' | asset_url }}" defer></script>
+<script src="{{ 'payday-dev-vitals.js' | asset_url }}" defer></script>
+<script src="{{ 'payday-shopify-connect.js' | asset_url }}" defer></script>
+<script src="{{ 'payday-shopify-storefront-catalog.js' | asset_url }}" defer></script>
+<script src="{{ 'payday-shopify-checkout.js' | asset_url }}" defer></script>
+<script src="{{ 'payday-shopify-checkout-harden.js' | asset_url }}" defer></script>
+<script src="{{ 'payday-deck-shop-app.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Payday Deck Shop",
+  "tag": "section",
+  "class": "payday-deck-shop-section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shopify-native (Default): Storefront-Token eintragen, Supabase aus. Bestand kommt nur aus Shopify — kein shop-sync. Schwere Grafiken von Asset-CDN (Vercel)."
+    },
+    {
+      "type": "text",
+      "id": "cdn_base",
+      "label": "Asset-CDN (Vercel)",
+      "default": "https://1337wheels-design-payday.vercel.app",
+      "info": "Ohne trailing slash. /decks/ und /deck-shop/assets/ werden angehängt."
+    },
+    {
+      "type": "text",
+      "id": "shop_domain",
+      "label": "Shop-Domain (myshopify.com)",
+      "default": "xwk1u9-6z.myshopify.com"
+    },
+    {
+      "type": "text",
+      "id": "storefront_access_token",
+      "label": "Storefront Public Token",
+      "info": "Für Live-Bestand/Preise im Grid. Leer = Fallback-Bestand bis Token gesetzt."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_supabase_reservations",
+      "label": "Supabase Reservierungen (5 Min Holds)",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "reservation_api_url",
+      "label": "reservation-api URL",
+      "default": "https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/reservation-api"
+    },
+    {
+      "type": "text",
+      "id": "shop_sync_schedule_url",
+      "label": "shop-sync schedule URL (Checkout)",
+      "default": "https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/shop-sync/v1/schedule"
+    },
+    {
+      "type": "url",
+      "id": "checkout_return_url",
+      "label": "Checkout Return-URL (optional)",
+      "info": "Leer = aktuelle Shop-Seite"
+    },
+    {
+      "type": "text",
+      "id": "editor_url",
+      "label": "Deck-Editor URL",
+      "default": "https://1337wheels-design-payday.vercel.app/decks/editor.html"
+    },
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Hero-Titel",
+      "default": "Payday SS26 Deck Shop"
+    },
+    {
+      "type": "text",
+      "id": "hero_subtitle",
+      "label": "Hero-Untertitel",
+      "default": "6 Designs · Camo & Linear · 59 € inkl. Griptape"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Payday Deck Shop"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}" class="payday-shop-theme">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>{{ page_title }}</title>
+    {{ content_for_header }}
+  </head>
+  <body class="payday-shop-theme template-{{ template.name | handle }}">
+    {{ content_for_layout }}
+  </body>
+</html>

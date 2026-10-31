@@ -579,11 +579,17 @@
       return PR.syncCart(cart || []);
     }
 
+    function shopifyInventoryOnly() {
+      return window.PAYDAY_SHOP?.shopifyInventoryOnly === true;
+    }
+
     async function initReservations() {
       const PR = window.PAYDAY_RESERVATIONS;
-      if (!PR?.isEnabled?.()) {
+      if (!PR?.isEnabled?.() || shopifyInventoryOnly()) {
+        await refreshStorefrontCatalog({ force: true }).catch(() => {});
         updateStockLabels();
-        return;
+        if (typeof updateShopSubtitle === 'function') updateShopSubtitle();
+        if (!PR?.isEnabled?.() || shopifyInventoryOnly()) return;
       }
       try {
         if (state.cart.length) {
@@ -674,11 +680,12 @@
 
     function startStorefrontPolling() {
       if (state.storefrontPollTimer) return;
+      const pollMs = shopifyInventoryOnly() ? 60 * 1000 : 5 * 60 * 1000;
       state.storefrontPollTimer = setInterval(() => {
         if (state.unlocked && document.visibilityState === 'visible') {
           refreshStorefrontCatalog({ force: true });
         }
-      }, 5 * 60 * 1000);
+      }, pollMs);
       document.addEventListener('visibilitychange', () => {
         if (state.unlocked && document.visibilityState === 'visible') {
           refreshStorefrontCatalog({ force: true });
@@ -1015,9 +1022,11 @@
       updateUI();
       refreshStorefrontCatalog({ force: true });
       startStorefrontPolling();
-      window.PAYDAY_RESERVATIONS?.startAvailabilityPolling?.({
-        isActive: () => state.unlocked,
-      });
+      if (!shopifyInventoryOnly()) {
+        window.PAYDAY_RESERVATIONS?.startAvailabilityPolling?.({
+          isActive: () => state.unlocked,
+        });
+      }
       logShopConfig('Shop freigeschaltet');
     }
 

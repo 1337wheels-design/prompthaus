@@ -10,6 +10,9 @@
  * Docs: shopify/SETUP.md (Hybrid Option C)
  */
 window.PAYDAY_SHOP = {
+  /** true = nur Shopify Storefront-Bestand (Theme). false = Hybrid mit Supabase reservation-api. */
+  shopifyInventoryOnly: false,
+
   shopDomain: 'xwk1u9-6z.myshopify.com',
 
   /**

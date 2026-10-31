@@ -1,0 +1,113 @@
+<div id="payday-deck-shop-root" class="payday-deck-shop-root">
+  <nav class="nav">
+    <a href="{{ routes.root_url }}" class="nav__logo">Payday Decks</a>
+    <div class="nav__links">
+      <a href="{{ routes.root_url }}" class="active">Shop</a>
+      <a href="#" id="nav-configurator">Deck-Konfigurator</a>
+      <a href="{{ routes.root_url }}?dev=1" class="nav__dev-menu">Dev</a>
+    </div>
+    <div class="nav__right">
+      <span class="nav__stock" id="nav-stock">Bestand laden…</span>
+      <button type="button" class="shopify-connect-btn nav__dev-only" id="shopify-connect-open" hidden>Shopify</button>
+      <button class="cart-btn" id="cart-toggle" type="button">Warenkorb (0)</button>
+    </div>
+  </nav>
+  <p class="shopify-status nav__dev-only" id="shopify-status" aria-live="polite" hidden></p>
+
+  <header class="deck-hero">
+    <h1 class="deck-hero__title">{{ section.settings.hero_title | default: 'Payday SS26 Deck Shop' }}</h1>
+    <p class="deck-hero__sub">{{ section.settings.hero_subtitle | default: '6 Designs · Camo & Linear · 59 € inkl. Griptape' }}</p>
+    <span class="deck-hero__stock" id="hero-stock">Bestand wird geladen…</span>
+  </header>
+
+  <section class="configurator" id="configurator">
+    <div class="configurator__layout">
+      <aside class="configurator__sidebar">
+        <div class="zone zone--progress" id="zone-progress">
+          <p class="zone__label">Fortschritt</p>
+          <div class="unlock-progress" id="unlock-progress">
+            <div class="unlock-progress__track">
+              <div class="unlock-progress__fill" id="unlock-progress-fill"></div>
+            </div>
+            <span class="unlock-progress__label" id="unlock-progress-label">Vorschau startet…</span>
+          </div>
+        </div>
+
+        <div class="zone zone--preview">
+          <p class="zone__label">Live-Vorschau</p>
+          <div class="preview-frame" id="preview-frame">
+            <div class="asset-loader" id="asset-loader" aria-live="polite">
+              <div class="asset-loader__glyph" aria-hidden="true"></div>
+              <span class="asset-loader__tag">Board-Archiv</span>
+              <p class="asset-loader__name" id="asset-loader-name">payday_CHROME</p>
+              <p class="asset-loader__sub" id="asset-loader-sub">Artefakte werden geladen…</p>
+            </div>
+            <canvas id="preview-canvas" width="400" height="1400" title="Tippen oder wischen zum Weiter"></canvas>
+          </div>
+          <p class="preview-nav-hint" id="preview-nav-hint" hidden>← Wischen →</p>
+          <div class="design-nav" id="design-nav">
+            <button type="button" class="design-nav__btn" id="nav-prev" aria-label="Vorheriges Design">← Zurück</button>
+            <button type="button" class="design-nav__btn" id="nav-next" aria-label="Nächstes Design">Weiter →</button>
+          </div>
+        </div>
+
+        <div class="zone zone--designs">
+          <p class="zone__label">Design wählen</p>
+          <div class="design-strip" id="design-strip" aria-label="Design-Auswahl"></div>
+        </div>
+
+        <div class="zone zone--controls control-col" id="zone-controls">
+          <p class="zone__label">Freischaltung</p>
+          <div class="phase-badge" id="phase-badge">Lädt</div>
+          <h2 class="phase-title" id="phase-title">Payday Decks</h2>
+          <div class="pattern-pills" id="pattern-pills">
+            <span class="pattern-pill pattern-pill--camo" id="pill-camo">Camo</span>
+            <span class="pattern-pill pattern-pill--linear" id="pill-linear" style="display:none">Linear</span>
+          </div>
+          <p class="phase-hint" id="phase-hint">Alle Designs werden kurz vorgestellt…</p>
+          <p class="click-progress" id="click-progress">3× Wischen zum Freischalten</p>
+          <div class="round-dots" id="swipe-dots">
+            <div class="round-dot" id="dot-swipe-1" title="Schritt 1"></div>
+            <div class="round-dot" id="dot-swipe-2" title="Schritt 2"></div>
+            <div class="round-dot" id="dot-swipe-3" title="Schritt 3"></div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="configurator__shop" id="shop-section">
+        <header class="shop-header">
+          <h2>Verfügbare Decks</h2>
+          <p id="shop-subtitle">Bestand synchronisieren…</p>
+        </header>
+        <div class="filter-bar" id="filter-size"></div>
+        <div class="filter-bar" id="filter-design"></div>
+        <div class="deck-grid" id="deck-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="dev-vitals-wrap" id="dev-vitals-wrap" aria-hidden="true">
+    <div class="dev-vitals" id="dev-vitals"></div>
+    <div class="config-log dev-vitals">
+      <h3>Letzte Konfigurationen (Session)</h3>
+      <div id="session-config-log"></div>
+    </div>
+  </div>
+
+  <div class="shopify-connect" id="shopify-connect" aria-hidden="true"></div>
+
+  <div class="cart-panel" id="cart-panel" aria-hidden="true">
+    <div class="cart-panel__head">
+      <span id="cart-panel-title">Warenkorb</span>
+      <button type="button" class="cart-panel__close" id="cart-close" aria-label="Warenkorb schließen">×</button>
+    </div>
+    <ul class="cart-panel__lines" id="cart-lines"></ul>
+    <div class="cart-panel__foot">
+      <div class="cart-panel__info" id="cart-info">Kein Deck im Warenkorb</div>
+      <div class="cart-panel__actions">
+        <button class="cart-collapse-btn" id="cart-collapse" type="button" aria-label="Warenkorb einklappen">Hochklappen</button>
+        <button class="checkout-btn" id="checkout-btn" type="button">Zur Kasse</button>
+      </div>
+    </div>
+  </div>
+</div>

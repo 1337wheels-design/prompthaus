@@ -1,0 +1,61 @@
+{%- liquid
+  assign cdn = section.settings.cdn_base | default: 'https://1337wheels-design-payday.vercel.app' | strip
+  assign shop_domain = section.settings.shop_domain | default: shop.permanent_domain | default: 'xwk1u9-6z.myshopify.com'
+  if section.settings.checkout_return_url != blank
+    assign return_url = section.settings.checkout_return_url
+  else
+    assign return_url = request.origin | append: request.path
+  endif
+  assign reserve_url = ''
+  if section.settings.enable_supabase_reservations
+    assign reserve_url = section.settings.reservation_api_url | default: 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/reservation-api'
+  endif
+  assign sync_schedule = ''
+  if section.settings.enable_supabase_reservations
+    assign sync_schedule = section.settings.shop_sync_schedule_url | default: 'https://yoeehrdsrfwolzdtgmel.supabase.co/functions/v1/shop-sync/v1/schedule'
+  endif
+  assign sf_token = section.settings.storefront_access_token | default: ''
+  assign shopify_only = true
+  if section.settings.enable_supabase_reservations
+    assign shopify_only = false
+  endif
+-%}
+<script>
+  window.PAYDAY_PATHS = {
+    cdnBase: {{ cdn | json }},
+    decksBase: {{ cdn | append: '/decks/' | json }},
+    deckShopAssets: {{ cdn | append: '/deck-shop/assets/' | json }},
+    editorUrl: {{ section.settings.editor_url | default: cdn | append: '/decks/editor.html' | json }}
+  };
+  window.PAYDAY_SHOP = {
+    shopDomain: {{ shop_domain | json }},
+    checkoutReturnUrl: {{ return_url | json }},
+    shopifyInventoryOnly: {{ shopify_only | json }},
+    reservationApiUrl: {{ reserve_url | json }},
+    shopSyncScheduleUrl: {{ sync_schedule | json }},
+    reservationTtlMs: 300000,
+    availabilityPollMs: 60000,
+    storefrontAccessToken: {{ sf_token | json }},
+    deckVariants: {
+      'chrome-838': { handle: 'payday-deck-chrome-838', variantId: 67670522429725 },
+      'chrome-850': { handle: 'payday-deck-chrome-850', variantId: 67670523150621 },
+      'neon-838': { handle: 'payday-deck-neon-838', variantId: 67670523445533 },
+      'neon-850': { handle: 'payday-deck-neon-850', variantId: 67670524002589 },
+      'payday-linear-838': { handle: 'payday-deck-linear-838', variantId: 67670524068125 },
+      'payday-linear-850': { handle: 'payday-deck-linear-850', variantId: 67670524723485 },
+      'arctic-838': { handle: 'payday-deck-arctic-838', variantId: 67670525477149 },
+      'arctic-850': { handle: 'payday-deck-arctic-850', variantId: 67670525837597 },
+      'night-838': { handle: 'payday-deck-night-838', variantId: 67670526591261 },
+      'night-850': { handle: 'payday-deck-night-850', variantId: 67670526689565 },
+      'payday-camo-838': { handle: 'payday-deck-camo-838', variantId: 67670527377693 },
+      'payday-camo-850': { handle: 'payday-deck-camo-850', variantId: 67670527770909 }
+    },
+    packVariants: {
+      'event-ticket': { handle: 'event-ticket', variantId: 67670520004893 },
+      'single-pack': { handle: 'single-pack', variantId: 67670520725789 },
+      'double-pack': { handle: 'double-pack', variantId: 67670521512221 },
+      'triple-pack': { handle: 'triple-pack', variantId: 67670521577757 },
+      'art-print-attitude': { handle: 'art-print-attitude', variantId: 67670529179933 }
+    }
+  };
+</script>

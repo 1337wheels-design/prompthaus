@@ -35,7 +35,11 @@
     "supabase:shop-sync:setup": "node -r dotenv/config scripts/supabase-shop-sync-setup.mjs --generate-cron-secret --deploy",
     "test:shop-sync": "node -r dotenv/config scripts/deck-shop-sync-smoke.mjs",
     "test:shop-sync:run": "node -r dotenv/config scripts/deck-shop-sync-smoke.mjs --sync",
-    "ops:postgres-stock": "node scripts/deck-postgres-stock-audit.mjs"
+    "ops:postgres-stock": "node scripts/deck-postgres-stock-audit.mjs",
+    "shopify:theme:login": "shopify auth login",
+    "shopify:theme:dev": "shopify theme dev --path shopify/theme --store xwk1u9-6z.myshopify.com",
+    "shopify:theme:push": "shopify theme push --path shopify/theme --store xwk1u9-6z.myshopify.com",
+    "shopify:theme:sync": "node scripts/sync-deck-shop-theme-assets.mjs"
   },
   "repository": {
     "type": "git",
@@ -53,6 +57,7 @@
     "playwright": "^1.63.0"
   },
   "devDependencies": {
+    "@shopify/cli": "^3.94.3",
     "dotenv": "^16.6.1",
     "supabase": "^2.119.0",
     "vercel": "^62.2.0"

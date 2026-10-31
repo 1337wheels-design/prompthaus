@@ -34,11 +34,14 @@ payday.uepark.de/
 
 1. **Shop anlegen** — Shopify Admin → Store erstellen
 2. **Produkte importieren** — `shopify/products.csv` unter *Products → Import*
-3. **Theme hochladen** — Ordner `shopify/theme/` als ZIP oder per Shopify CLI:
+3. **Theme hochladen** — Ordner `shopify/theme/` per Shopify CLI (im Repo-Root):
    ```bash
-   npm init @shopify/app@latest
-   shopify theme push --path shopify/theme
+   npm install
+   npm run shopify:theme:login
+   npm run shopify:theme:push
    ```
+   Einzelbefehle ohne globales `shopify`: `npx shopify theme push --path shopify/theme --store xwk1u9-6z.myshopify.com`
+   **Nicht** mehrere Zeilen in eine `cd`-Zeile kleben — Kommentar `# …` kann in manchen Terminals `cd` stören; Befehle nacheinander ausführen.
 4. **Assets verlinken** — Karten-Galerie:
    - Option 1: `cards/index.html` auf GitHub Pages lassen, in Section `payday-card-gallery.liquid` als iframe einbinden
    - Option 2: Screenshots/PNGs aus `export/` als Theme-Assets hochladen

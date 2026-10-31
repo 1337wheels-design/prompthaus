@@ -1,0 +1,45 @@
+/**
+ * Shopify-Wrapper neutralisieren — Vercel deck-shop nutzt body/:root direkt;
+ * Online Store injiziert oft helle Defaults auf body, .shopify-section, #MainContent.
+ */
+html.payday-shop-theme,
+html.payday-shop-theme body.payday-shop-theme {
+  color-scheme: dark;
+  background-color: #0a0812;
+  color: #d0d0d2;
+}
+
+html.payday-shop-theme body.payday-shop-theme {
+  background-image:
+    radial-gradient(ellipse 60% 40% at 30% 10%, rgba(120, 60, 180, 0.22) 0%, transparent 100%),
+    radial-gradient(ellipse 50% 50% at 80% 90%, rgba(0, 0, 0, 0.5) 0%, transparent 100%);
+}
+
+html.payday-shop-theme #MainContent,
+html.payday-shop-theme .content-for-layout,
+html.payday-shop-theme main,
+html.payday-shop-theme .shopify-section.payday-deck-shop-section,
+html.payday-shop-theme section.payday-deck-shop-section {
+  background: transparent !important;
+  color: inherit;
+  padding: 0 !important;
+  margin: 0;
+  max-width: none;
+}
+
+html.payday-shop-theme .payday-deck-shop-root {
+  --purple: #c4b5fd;
+  --purple-dim: rgba(167, 139, 250, 0.55);
+  --purple-deep: #a78bfa;
+  --accent: #e879f9;
+  --bg: #0a0812;
+  --panel: #100c1a;
+  --border: rgba(167, 139, 250, 0.22);
+  --text: #d0d0d2;
+  --text-muted: #a8a090;
+  --font-mono: 'Courier New', monospace;
+  --font-display: Impact, 'Arial Narrow', Arial, sans-serif;
+  min-height: 100vh;
+  background: transparent;
+  color: var(--text);
+}

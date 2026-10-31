@@ -64,6 +64,11 @@
     .deck-card { border: 1px solid var(--border); background: var(--panel); padding: 12px 10px; text-align: center; cursor: pointer; transition: border-color 0.15s, transform 0.1s; }
     .deck-card:hover { border-color: var(--purple); transform: translateY(-2px); }
     .deck-card.selected { border-color: var(--accent); box-shadow: 0 0 12px rgba(232, 121, 249, 0.18); }
+    .deck-card.selected,
+    .deck-card__add {
+      scroll-margin-top: 72px;
+      scroll-margin-bottom: calc(var(--cart-dock-height, 96px) + 24px);
+    }
     .deck-card__title { font-size: 9px; letter-spacing: 0.08em; color: var(--purple); text-transform: uppercase; margin-bottom: 2px; }
     .deck-card__size { font-size: 8px; color: var(--text-muted); margin-bottom: 4px; }
     .deck-card__price { font-size: 11px; line-height: 1.35; color: #d8b4fe; }
@@ -77,9 +82,9 @@
     .deck-card__add:disabled { opacity: 0.35; cursor: not-allowed; }
     .board-img--thumb { width: 70px; margin: 0 auto 8px; max-height: 245px; display: block; object-fit: contain; }
     .cart-panel {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 9990;
       background: rgba(10, 8, 18, 0.98); border-top: 1px solid var(--border);
-      padding: 0; display: none; flex-direction: column; max-height: min(70vh, 520px);
+      padding: 0; display: none; flex-direction: column;
     }
     .cart-panel.visible { display: flex; }
     .cart-panel.visible:not(.expanded) .cart-panel__head,
@@ -104,7 +109,12 @@
       line-height: 1; cursor: pointer; padding: 0 4px;
     }
     .cart-panel__lines {
-      list-style: none; margin: 0; padding: 8px 12px; overflow-y: auto; flex: 1;
+      list-style: none; margin: 0; padding: 8px 12px; overflow-y: hidden; flex: 0 1 auto; min-height: 0;
+    }
+    .cart-panel__lines.is-scrollable {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
     }
     .cart-line {
       display: grid; grid-template-columns: 1fr auto auto; gap: 8px 12px; align-items: center;
@@ -126,6 +136,12 @@
     .cart-panel__info { font-size: 10px; color: var(--text-muted); flex: 1; min-width: 140px; }
     .cart-panel__info strong { color: var(--purple); }
     .cart-panel__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .checkout-fallback-link {
+      display: block; width: 100%; flex-basis: 100%; margin-bottom: 8px;
+      font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent); text-align: center; text-decoration: underline;
+    }
+    .checkout-fallback-link[hidden] { display: none; }
     .cart-collapse-btn {
       padding: 10px 14px; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
       border: 1px solid var(--border); background: transparent; color: var(--text-muted);
@@ -197,7 +213,7 @@
     <a href="index.html" class="nav__logo">Payday Decks</a>
     <div class="nav__links">
       <a href="index.html" class="active">Shop</a>
-      <a href="../decks/editor.html" id="nav-configurator">Deck-Konfigurator</a>
+      <a href="../decks/editor.html" id="nav-configurator" target="_blank" rel="noopener noreferrer">Deck-Konfigurator (Export)</a>
       <a href="../?dev=1" class="nav__dev-menu">Dev</a>
     </div>
     <div class="nav__right">
@@ -247,7 +263,13 @@
 
         <div class="zone zone--designs">
           <p class="zone__label">Design wählen</p>
-          <div class="design-strip" id="design-strip" aria-label="Design-Auswahl"></div>
+          <div class="deck-slider" id="design-strip-slider" data-deck-slider>
+            <button type="button" class="deck-slider__btn deck-slider__btn--prev" data-deck-slider-prev aria-label="Weitere Designs nach links">‹</button>
+            <div class="deck-slider__viewport">
+              <div class="design-strip" id="design-strip" data-deck-slider-track aria-label="Design-Auswahl"></div>
+            </div>
+            <button type="button" class="deck-slider__btn deck-slider__btn--next" data-deck-slider-next aria-label="Weitere Designs nach rechts">›</button>
+          </div>
         </div>
 
         <div class="zone zone--controls control-col" id="zone-controls">
@@ -274,7 +296,13 @@
           <p id="shop-subtitle">Bestand synchronisieren…</p>
         </header>
         <div class="filter-bar" id="filter-size"></div>
-        <div class="filter-bar" id="filter-design"></div>
+        <div class="deck-slider deck-slider--filter" id="filter-design-slider" data-deck-slider>
+          <button type="button" class="deck-slider__btn deck-slider__btn--prev" data-deck-slider-prev aria-label="Design-Filter nach links">‹</button>
+          <div class="deck-slider__viewport">
+            <div class="filter-bar filter-bar--scroll" id="filter-design" data-deck-slider-track></div>
+          </div>
+          <button type="button" class="deck-slider__btn deck-slider__btn--next" data-deck-slider-next aria-label="Design-Filter nach rechts">›</button>
+        </div>
         <div class="deck-grid" id="deck-grid"></div>
       </div>
     </div>
@@ -296,7 +324,8 @@
       <button type="button" class="cart-panel__close" id="cart-close" aria-label="Warenkorb schließen">×</button>
     </div>
     <ul class="cart-panel__lines" id="cart-lines"></ul>
-    <div class="cart-panel__foot">
+      <div class="cart-panel__foot">
+      <a class="checkout-fallback-link" id="checkout-fallback-link" href="#" hidden rel="noopener">Falls die Weiterleitung hängt: hier zur Kasse</a>
       <div class="cart-panel__info" id="cart-info">Kein Deck im Warenkorb</div>
       <div class="cart-panel__actions">
         <button class="cart-collapse-btn" id="cart-collapse" type="button" aria-label="Warenkorb einklappen">Hochklappen</button>
@@ -482,19 +511,23 @@
       return Object.values(map).reduce((s, n) => s + (Math.max(0, Number(n)) || 0), 0);
     }
 
-    /** SSOT: Postgres availability (reservation-api), sonst Katalog state.stock. */
+    /** Shopify-only: state.stock (Storefront). Hybrid: Postgres availability, sonst Katalog. */
     function displayTotalBoards() {
-      if (state.reservationsActive && state.reservationAvailability) {
+      if (!shopifyInventoryOnly() && state.reservationsActive && state.reservationAvailability) {
         return sumStockMap(state.reservationAvailability);
       }
-      return INV.totalStock(state.stock);
+      return sumStockMap(state.stock);
     }
 
     function updateShopSubtitle() {
       const sub = document.getElementById('shop-subtitle');
       if (!sub) return;
+      const live = state.storefrontLive ? ' · Shopify live' : '';
+      if (shopifyInventoryOnly() && !state.storefrontLive) {
+        sub.textContent = 'Bestand wird aus Shopify geladen…';
+        return;
+      }
       const total = displayTotalBoards();
-      const live = state.storefrontLive ? ' · Preise live (Shopify)' : '';
       sub.textContent =
         total + ' Decks · Alle ' + INV.DESIGNS.length + ' Designs · 8.38″ & 8.5″' + live;
     }
@@ -579,11 +612,17 @@
       return PR.syncCart(cart || []);
     }
 
+    function shopifyInventoryOnly() {
+      return window.PAYDAY_SHOP?.shopifyInventoryOnly === true;
+    }
+
     async function initReservations() {
       const PR = window.PAYDAY_RESERVATIONS;
-      if (!PR?.isEnabled?.()) {
+      if (!PR?.isEnabled?.() || shopifyInventoryOnly()) {
+        await refreshStorefrontCatalog({ force: true }).catch(() => {});
         updateStockLabels();
-        return;
+        if (typeof updateShopSubtitle === 'function') updateShopSubtitle();
+        if (!PR?.isEnabled?.() || shopifyInventoryOnly()) return;
       }
       try {
         if (state.cart.length) {
@@ -607,11 +646,18 @@
     }
 
     function updateStockLabels() {
-      const total = displayTotalBoards();
       const live = state.storefrontLive ? ' · Shopify live' : '';
+      const nav = document.getElementById('nav-stock');
+      const hero = document.getElementById('hero-stock');
+      if (shopifyInventoryOnly() && !state.storefrontLive) {
+        if (nav) nav.textContent = 'Bestand aus Shopify…';
+        if (hero) hero.textContent = 'Bestand wird geladen…';
+        return;
+      }
+      const total = displayTotalBoards();
       const text = `${total} verfügbar${live}`;
-      document.getElementById('nav-stock').textContent = text;
-      document.getElementById('hero-stock').textContent = `${total} Decks · 8.38″ & 8.5″${live}`;
+      if (nav) nav.textContent = text;
+      if (hero) hero.textContent = `${total} Decks · 8.38″ & 8.5″${live}`;
     }
 
     function formatItemPrice(item) {
@@ -635,7 +681,7 @@
       let applied = 0;
       Object.entries(items).forEach(([sku, row]) => {
         if (!row?.ok) return;
-        if (!state.reservationsActive) {
+        if (!state.reservationsActive || shopifyInventoryOnly()) {
           state.stock[sku] = row.quantity;
         }
         if (row.price != null) state.shopifyPrices[sku] = row.price;
@@ -674,11 +720,12 @@
 
     function startStorefrontPolling() {
       if (state.storefrontPollTimer) return;
+      const pollMs = shopifyInventoryOnly() ? 60 * 1000 : 5 * 60 * 1000;
       state.storefrontPollTimer = setInterval(() => {
         if (state.unlocked && document.visibilityState === 'visible') {
           refreshStorefrontCatalog({ force: true });
         }
-      }, 5 * 60 * 1000);
+      }, pollMs);
       document.addEventListener('visibilitychange', () => {
         if (state.unlocked && document.visibilityState === 'visible') {
           refreshStorefrontCatalog({ force: true });
@@ -695,8 +742,37 @@
       previewFrame.classList.add('generating');
     }
 
+    const DECK_SLIDER_MIN = 3;
+
+    function initDeckSliders() {
+      document.querySelectorAll('[data-deck-slider]').forEach((root) => {
+        if (root.dataset.sliderBound === '1') return;
+        root.dataset.sliderBound = '1';
+        const track = root.querySelector('[data-deck-slider-track]');
+        const prev = root.querySelector('[data-deck-slider-prev]');
+        const next = root.querySelector('[data-deck-slider-next]');
+        if (!track || !prev || !next) return;
+        const step = () => Math.max(track.clientWidth * 0.72, 96);
+        prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
+        next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
+      });
+    }
+
+    function setDeckSliderActive(sliderId, itemCount) {
+      const root = document.getElementById(sliderId);
+      if (!root) return;
+      root.classList.toggle('deck-slider--active', itemCount >= DECK_SLIDER_MIN);
+    }
+
+    function scrollDesignStripToActive() {
+      const strip = document.getElementById('design-strip');
+      const active = strip?.querySelector('.design-strip__item.active');
+      active?.scrollIntoView?.({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+    }
+
     function updateDesignStrip() {
       const strip = document.getElementById('design-strip');
+      if (!strip) return;
       strip.innerHTML = '';
       INV.DESIGNS.forEach((d, i) => {
         const btn = document.createElement('button');
@@ -718,6 +794,8 @@
         });
         strip.appendChild(btn);
       });
+      setDeckSliderActive('design-strip-slider', INV.DESIGNS.length);
+      requestAnimationFrame(scrollDesignStripToActive);
     }
 
     function updatePatternPills() {
@@ -733,13 +811,128 @@
       }
     }
 
+    let buyOfferScrollGen = 0;
+    const BUY_OFFER_CENTER_TOLERANCE_PX = 56;
+
+    function shopVisibleBand() {
+      const panel = document.getElementById('cart-panel');
+      const cartTop = panel?.classList.contains('visible')
+        ? panel.getBoundingClientRect().top
+        : window.innerHeight;
+      const navClearance = 72;
+      const margin = 14;
+      const top = navClearance;
+      const bottom = cartTop - margin;
+      const height = Math.max(160, bottom - top);
+      return { top, bottom, height, centerY: top + height / 2, margin, cartTop };
+    }
+
+    function isCartDockReadyForScroll() {
+      if (!state.cart.length) return true;
+      const panel = document.getElementById('cart-panel');
+      return Boolean(
+        panel?.classList.contains('visible') && panel.getBoundingClientRect().height > 8
+      );
+    }
+
+    /**
+     * design-select: Kauf-Angebot der Auswahl im Shop-Band zentrieren (nur wenn nötig, ohne Smooth-Scroll).
+     * cart: nur Überlappung mit Warenkorb beheben — Seite bleibt sonst stehen.
+     */
+    function frameSelectedBuyOffer(intent) {
+      if (!state.unlocked) return;
+      const buyBtn = findSelectedBuyButton();
+      const card = findSelectedDeckCard();
+      const anchor = card || buyBtn;
+      if (!buyBtn || !anchor) return;
+      if (intent === 'cart' && !isCartDockReadyForScroll()) return;
+
+      const band = shopVisibleBand();
+      const br = buyBtn.getBoundingClientRect();
+      const overlap = br.bottom - (band.cartTop - band.margin);
+      const underNav = band.top - br.top;
+
+      if (intent === 'cart') {
+        if (overlap > 0) window.scrollBy({ top: overlap, behavior: 'auto' });
+        return;
+      }
+
+      const anchorRect = anchor.getBoundingClientRect();
+      const delta = anchorRect.top + anchorRect.height / 2 - band.centerY;
+      const fullyVisible =
+        br.top >= band.top && br.bottom <= band.cartTop - band.margin;
+      const centeredEnough = Math.abs(delta) <= BUY_OFFER_CENTER_TOLERANCE_PX;
+
+      if (fullyVisible && centeredEnough) return;
+
+      if (!fullyVisible || overlap > 0 || underNav > 0) {
+        buyBtn.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'auto' });
+        requestAnimationFrame(() => {
+          const b2 = shopVisibleBand();
+          const br2 = buyBtn.getBoundingClientRect();
+          const ov2 = br2.bottom - (b2.cartTop - b2.margin);
+          if (ov2 > 0) window.scrollBy({ top: ov2, behavior: 'auto' });
+          const un2 = b2.top - br2.top;
+          if (un2 > 0) window.scrollBy({ top: -un2, behavior: 'auto' });
+        });
+        return;
+      }
+
+      if (Math.abs(delta) > BUY_OFFER_CENTER_TOLERANCE_PX) {
+        window.scrollTo({ top: window.scrollY + delta, behavior: 'auto' });
+      }
+    }
+
+    function scheduleFrameSelectedBuyOffer(intent) {
+      const gen = ++buyOfferScrollGen;
+      let tries = 0;
+      const attempt = () => {
+        if (gen !== buyOfferScrollGen) return;
+        if (intent === 'cart') {
+          tries += 1;
+          if (!isCartDockReadyForScroll() && tries < 12) {
+            requestAnimationFrame(attempt);
+            return;
+          }
+        }
+        frameSelectedBuyOffer(intent);
+      };
+      requestAnimationFrame(attempt);
+    }
+
+    function findSelectedDeckCard() {
+      const buyBtn = findSelectedBuyButton();
+      if (buyBtn) return buyBtn.closest('.deck-card');
+      return document.querySelector('.deck-card.selected');
+    }
+
+    function findSelectedBuyButton() {
+      const grid = document.getElementById('deck-grid');
+      if (!grid) return null;
+      const designId = currentDesign().id;
+      const sizeId = currentSize().id;
+      const sku = `${designId}-${sizeId}`;
+      return (
+        grid.querySelector(`.deck-card[data-sku-id="${sku}"] .deck-card__add`) ||
+        grid.querySelector(`.deck-card[data-design-id="${designId}"] .deck-card__add`) ||
+        grid.querySelector('.deck-card.selected .deck-card__add')
+      );
+    }
+
+    function scrollShopToSelectedBuy() {
+      scheduleFrameSelectedBuyOffer('design-select');
+    }
+
     function selectDesignByIndex(index) {
       state.designIndex = index;
       if (state.unlocked) logShopConfig('Design gewählt');
       renderCanvasPreview();
       updateDesignStrip();
       updatePatternPills();
-      if (state.unlocked) renderShopGrid();
+      if (state.unlocked) {
+        renderShopGrid();
+        scrollShopToSelectedBuy();
+      }
     }
 
     function selectDesignById(designId) {
@@ -1012,12 +1205,15 @@
       updateShopSubtitle();
       buildFilters();
       renderShopGrid();
+      scrollShopToSelectedBuy();
       updateUI();
       refreshStorefrontCatalog({ force: true });
       startStorefrontPolling();
-      window.PAYDAY_RESERVATIONS?.startAvailabilityPolling?.({
-        isActive: () => state.unlocked,
-      });
+      if (!shopifyInventoryOnly()) {
+        window.PAYDAY_RESERVATIONS?.startAvailabilityPolling?.({
+          isActive: () => state.unlocked,
+        });
+      }
       logShopConfig('Shop freigeschaltet');
     }
 
@@ -1092,6 +1288,7 @@
         btn.textContent = d.name;
         designBar.appendChild(btn);
       });
+      setDeckSliderActive('filter-design-slider', INV.DESIGNS.length);
     }
 
     document.getElementById('shop-section').addEventListener('click', e => {
@@ -1104,7 +1301,11 @@
       } else if (chip.dataset.design !== undefined) {
         state.filterDesign = chip.dataset.design === 'all' ? null : chip.dataset.design;
         buildFilters();
-        renderShopGrid();
+        if (state.filterDesign) selectDesignById(state.filterDesign);
+        else {
+          renderShopGrid();
+          scrollShopToSelectedBuy();
+        }
       }
     });
 
@@ -1120,6 +1321,8 @@
         const design = INV.getDesignById(item.designId);
         const card = document.createElement('article');
         card.className = 'deck-card' + (avail === 0 ? ' sold-out' : '');
+        card.dataset.designId = item.designId;
+        card.dataset.skuId = item.id;
         if (item.designId === currentDesign().id) card.classList.add('selected');
 
         const pattern = document.createElement('div');
@@ -1200,8 +1403,9 @@
       }
       applyReservationFromSync(sync);
       state.cart = nextCart;
-      updateCart(true);
+      updateCart(false);
       renderShopGrid();
+      scheduleFrameSelectedBuyOffer('cart');
       window.PAYDAY_RESERVATIONS?.startHeartbeat?.(() => state.cart);
       logShopConfig('In den Warenkorb');
     }
@@ -1289,18 +1493,73 @@
       });
     }
 
+    const CART_MAX_VISIBLE_LINES = 3;
+
+    function layoutCartPanel() {
+      const panel = document.getElementById('cart-panel');
+      const list = document.getElementById('cart-lines');
+      if (!panel || !list) {
+        syncCartDockSpace();
+        return;
+      }
+      if (panel.classList.contains('visible') && panel.classList.contains('expanded')) {
+        const lines = list.querySelectorAll('.cart-line');
+        if (!lines.length) {
+          list.style.maxHeight = '';
+          list.classList.remove('is-scrollable');
+        } else {
+          const lineH = lines[0].getBoundingClientRect().height;
+          const styles = getComputedStyle(list);
+          const pad =
+            parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);
+          list.style.maxHeight = `${lineH * CART_MAX_VISIBLE_LINES + pad}px`;
+          list.classList.toggle('is-scrollable', lines.length > CART_MAX_VISIBLE_LINES);
+        }
+      } else {
+        list.style.maxHeight = '';
+        list.classList.remove('is-scrollable');
+      }
+      syncCartDockSpace();
+    }
+
+    function syncCartDockSpace() {
+      const panel = document.getElementById('cart-panel');
+      const root = document.getElementById('payday-deck-shop-root') || document.body;
+      if (!panel || !root) return;
+      const visible = panel.classList.contains('visible');
+      const expanded = panel.classList.contains('expanded');
+      const html = document.documentElement;
+      if (!visible) {
+        root.classList.remove('cart-dock-visible', 'cart-dock-expanded');
+        html.classList.remove('cart-dock-active');
+        root.style.removeProperty('--cart-dock-height');
+        html.style.removeProperty('--cart-dock-height');
+        return;
+      }
+      root.classList.toggle('cart-dock-visible', !expanded);
+      root.classList.toggle('cart-dock-expanded', expanded);
+      html.classList.add('cart-dock-active');
+      requestAnimationFrame(() => {
+        const h = Math.ceil(panel.getBoundingClientRect().height);
+        root.style.setProperty('--cart-dock-height', `${h}px`);
+        html.style.setProperty('--cart-dock-height', `${h}px`);
+      });
+    }
+
     function setCartPanelOpen(expanded) {
       const panel = document.getElementById('cart-panel');
       if (!panel) return;
       if (state.cart.length === 0) {
         panel.classList.remove('visible', 'expanded');
         panel.setAttribute('aria-hidden', 'true');
+        layoutCartPanel();
         return;
       }
       panel.classList.add('visible');
       panel.setAttribute('aria-hidden', 'false');
       if (expanded) panel.classList.add('expanded');
       else panel.classList.remove('expanded');
+      layoutCartPanel();
     }
 
     function updateCart(expandPanel) {
@@ -1310,9 +1569,19 @@
       const info = document.getElementById('cart-info');
       const checkoutBtn = document.getElementById('checkout-btn');
       renderCartLines();
+      layoutCartPanel();
+      try {
+        const SH = window.PAYDAY_SHOPIFY_CHECKOUT;
+        const permalink = SH?.buildCartCheckout?.(SH.getConfig?.() || window.PAYDAY_SHOP, state.cart);
+        if (permalink?.ok && permalink.url) SH?.setCheckoutFallbackLink?.(permalink.url);
+      } catch {
+        /* ignore */
+      }
       if (n === 0) {
         info.textContent = 'Kein Deck im Warenkorb';
         if (checkoutBtn) checkoutBtn.disabled = true;
+        const fb = document.getElementById('checkout-fallback-link');
+        if (fb) fb.hidden = true;
         setCartPanelOpen(false);
         persistCart();
         return;
@@ -1330,13 +1599,28 @@
       const items = state.cart.slice();
       if (!items.length) return;
       const btn = document.getElementById('checkout-btn');
+      const SH = window.PAYDAY_SHOPIFY_CHECKOUT;
       if (btn) btn.disabled = true;
       try {
-        const result = await window.PAYDAY_SHOPIFY_CHECKOUT.goToCheckout(items);
-        if (result?.ok) clearCart();
-        else if (btn) btn.disabled = state.cart.length === 0;
+        await SH?.dismissCheckoutBlockers?.();
+        const result = await SH.goToCheckout(items);
+        if (result?.ok) {
+          clearCart();
+          return;
+        }
+        if (result?.reason === 'shop_password') {
+          /* ensureShopLive zeigt bereits Admin-Hinweis */
+        } else if (result?.reason === 'missing_variants' || result?.reason === 'not_configured') {
+          /* Alerts in goToCheckout */
+        } else {
+          alert(
+            'Checkout nicht gestartet. Bitte Cookie-/Consent-Banner mit „Accept“ / „Akzeptieren“ schließen und „Zur Kasse“ erneut tippen — oder den Link „hier zur Kasse“ im Warenkorb.'
+          );
+        }
+        if (btn) btn.disabled = state.cart.length === 0;
       } catch (err) {
         console.error('[deck-shop] checkout', err);
+        alert('Checkout-Fehler — bitte erneut versuchen oder den Link „hier zur Kasse“ unten im Warenkorb nutzen.');
         if (btn) btn.disabled = state.cart.length === 0;
       }
     });
@@ -1440,6 +1724,7 @@
     }
     document.getElementById('cart-close')?.addEventListener('click', collapseCartPanel);
     document.getElementById('cart-collapse')?.addEventListener('click', collapseCartPanel);
+    window.addEventListener('resize', () => layoutCartPanel());
 
     rebuildCatalogFromState();
     loadCartFromStorage();
@@ -1457,6 +1742,8 @@
       if (!state.reservationsActive) updateStockLabels();
     });
     if (DEV_MODE) window.PAYDAY_CONFIG_LOG?.renderList('session-config-log');
+
+    initDeckSliders();
 
     state.phase = 'loading';
     showAssetLoader(true);
